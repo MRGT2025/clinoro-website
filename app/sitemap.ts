@@ -1,0 +1,4 @@
+import type { MetadataRoute } from "next";
+import { getSiteContent } from "../lib/site-content";
+
+export default async function sitemap():Promise<MetadataRoute.Sitemap>{const content=await getSiteContent();const base="https://clinoromedical.com";const fixed=["","/products","/services","/solutions","/procurement","/blog","/about","/contact","/credentials","/privacy"].map((path,index)=>({url:`${base}${path}`,changeFrequency:(index===0?"weekly":"monthly") as "weekly"|"monthly",priority:index===0?1:(path==="/products"||path==="/contact"?0.9:0.7)}));const products=content.products.map(product=>({url:`${base}/products/${product.slug}`,changeFrequency:"monthly" as const,priority:.8}));const posts=content.blogPosts.filter(post=>post.published).map(post=>({url:`${base}/blog/${post.slug}`,lastModified:new Date(`${post.publishedAt}T00:00:00Z`),changeFrequency:"monthly" as const,priority:.7}));return[...fixed,...products,...posts]}
