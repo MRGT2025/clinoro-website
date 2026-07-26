@@ -1,0 +1,61 @@
+{
+  "project": "Clinoro Medical Technologies",
+  "version": "V31 Blueprint + Prototype",
+  "positioning": "A professional medical-equipment catalogue and RFQ experience; not an ecommerce store.",
+  "primary_audiences": [
+    "مدیران خرید و تأمین",
+    "مهندسی پزشکی و تیم فنی",
+    "پزشکان و مدیران بخش",
+    "کلینیک‌ها، بیمارستان‌ها و مراکز تشخیصی"
+  ],
+  "information_architecture": [
+    "Home",
+    "Products",
+    "Solutions",
+    "Services",
+    "Procurement & RFQ",
+    "About",
+    "Contact"
+  ],
+  "hero_storyboard": [
+    {
+      "time": "0–2.5s",
+      "purpose": "Brand recognition",
+      "content": "لوگو، تیتر اصلی، تصویر واحد و بدون کارت اضافه"
+    },
+    {
+      "time": "2.5–5s / scroll",
+      "purpose": "Business comprehension",
+      "content": "Product / Service / RFQ به‌صورت متن مرحله‌ای، نه دکمه شناور"
+    },
+    {
+      "time": "After sequence",
+      "purpose": "Conversion",
+      "content": "دو CTA واقعی و ورود به Home content"
+    }
+  ],
+  "design_tokens": {
+    "background": "#F4F7FA",
+    "ink": "#10243A",
+    "blue": "#2F6BFF",
+    "cyan": "#36C7D8",
+    "glass": "rgba(255,255,255,.72)",
+    "radius": "18 / 26 / 36px",
+    "spacing": "8px base system",
+    "max_width": "1280px"
+  },
+  "motion_rules": [
+    "One focal point per moment",
+    "Scroll-linked zoom no more than 8%",
+    "No floating cards over critical text",
+    "Respect prefers-reduced-motion",
+    "Motion must reveal hierarchy or navigation"
+  ],
+  "content_rules": [
+    "No unverifiable numbers or brand claims",
+    "One paragraph = one idea",
+    "Persian line-height ≥ 1.9",
+    "English labels are supportive, never dominant",
+    "Every CTA links to a real page or action"
+  ]
+}
