@@ -1,0 +1,2 @@
+import type { MetadataRoute } from "next";
+export default function manifest():MetadataRoute.Manifest{return{name:"Clinoro Medical Technologies",short_name:"Clinoro",description:"تجهیزات و فناوری‌های پزشکی، مشاوره، تأمین و پشتیبانی",start_url:"/",display:"standalone",background_color:"#edf5f6",theme_color:"#071a2e",lang:"fa",dir:"rtl",icons:[{src:"/assets/clinoro-mark-minimal-grey.png",sizes:"512x512",type:"image/png"}]}}
