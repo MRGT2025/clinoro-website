@@ -48,7 +48,9 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,11);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,13);
+  assert.match(html,/کمبود تجهیزات پزشکی در ۲۰۲۶/);
+  assert.match(html,/خرید تجهیز چندبارمصرف بدون برنامه بازفرآوری/);
   assert.match(html,/QMSR از ۲۰۲۶ اجرایی شد/);
   assert.match(html,/از اکسل تا CMMS/);
   assert.match(html,/ثبت تجهیزات پزشکی در بریتانیای کبیر/);
@@ -98,6 +100,32 @@ test("daily WHO CMMS article includes complete SSR content, SEO and licensed loc
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-cmms-who-2025"/);
 });
 
+test("daily supply resilience article includes complete SSR content, current sources and local image",async()=>{
+  const response=await request("/blog/medical-device-shortage-continuity-2026");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/هشت داده‌ای که هر قلم بحرانی باید داشته باشد/);
+  assert.match(html,/سناریوی ۳۰، ۶۰ و ۹۰ روزه/);
+  assert.match(html,/href="\/procurement"/);
+  assert.match(html,/medical-device-supply-resilience-2026\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/\"@type\":\"Article\"/);
+  assert.match(html,/2026-07-28T08:01:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-shortage-continuity-2026"/);
+});
+
+test("daily reusable-device article includes complete SSR content, SEO and licensed local image",async()=>{
+  const response=await request("/blog/reusable-device-reprocessing");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۴ سؤال پیش از امضای قرارداد/);
+  assert.match(html,/ظرفیت واقعی CSSD را محاسبه کنید/);
+  assert.match(html,/href="\/products\/medical-autoclave"/);
+  assert.match(html,/reusable-device-reprocessing\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/\"@type\":\"Article\"/);
+  assert.match(html,/2026-07-28T08:01:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/reusable-device-reprocessing"/);
+});
+
 test("product detail renders structured data and technical content",async()=>{
   const response=await request("/products/ultrasound-imaging-system");const html=await response.text();
   assert.equal(response.status,200);
@@ -114,6 +142,8 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/credentials/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/qmsr-supplier-quality-2026/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-cmms-who-2025/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-shortage-continuity-2026/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/reusable-device-reprocessing/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);

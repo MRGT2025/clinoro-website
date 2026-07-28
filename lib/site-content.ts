@@ -1,4 +1,5 @@
 import { ensureDatabase, getD1 } from "../db";
+import { dailyBlogPosts20260728 } from "./daily-blog-posts-2026-07-28";
 import { dailyBlogPosts20260727 } from "./daily-blog-posts-2026-07-27";
 import { v35BlogPosts } from "./v35-blog-posts";
 
@@ -98,7 +99,7 @@ export type SiteContent = {
 const emptyInjection=():InjectionCode=>({html:"",css:"",javascript:""});
 
 export const defaultSiteContent: SiteContent = {
-  schemaVersion:8,
+  schemaVersion:9,
   general:{ brand:"CLINORO", tagline:"MEDICAL TECHNOLOGIES", logoUrl:"/assets/clinoro-logo-minimal-grey.png", logoAlt:"لوگوی Clinoro", phone:"+98 913 898 6215", email:"info@clinoromedical.com", address:"اصفهان، ساختمان پردیس، طبقه ۴، واحد ۲۳", metaTitle:"Clinoro | تجهیزات و فناوری‌های پزشکی", metaDescription:"تأمین تجهیزات پزشکی، مشاوره فنی، نصب، آموزش و پشتیبانی تخصصی برای مراکز درمانی.",footerText:"معرفی و تأمین حرفه‌ای تجهیزات پزشکی، همراه با مشاوره فنی، نصب، آموزش و پشتیبانی ساختارمند.",motionMode:"subtle" },
   home:{ kicker:"CLINICAL TECHNOLOGY · PROCUREMENT · SUPPORT", title:"فناوری پزشکی،", signals:["انتخاب هوشمندتر","اجرای دقیق‌تر","پشتیبانی ماندگار"], intro:"تأمین حرفه‌ای تجهیزات پزشکی همراه با مشاوره فنی، نصب، آموزش و پشتیبانی؛ از انتخاب محصول تا بهره‌برداری مطمئن.", heroImage:"/assets/clinoro-hero-prism.webp", storyTitle:"تصمیم بهتر، اجرای دقیق‌تر، بهره‌برداری مطمئن‌تر", storyText:"ما تجهیزات را جدا از محیط استفاده نمی‌بینیم. هر پیشنهاد با درنظرگرفتن workflow، زیرساخت، آموزش، مصرفی و برنامه نگهداری شکل می‌گیرد.", storyImage:"/assets/medical-visual.jpg",
     proofPoints:[{title:"۸ گروه محصول",text:"پوشش نیازهای اصلی مراکز درمانی"},{title:"پاسخ اولیه در ۲۴ ساعت",text:"برای استعلام‌ها و درخواست‌های فنی"},{title:"پشتیبانی سراسری",text:"از تأمین و نصب تا آموزش و خدمات"}],
@@ -148,6 +149,7 @@ export const defaultSiteContent: SiteContent = {
   ],
   about:{headline:"فروش دستگاه کافی نیست؛ باید امکان یک تصمیم مطمئن را ساخت",paragraphs:["در تجهیزات پزشکی، کیفیت ارائه فقط به برند یا عددهای یک دیتاشیت وابسته نیست. تناسب تجهیز با محیط، امکان نصب، آمادگی کاربر، دسترسی به مصرفی و برنامه نگهداری همگی روی نتیجه نهایی اثر دارند.","به همین دلیل، معماری Clinoro بر پایه اطلاعات ساختارمند، مشاوره قابل فهم و پیگیری مرحله‌به‌مرحله شکل گرفته است."],image:"/assets/medical-visual.jpg",values:[{title:"شفافیت",text:"مشخصات، محدودیت‌ها، زمان‌بندی و تعهدات باید از ابتدا روشن باشند."},{title:"نگاه یکپارچه",text:"تجهیز، زیرساخت، آموزش، مصرفی و نگهداری را در کنار هم می‌بینیم."},{title:"دقت فنی",text:"پیشنهادها بر اساس سناریوی واقعی استفاده و نیاز قابل‌اندازه‌گیری شکل می‌گیرند."},{title:"پشتیبانی پایدار",text:"ارتباط با پروژه پس از تحویل هم ادامه دارد؛ چون بهره‌برداری بخشی از نتیجه است."}]},
   blogPosts:[
+    ...dailyBlogPosts20260728,
     ...dailyBlogPosts20260727,
     ...v35BlogPosts,
     {id:"clinoro-cybersecurity-2026",slug:"connected-medical-device-cybersecurity-checklist-2026",title:"خرید تجهیزات پزشکی متصل در ۲۰۲۶؛ ۱۰ سؤال امنیتی قبل از قرارداد",excerpt:"از فهرست اجزای نرم‌افزاری و سیاست به‌روزرسانی تا ثبت رخداد و مسئولیت پاسخ‌گویی؛ مواردی که باید پیش از خرید روشن شوند.",content:`تجهیز پزشکی متصل فقط یک دستگاه نیست؛ بخشی از شبکه، داده و جریان بالینی مرکز است. راهنمای نهایی FDA در فوریه ۲۰۲۶ امنیت سایبری را موضوعی در چرخه عمر محصول و سیستم مدیریت کیفیت می‌بیند. بنابراین بررسی امنیت نباید به روز نصب یا یک رمز عبور محدود شود.
@@ -259,7 +261,7 @@ function mergeContent(base:SiteContent,value:Partial<SiteContent>):SiteContent{
   const upgradedLogo=(value.schemaVersion??0)<3?base.general.logoUrl:(value.general?.logoUrl||base.general.logoUrl);
   const savedPosts=Array.isArray(value.blogPosts)?value.blogPosts:[];
   const seededIds=new Set(base.blogPosts.map(post=>post.id));
-  const mergedPosts=(value.schemaVersion??0)<8
+  const mergedPosts=(value.schemaVersion??0)<9
     ? [...base.blogPosts.map(seed=>savedPosts.find(post=>post.id===seed.id)??seed),...savedPosts.filter(post=>!seededIds.has(post.id))]
     : (savedPosts.length?savedPosts:base.blogPosts);
   const legacyImages=["/assets/product-1.jpg","/assets/product-4.jpg","/assets/product-3.jpg","/assets/product-2.jpg","/assets/product-6.jpg","/assets/product-5.jpg","/assets/product-7.jpg","/assets/product-8.jpg"];
