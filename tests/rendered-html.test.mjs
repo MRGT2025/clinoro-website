@@ -48,7 +48,9 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,13);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,15);
+  assert.match(html,/EUDAMED از مه ۲۰۲۶ اجباری شد/);
+  assert.match(html,/آنالایزر آزمایشگاهی را تحویل گرفتید/);
   assert.match(html,/کمبود تجهیزات پزشکی در ۲۰۲۶/);
   assert.match(html,/خرید تجهیز چندبارمصرف بدون برنامه بازفرآوری/);
   assert.match(html,/QMSR از ۲۰۲۶ اجرایی شد/);
@@ -126,6 +128,32 @@ test("daily reusable-device article includes complete SSR content, SEO and licen
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/reusable-device-reprocessing"/);
 });
 
+test("daily EUDAMED article includes complete SSR content, SEO and licensed local image",async()=>{
+  const response=await request("/blog/eudamed-procurement-2026");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۰ کنترل پیش از قرارداد/);
+  assert.match(html,/یک ماتریس ساده برای پرونده تأمین/);
+  assert.match(html,/href="\/procurement"/);
+  assert.match(html,/eudamed-procurement-2026\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/\"@type\":\"Article\"/);
+  assert.match(html,/2026-07-29T07:59:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/eudamed-procurement-2026"/);
+});
+
+test("daily laboratory acceptance article includes complete SSR content, SEO and licensed local image",async()=>{
+  const response=await request("/blog/lab-analyzer-acceptance");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۲ آزمون و کنترل پیش از Go-Live/);
+  assert.match(html,/معیار قبولی را قبل از نتیجه بنویسید/);
+  assert.match(html,/href="\/products\/hematology-analyzer"/);
+  assert.match(html,/lab-analyzer-acceptance\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/\"@type\":\"Article\"/);
+  assert.match(html,/2026-07-29T07:59:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/lab-analyzer-acceptance"/);
+});
+
 test("product detail renders structured data and technical content",async()=>{
   const response=await request("/products/ultrasound-imaging-system");const html=await response.text();
   assert.equal(response.status,200);
@@ -144,6 +172,8 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-cmms-who-2025/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-shortage-continuity-2026/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/reusable-device-reprocessing/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/eudamed-procurement-2026/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/lab-analyzer-acceptance/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);
