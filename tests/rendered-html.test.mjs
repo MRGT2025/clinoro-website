@@ -48,7 +48,9 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,15);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,17);
+  assert.match(html,/تعمیر یا بازساخت؟ ۱۱ بند حیاتی/);
+  assert.match(html,/خرابی تجهیز را فقط تعمیر نکنید/);
   assert.match(html,/EUDAMED از مه ۲۰۲۶ اجباری شد/);
   assert.match(html,/آنالایزر آزمایشگاهی را تحویل گرفتید/);
   assert.match(html,/کمبود تجهیزات پزشکی در ۲۰۲۶/);
@@ -154,6 +156,32 @@ test("daily laboratory acceptance article includes complete SSR content, SEO and
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/lab-analyzer-acceptance"/);
 });
 
+test("daily servicing article includes complete SSR content, SEO and licensed local image",async()=>{
+  const response=await request("/blog/servicing-vs-remanufacturing");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۱ بند حیاتی در قرارداد سرویس/);
+  assert.match(html,/آزمون شش‌سؤالی پیش از صدور سفارش کار/);
+  assert.match(html,/href="\/blog\/connected-medical-device-cybersecurity-checklist-2026"/);
+  assert.match(html,/servicing-vs-remanufacturing\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/\"@type\":\"Article\"/);
+  assert.match(html,/2026-07-30T08:01:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/servicing-vs-remanufacturing"/);
+});
+
+test("daily adverse-event article includes complete SSR content, SEO and licensed local image",async()=>{
+  const response=await request("/blog/medical-device-adverse-event-file");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۲ داده‌ای که پرونده باید داشته باشد/);
+  assert.match(html,/یک گردش‌کار پنج‌مرحله‌ای/);
+  assert.match(html,/href="\/blog\/medical-device-cmms-who-2025"/);
+  assert.match(html,/medical-device-adverse-event-file\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/\"@type\":\"Article\"/);
+  assert.match(html,/2026-07-30T08:01:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-adverse-event-file"/);
+});
+
 test("product detail renders structured data and technical content",async()=>{
   const response=await request("/products/ultrasound-imaging-system");const html=await response.text();
   assert.equal(response.status,200);
@@ -174,6 +202,8 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/reusable-device-reprocessing/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/eudamed-procurement-2026/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/lab-analyzer-acceptance/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/servicing-vs-remanufacturing/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-adverse-event-file/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);
