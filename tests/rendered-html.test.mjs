@@ -48,7 +48,9 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,17);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,19);
+  assert.match(html,/خرید تجهیزات پزشکی در ایران؛ ۱۰ مدرک/);
+  assert.match(html,/دستگاه پزشکی مبتنی بر AI بعداً تغییر می‌کند/);
   assert.match(html,/تعمیر یا بازساخت؟ ۱۱ بند حیاتی/);
   assert.match(html,/خرابی تجهیز را فقط تعمیر نکنید/);
   assert.match(html,/EUDAMED از مه ۲۰۲۶ اجباری شد/);
@@ -182,6 +184,35 @@ test("daily adverse-event article includes complete SSR content, SEO and license
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-adverse-event-file"/);
 });
 
+test("daily Iran procurement article includes complete SSR content, Iranian primary sources and licensed local image",async()=>{
+  const response=await request("/blog/iran-medical-device-procurement");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۰ مدرک پیش از پرداخت و تحویل/);
+  assert.match(html,/سه نقطه توقف در فرآیند خرید/);
+  assert.match(html,/href="\/procurement"/);
+  assert.match(html,/qavanin\.ir\/Law\/TreeText/);
+  assert.match(html,/fdo\.tums\.ac\.ir/);
+  assert.match(html,/iran-medical-device-procurement\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/2026-07-31T08:01:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-device-procurement"/);
+});
+
+test("daily AI PCCP article includes complete SSR content, international primary sources and licensed local image",async()=>{
+  const response=await request("/blog/ai-device-pccp-procurement");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۹ سؤال پیش از امضای قرارداد/);
+  assert.match(html,/پیوست تغییر نرم‌افزار در قرارداد/);
+  assert.match(html,/href="\/blog\/ai-medical-imaging-procurement-checklist"/);
+  assert.match(html,/predetermined-change-control-plan-artificial-intelligence/);
+  assert.match(html,/ai-device-pccp-procurement\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/2026-07-31T08:01:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/ai-device-pccp-procurement"/);
+});
+
 test("product detail renders structured data and technical content",async()=>{
   const response=await request("/products/ultrasound-imaging-system");const html=await response.text();
   assert.equal(response.status,200);
@@ -204,6 +235,8 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/lab-analyzer-acceptance/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/servicing-vs-remanufacturing/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-adverse-event-file/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-medical-device-procurement/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/ai-device-pccp-procurement/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);
