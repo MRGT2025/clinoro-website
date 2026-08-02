@@ -48,7 +48,9 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,21);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,23);
+  assert.match(html,/اکسیژن‌ساز بیمارستانی در ایران؛ ۱۲ کنترل/);
+  assert.match(html,/تجهیز پزشکی امانی وارد اتاق عمل می‌شود/);
   assert.match(html,/کالیبراسیون تجهیزات پزشکی در ایران؛ ۹ کنترل/);
   assert.match(html,/تجهیز پزشکی را چه زمانی از رده خارج کنیم؟/);
   assert.match(html,/خرید تجهیزات پزشکی در ایران؛ ۱۰ مدرک/);
@@ -246,6 +248,36 @@ test("daily decommissioning article includes complete SSR content, international
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-decommissioning"/);
 });
 
+test("daily Iran oxygen-concentrator article includes complete SSR content, Iranian official sources and licensed local image",async()=>{
+  const response=await request("/blog/iran-hospital-oxygen-concentrator");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۲ کنترل برای بهره‌برداری قابل‌دفاع/);
+  assert.match(html,/سه سطح اقدام برای نتیجه نامطلوب/);
+  assert.match(html,/href="\/blog\/medical-device-cmms-who-2025"/);
+  assert.match(html,/ta\.mui\.ac\.ir/);
+  assert.match(html,/qavanin\.ir\/Law\/TreeText/);
+  assert.match(html,/iran-hospital-oxygen-concentrator\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/2026-08-02T08:00:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-hospital-oxygen-concentrator"/);
+});
+
+test("daily loan-medical-device article includes complete SSR content, current international sources and licensed local image",async()=>{
+  const response=await request("/blog/loan-medical-device-control");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۲ کنترل پیش از ورود به چرخه بالینی/);
+  assert.match(html,/چه زمانی دستگاه امانی را نپذیریم؟/);
+  assert.match(html,/href="\/blog\/medical-equipment-total-cost-of-ownership"/);
+  assert.match(html,/shtm-01-08-v1-sept-2025\.pdf/);
+  assert.match(html,/Managing_medical_devices\.pdf/);
+  assert.match(html,/loan-medical-device-control\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/2026-08-02T08:00:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/loan-medical-device-control"/);
+});
+
 test("product detail renders structured data and technical content",async()=>{
   const response=await request("/products/ultrasound-imaging-system");const html=await response.text();
   assert.equal(response.status,200);
@@ -272,6 +304,8 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/ai-device-pccp-procurement/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-medical-device-calibration/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-decommissioning/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-hospital-oxygen-concentrator/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/loan-medical-device-control/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);
