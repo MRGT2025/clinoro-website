@@ -1,4 +1,5 @@
 import { ensureDatabase, getD1 } from "../db";
+import { dailyBlogPosts20260803 } from "./daily-blog-posts-2026-08-03";
 import { dailyBlogPosts20260802 } from "./daily-blog-posts-2026-08-02";
 import { dailyBlogPosts20260801 } from "./daily-blog-posts-2026-08-01";
 import { dailyBlogPosts20260731 } from "./daily-blog-posts-2026-07-31";
@@ -154,6 +155,7 @@ export const defaultSiteContent: SiteContent = {
   ],
   about:{headline:"فروش دستگاه کافی نیست؛ باید امکان یک تصمیم مطمئن را ساخت",paragraphs:["در تجهیزات پزشکی، کیفیت ارائه فقط به برند یا عددهای یک دیتاشیت وابسته نیست. تناسب تجهیز با محیط، امکان نصب، آمادگی کاربر، دسترسی به مصرفی و برنامه نگهداری همگی روی نتیجه نهایی اثر دارند.","به همین دلیل، معماری Clinoro بر پایه اطلاعات ساختارمند، مشاوره قابل فهم و پیگیری مرحله‌به‌مرحله شکل گرفته است."],image:"/assets/medical-visual.jpg",values:[{title:"شفافیت",text:"مشخصات، محدودیت‌ها، زمان‌بندی و تعهدات باید از ابتدا روشن باشند."},{title:"نگاه یکپارچه",text:"تجهیز، زیرساخت، آموزش، مصرفی و نگهداری را در کنار هم می‌بینیم."},{title:"دقت فنی",text:"پیشنهادها بر اساس سناریوی واقعی استفاده و نیاز قابل‌اندازه‌گیری شکل می‌گیرند."},{title:"پشتیبانی پایدار",text:"ارتباط با پروژه پس از تحویل هم ادامه دارد؛ چون بهره‌برداری بخشی از نتیجه است."}]},
   blogPosts:[
+    ...dailyBlogPosts20260803,
     ...dailyBlogPosts20260802,
     ...dailyBlogPosts20260801,
     ...dailyBlogPosts20260731,

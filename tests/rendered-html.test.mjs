@@ -48,7 +48,9 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,23);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,25);
+  assert.match(html,/انبار تجهیزات پزشکی در ایران؛ ۱۲ کنترل/);
+  assert.match(html,/هر صدایی هشدار حیاتی نیست؛ ۱۰ کنترل/);
   assert.match(html,/اکسیژن‌ساز بیمارستانی در ایران؛ ۱۲ کنترل/);
   assert.match(html,/تجهیز پزشکی امانی وارد اتاق عمل می‌شود/);
   assert.match(html,/کالیبراسیون تجهیزات پزشکی در ایران؛ ۹ کنترل/);
@@ -278,6 +280,38 @@ test("daily loan-medical-device article includes complete SSR content, current i
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/loan-medical-device-control"/);
 });
 
+test("daily Iran warehouse article includes complete SSR content, Iranian official sources and licensed local image",async()=>{
+  const response=await request("/blog/iran-medical-device-warehouse");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۲ کنترل برای یک انبار قابل‌دفاع/);
+  assert.match(html,/پنج شاخص برای جلسه ماهانه/);
+  assert.match(html,/href="\/blog\/medical-device-recall-readiness"/);
+  assert.match(html,/fdo\.mui\.ac\.ir/);
+  assert.match(html,/fdo\.tums\.ac\.ir/);
+  assert.match(html,/md\.bpums\.ac\.ir/);
+  assert.match(html,/iran-medical-device-warehouse\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/2026-08-03T08:00:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-device-warehouse"/);
+});
+
+test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image",async()=>{
+  const response=await request("/blog/medical-device-alarm-management");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۰ کنترل برای برنامه Alarm Safety/);
+  assert.match(html,/چهار خط قرمز/);
+  assert.match(html,/href="\/blog\/medical-device-adverse-event-file"/);
+  assert.match(html,/psnet\.ahrq\.gov/);
+  assert.match(html,/fda\.gov\/files\/medical/);
+  assert.match(html,/Managing_medical_devices\.pdf/);
+  assert.match(html,/medical-device-alarm-management\.jpg/);
+  assert.match(html,/Public Domain/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/2026-08-03T08:00:00\+04:00/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-alarm-management"/);
+});
+
 test("product detail renders structured data and technical content",async()=>{
   const response=await request("/products/ultrasound-imaging-system");const html=await response.text();
   assert.equal(response.status,200);
@@ -306,6 +340,8 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-decommissioning/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-hospital-oxygen-concentrator/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/loan-medical-device-control/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-medical-device-warehouse/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-alarm-management/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);
