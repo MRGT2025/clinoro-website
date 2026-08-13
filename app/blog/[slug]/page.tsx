@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 import { PageShell } from "../../components";
 import { getSiteContent } from "../../../lib/site-content";
 import { InjectionLayer } from "../../injection-layer";
+import { findPublishedBlogPost, getPublishedBlogPosts } from "../../../lib/blog";
 
 type BlogParams={params:Promise<{slug:string}>};
 
@@ -59,19 +60,20 @@ function renderArticle(content:string){
 export async function generateMetadata({params}:BlogParams):Promise<Metadata>{
   const {slug}=await params;
   const content=await getSiteContent();
-  const post=content.blogPosts.find(item=>item.slug===slug&&item.published);
-  return post?{title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,alternates:{canonical:`/blog/${post.slug}`},openGraph:{type:"article",title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,url:`/blog/${post.slug}`,publishedTime:post.publishedTime||`${post.publishedAt}T00:00:00+04:00`,authors:[post.author],images:[{url:post.image,alt:post.imageAlt||post.title}]},twitter:{card:"summary_large_image",title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,images:[post.image]}}:{};
+  const post=findPublishedBlogPost(content.blogPosts,slug);
+  return post?{title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,alternates:{canonical:`/blog/${post.slug}`},openGraph:{type:"article",title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,url:`/blog/${post.slug}`,publishedTime:post.publishedTime,authors:[post.author],images:[{url:post.image,alt:post.imageAlt||post.title}]},twitter:{card:"summary_large_image",title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,images:[post.image]}}:{};
 }
 
 export default async function BlogPostPage({params}:BlogParams){
   const {slug}=await params;
   const content=await getSiteContent();
-  const post=content.blogPosts.find(item=>item.slug===slug&&item.published);
+  const publishedPosts=getPublishedBlogPosts(content.blogPosts);
+  const post=publishedPosts.find(item=>item.slug===slug);
   if(!post)notFound();
-  const related=content.blogPosts.filter(item=>item.published&&item.id!==post.id).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt)).slice(0,3);
-  const articleSchema={"@context":"https://schema.org","@type":"Article",headline:post.title,description:post.excerpt,image:{"@type":"ImageObject",url:`https://clinoromedical.com${post.image}`,caption:post.imageAlt||post.title},datePublished:post.publishedTime||`${post.publishedAt}T00:00:00+04:00`,dateModified:post.publishedTime||`${post.publishedAt}T00:00:00+04:00`,inLanguage:"fa-IR",author:{"@type":"Organization",name:post.author},publisher:{"@type":"Organization",name:"Clinoro",logo:{"@type":"ImageObject",url:"https://clinoromedical.com/assets/clinoro-mark-minimal-grey.png"}},mainEntityOfPage:`https://clinoromedical.com/blog/${post.slug}`};
+  const related=publishedPosts.filter(item=>item.id!==post.id).slice(0,3);
+  const articleSchema={"@context":"https://schema.org","@type":"Article",headline:post.title,description:post.excerpt,image:{"@type":"ImageObject",url:`https://clinoromedical.com${post.image}`,caption:post.imageAlt||post.title},datePublished:post.publishedTime,dateModified:post.publishedTime,inLanguage:"fa-IR",author:{"@type":"Organization",name:post.author},publisher:{"@type":"Organization",name:"Clinoro",logo:{"@type":"ImageObject",url:"https://clinoromedical.com/assets/clinoro-mark-minimal-grey.png"}},mainEntityOfPage:`https://clinoromedical.com/blog/${post.slug}`};
   return <PageShell active="/blog"><main id="main-content" className="blog-post-page"><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleSchema)}}/>
-    <section className="blog-post-hero"><div className="blog-post-orbit"/><div className="site-wrap"><Link className="blog-back" href="/blog"><ArrowRight size={17}/> بازگشت به بلاگ</Link><div className="blog-post-heading"><span>{post.category}</span><h1>{post.title}</h1><p>{post.excerpt}</p><div><small><UserRound size={15}/>{post.author}</small><small><CalendarDays size={15}/>{new Date(post.publishedTime||`${post.publishedAt}T12:00:00+04:00`).toLocaleDateString("fa-IR",{timeZone:"Asia/Dubai"})}</small><small><Clock3 size={15}/>{readingMinutes(post.content).toLocaleString("fa-IR")} دقیقه مطالعه</small></div></div><div className="blog-post-cover prism-edge"><Image src={post.image||"/assets/medical-visual.jpg"} alt={post.imageAlt||post.title} fill priority unoptimized sizes="(max-width:900px) 100vw,1100px"/><div className="blog-cover-scan"/></div>{post.imageCredit&&<a className="blog-image-credit" href={post.imageSource||undefined} target="_blank" rel="noreferrer">عکس: {post.imageCredit}{post.imageLicense?` · مجوز: ${post.imageLicense}`:""} <ExternalLink size={12}/></a>}</div></section>
+    <section className="blog-post-hero"><div className="blog-post-orbit"/><div className="site-wrap"><Link className="blog-back" href="/blog"><ArrowRight size={17}/> بازگشت به بلاگ</Link><div className="blog-post-heading"><span>{post.category}</span><h1>{post.title}</h1><p>{post.excerpt}</p><div><small><UserRound size={15}/>{post.author}</small><small><CalendarDays size={15}/>{new Date(post.publishedTime).toLocaleDateString("fa-IR",{timeZone:"Asia/Dubai"})}</small><small><Clock3 size={15}/>{readingMinutes(post.content).toLocaleString("fa-IR")} دقیقه مطالعه</small></div></div><div className="blog-post-cover prism-edge"><Image src={post.image||"/assets/medical-visual.jpg"} alt={post.imageAlt||post.title} fill priority unoptimized sizes="(max-width:900px) 100vw,1100px"/><div className="blog-cover-scan"/></div>{post.imageCredit&&<a className="blog-image-credit" href={post.imageSource||undefined} target="_blank" rel="noreferrer">عکس: {post.imageCredit}{post.imageLicense?` · مجوز: ${post.imageLicense}`:""} <ExternalLink size={12}/></a>}</div></section>
     <div className="site-wrap blog-post-layout">
       <article className="blog-post-content">{renderArticle(post.content)}</article>
       <aside className="blog-post-aside"><div><BookOpenText size={20}/><b>در این مقاله</b><span>{post.category}</span><span>{readingMinutes(post.content).toLocaleString("fa-IR")} دقیقه مطالعه کاربردی</span></div><Link href="/contact">برای پروژه خود مشاوره بگیرید <ArrowLeft size={16}/></Link></aside>

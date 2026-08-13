@@ -1,6 +1,7 @@
 import { ensureDatabase, getD1 } from "../db";
 import { dailyBlogPosts20260809 } from "./daily-blog-posts-2026-08-09";
 import { dailyBlogPosts20260803 } from "./daily-blog-posts-2026-08-03";
+import { dailyBlogPosts20260803Medical } from "./daily-blog-posts-2026-08-03-medical";
 import { dailyBlogPosts20260802 } from "./daily-blog-posts-2026-08-02";
 import { dailyBlogPosts20260801 } from "./daily-blog-posts-2026-08-01";
 import { dailyBlogPosts20260731 } from "./daily-blog-posts-2026-07-31";
@@ -106,7 +107,7 @@ export type SiteContent = {
 const emptyInjection=():InjectionCode=>({html:"",css:"",javascript:""});
 
 export const defaultSiteContent: SiteContent = {
-  schemaVersion:12,
+  schemaVersion:13,
   general:{ brand:"CLINORO", tagline:"MEDICAL TECHNOLOGIES", logoUrl:"/assets/clinoro-logo-minimal-grey.png", logoAlt:"لوگوی Clinoro", phone:"+98 913 898 6215", email:"info@clinoromedical.com", address:"اصفهان، ساختمان پردیس، طبقه ۴، واحد ۲۳", metaTitle:"Clinoro | تجهیزات و فناوری‌های پزشکی", metaDescription:"تأمین تجهیزات پزشکی، مشاوره فنی، نصب، آموزش و پشتیبانی تخصصی برای مراکز درمانی.",footerText:"معرفی و تأمین حرفه‌ای تجهیزات پزشکی، همراه با مشاوره فنی، نصب، آموزش و پشتیبانی ساختارمند.",motionMode:"subtle" },
   home:{ kicker:"CLINICAL TECHNOLOGY · PROCUREMENT · SUPPORT", title:"فناوری پزشکی،", signals:["انتخاب هوشمندتر","اجرای دقیق‌تر","پشتیبانی ماندگار"], intro:"تأمین حرفه‌ای تجهیزات پزشکی همراه با مشاوره فنی، نصب، آموزش و پشتیبانی؛ از انتخاب محصول تا بهره‌برداری مطمئن.", heroImage:"/assets/clinoro-hero-prism.webp", storyTitle:"تصمیم بهتر، اجرای دقیق‌تر، بهره‌برداری مطمئن‌تر", storyText:"ما تجهیزات را جدا از محیط استفاده نمی‌بینیم. هر پیشنهاد با درنظرگرفتن workflow، زیرساخت، آموزش، مصرفی و برنامه نگهداری شکل می‌گیرد.", storyImage:"/assets/medical-visual.jpg",
     proofPoints:[{title:"۸ گروه محصول",text:"پوشش نیازهای اصلی مراکز درمانی"},{title:"پاسخ اولیه در ۲۴ ساعت",text:"برای استعلام‌ها و درخواست‌های فنی"},{title:"پشتیبانی سراسری",text:"از تأمین و نصب تا آموزش و خدمات"}],
@@ -158,6 +159,7 @@ export const defaultSiteContent: SiteContent = {
   blogPosts:[
     ...dailyBlogPosts20260809,
     ...dailyBlogPosts20260803,
+    ...dailyBlogPosts20260803Medical,
     ...dailyBlogPosts20260802,
     ...dailyBlogPosts20260801,
     ...dailyBlogPosts20260731,
@@ -275,9 +277,11 @@ function mergeContent(base:SiteContent,value:Partial<SiteContent>):SiteContent{
   const upgradedLogo=(value.schemaVersion??0)<3?base.general.logoUrl:(value.general?.logoUrl||base.general.logoUrl);
   const savedPosts=Array.isArray(value.blogPosts)?value.blogPosts:[];
   const seededIds=new Set(base.blogPosts.map(post=>post.id));
-  const mergedPosts=(value.schemaVersion??0)<12
-    ? [...base.blogPosts.map(seed=>savedPosts.find(post=>post.id===seed.id)??seed),...savedPosts.filter(post=>!seededIds.has(post.id))]
-    : (savedPosts.length?savedPosts:base.blogPosts);
+  const seededSlugs=new Set(base.blogPosts.map(post=>post.slug));
+  const mergedPosts=[
+    ...base.blogPosts.map(seed=>savedPosts.find(post=>post.id===seed.id||post.slug===seed.slug)??seed),
+    ...savedPosts.filter(post=>!seededIds.has(post.id)&&!seededSlugs.has(post.slug)),
+  ];
   const legacyImages=["/assets/product-1.jpg","/assets/product-4.jpg","/assets/product-3.jpg","/assets/product-2.jpg","/assets/product-6.jpg","/assets/product-5.jpg","/assets/product-7.jpg","/assets/product-8.jpg"];
   const legacyMap:Record<string,string>={"/assets/product-1.jpg":"/assets/patient-monitor.jpg","/assets/product-2.jpg":"/assets/hematology.jpg","/assets/product-3.jpg":"/assets/ultrasound.jpg","/assets/product-4.jpg":"/assets/anesthesia.jpg","/assets/product-5.jpg":"/assets/autoclave.jpg","/assets/product-6.jpg":"/assets/chemistry.jpg","/assets/product-7.jpg":"/assets/infusion.jpg","/assets/product-8.jpg":"/assets/surgical-light.jpg"};
   const savedProducts=Array.isArray(value.products)?value.products:[];

@@ -7,6 +7,7 @@ import { getSiteContent } from "../lib/site-content";
 import { CustomContentBlocks } from "./custom-content";
 import { InjectionLayer } from "./injection-layer";
 import type { Metadata } from "next";
+import { getPublishedBlogPosts } from "../lib/blog";
 
 export const metadata:Metadata={alternates:{canonical:"/"}};
 
@@ -14,7 +15,7 @@ const categoryIcons=[HeartPulse,ScanLine,Microscope,Stethoscope,Syringe,Gauge];
 const serviceIcons=[ClipboardCheck,PackageCheck,Settings,Wrench];
 const readingMinutes=(text:string)=>Math.max(2,Math.ceil(text.trim().split(/\s+/).filter(Boolean).length/180));
 
-export default async function Home() { const content=await getSiteContent(); const latestPosts=content.blogPosts.filter(post=>post.published).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt)).slice(0,3); return <PageShell active="/"><main id="main-content">
+export default async function Home() { const content=await getSiteContent(); const latestPosts=getPublishedBlogPosts(content.blogPosts).slice(0,3); return <PageShell active="/"><main id="main-content">
   <section className="hero prism-scene"><div className="hero-mesh"/><div className="hero-orb hero-orb-one"/><div className="hero-orb hero-orb-two"/><div className="hero-orbit orbit-one"/><div className="hero-orbit orbit-two"/><div className="hero-particles"><i/><i/><i/><i/><i/></div>
     <div className="site-wrap hero-layout">
       <div className="hero-image-wrap reveal-image"><div className="hero-image-mask"><Image src={content.home.heroImage} alt="متخصص و تجهیزات پیشرفته تصویربرداری پزشکی" fill priority unoptimized sizes="(max-width:900px) 100vw,55vw"/><div className="hero-image-overlay"/><div className="hero-reticle"><i/><i/><span>CLINORO<br/>VISION</span></div></div>

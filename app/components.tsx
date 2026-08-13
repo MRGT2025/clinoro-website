@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Boxes, ChevronLeft, Clock3, Headphones, Menu, Search, ShieldCheck, X } from "lucide-react";
 import { ExperienceLayer } from "./experience";
 import { useSiteContent } from "./content-context";
+import { getPublishedBlogPosts } from "../lib/blog";
 
 export const navigation = [
   ["خانه", "/"], ["محصولات", "/products"], ["خدمات", "/services"],
@@ -41,7 +42,7 @@ export function SiteHeader({ active = "/" }: { active?: string }) {
     onScroll(); window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("keydown", onKey); };
   }, []);
-  const searchItems=useMemo(()=>[...staticSearchItems,...products.map(product=>[product.fa,"محصولات",`/products/${product.slug}`] as const),...blogPosts.filter(post=>post.published).map(post=>[post.title,"بلاگ",`/blog/${post.slug}`] as const)],[blogPosts,products]);
+  const searchItems=useMemo(()=>[...staticSearchItems,...products.map(product=>[product.fa,"محصولات",`/products/${product.slug}`] as const),...getPublishedBlogPosts(blogPosts).map(post=>[post.title,"بلاگ",`/blog/${post.slug}`] as const)],[blogPosts,products]);
   const results = useMemo(() => query.trim() ? searchItems.filter((item) => item[0].includes(query.trim())) : searchItems.slice(0, 5), [query,searchItems]);
   return <>
     <header className={`site-header${scrolled ? " is-scrolled" : ""}`}><div className="glass-nav prism-edge">
@@ -75,7 +76,7 @@ export function SectionTitle({ eyebrow, title, text }: { eyebrow:string; title:s
 
 export function SiteFooter() { const {general}=useSiteContent(); return <footer className="site-footer"><div className="footer-aura"/><div className="site-wrap footer-grid">
   <div className="footer-brand"><Brand/><p>{general.footerText}</p><div className="footer-trust"><ShieldCheck size={18}/> مسیر مستند تأمین و پشتیبانی</div></div>
-  <div><h3>دسترسی سریع</h3>{navigation.slice(1,5).map(([label,href])=><Link key={href} href={href}>{label}</Link>)}<Link href="/credentials">مدارک و اعتماد</Link><Link href="/privacy">حریم خصوصی</Link></div>
+  <div><h3>دسترسی سریع</h3>{navigation.slice(1,5).map(([label,href])=><Link key={href} href={href}>{label}</Link>)}<Link href="/credentials">مدارک و اعتماد</Link><Link href="/privacy">حریم خصوصی</Link><Link href="/terms">شرایط استفاده</Link></div>
   <div><h3>ارتباط با ما</h3><p>{general.address}</p><a dir="ltr" href={`tel:${general.phone.replace(/\s/g,"")}`}>{general.phone}</a><a href={`mailto:${general.email}`}>{general.email}</a></div>
   </div><div className="site-wrap footer-bottom"><span>© 2026 Clinoro Medical Technologies</span><span>Equipment · Services · RFQ · Documentation</span></div></footer>; }
 

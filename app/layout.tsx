@@ -18,6 +18,7 @@ export async function generateMetadata():Promise<Metadata>{const content=await g
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const content=await getSiteContent();
+  const clientContent={...content,blogPosts:content.blogPosts.map(post=>({...post,content:"",sources:[]}))};
   const organization={"@context":"https://schema.org","@type":"Organization",name:"Clinoro Medical Technologies",alternateName:content.general.brand,url:"https://clinoromedical.com",logo:`https://clinoromedical.com${content.general.logoUrl}`,email:content.general.email,telephone:content.general.phone,address:{"@type":"PostalAddress",streetAddress:content.general.address,addressCountry:"IR"},contactPoint:{"@type":"ContactPoint",contactType:"sales and technical enquiries",telephone:content.general.phone,email:content.general.email,availableLanguage:["fa","en"]}};
-  return <html lang="fa" dir="rtl"><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organization)}}/><SiteContentProvider content={content}>{children}</SiteContentProvider></body></html>;
+  return <html lang="fa" dir="rtl"><body><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(organization)}}/><SiteContentProvider content={clientContent}>{children}</SiteContentProvider></body></html>;
 }

@@ -28,7 +28,7 @@ content:`بازار محصولات مراقبت پوست در ایران متن�
 
 ## جمع‌بندی
 اصالت‌سنجی یک اقدام تک‌مرحله‌ای نیست. هویت محصول، زنجیره تأمین، شرایط نگهداری و قابلیت پاسخ‌گویی فروشنده باید کنار هم دیده شوند. این چارچوب جایگزین نظر مرجع نظارتی یا ارزیابی تخصصی محصول نیست، اما احتمال خطای خرید را به‌طور محسوسی کاهش می‌دهد.`,
-image:"/assets/blog-maintenance-real.jpg",category:"اسکین‌کر در ایران",author:"تحریریه Clinoro",publishedAt:"2026-08-04",publishedTime:"09:00",published:true,
+image:"/assets/blog-maintenance-real.jpg",category:"اسکین‌کر در ایران",author:"تحریریه Clinoro",publishedAt:"2026-08-04",publishedTime:"2026-08-04T09:00:00+04:00",published:true,
 seoTitle:"راهنمای اصالت‌سنجی محصولات اسکین‌کر در ایران | Clinoro",seoDescription:"چک‌لیست کاربردی بررسی شناسه، بچ، تأمین‌کننده، نگهداری و اصالت محصولات مراقبت پوست در ایران.",
 sources:[{title:"سامانه رهگیری، ردیابی و کنترل اصالت فرآورده‌های سلامت",url:"https://www.ttac.ir/"},{title:"سازمان غذا و دارو ایران",url:"https://www.fda.gov.ir/"}],
 imageCredit:"Clinoro local asset",imageSource:"/assets/blog-maintenance-real.jpg",imageAlt:"بررسی اصالت و اطلاعات محصول مراقبت پوست",imageLicense:"Local project asset"
@@ -72,7 +72,7 @@ content:`کیفیت خدمات پوست فقط به مهارت اپراتور ی
 
 ## نتیجه
 کنترل مصرفی‌ها یک کار انبارداری ساده نیست؛ بخشی از سیستم کیفیت کلینیک است. هر قلم باید از زمان ورود تا مصرف نهایی قابل‌ردیابی باشد.`,
-image:"/assets/infusion.jpg",category:"کلینیک پوست",author:"تحریریه Clinoro",publishedAt:"2026-08-04",publishedTime:"16:00",published:true,
+image:"/assets/infusion.jpg",category:"کلینیک پوست",author:"تحریریه Clinoro",publishedAt:"2026-08-04",publishedTime:"2026-08-04T16:00:00+04:00",published:true,
 seoTitle:"کنترل مواد مصرفی کلینیک پوست در ایران | Clinoro",seoDescription:"ده کنترل ضروری برای دریافت، نگهداری و ردیابی مواد مصرفی و کارتریج‌های کلینیک‌های پوست.",
 sources:[{title:"سازمان غذا و دارو ایران",url:"https://www.fda.gov.ir/"},{title:"سامانه تجهیزات پزشکی ایران",url:"https://imed.ir/"}],
 imageCredit:"Clinoro local asset",imageSource:"/assets/infusion.jpg",imageAlt:"کنترل مواد مصرفی در کلینیک پوست",imageLicense:"Local project asset"
@@ -110,7 +110,7 @@ content:`خرید یک دستگاه زیبایی یا اسکین‌تراپی ب
 
 ## جمع‌بندی
 صورت‌جلسه تحویل باید نشان دهد چه چیزی، با چه وضعیتی، در چه تاریخی و پس از چه آزمون‌هایی پذیرفته شده است. این سند پایه گارانتی، آموزش و نگهداری آینده خواهد بود.`,
-image:"/assets/medical-visual.jpg",category:"تجهیزات زیبایی",author:"تحریریه Clinoro",publishedAt:"2026-08-05",publishedTime:"09:00",published:true,
+image:"/assets/medical-visual.jpg",category:"تجهیزات زیبایی",author:"تحریریه Clinoro",publishedAt:"2026-08-05",publishedTime:"2026-08-05T09:00:00+04:00",published:true,
 seoTitle:"چک‌لیست تحویل دستگاه‌های زیبایی و اسکین‌تراپی | Clinoro",seoDescription:"راهنمای فنی تحویل، نصب، آزمون، آموزش و مستندسازی دستگاه‌های زیبایی در کلینیک‌های ایران.",
 sources:[{title:"سامانه تجهیزات پزشکی ایران",url:"https://imed.ir/"},{title:"WHO — Medical device technical series",url:"https://www.who.int/health-topics/medical-devices"}],
 imageCredit:"Clinoro local asset",imageSource:"/assets/medical-visual.jpg",imageAlt:"تحویل فنی دستگاه زیبایی و اسکین تراپی",imageLicense:"Local project asset"
@@ -144,7 +144,7 @@ FDA تصریح می‌کند که ثبت یا فهرست‌گذاری به مع�
 
 ## جمع‌بندی
 به‌روزرسانی ۲۰۲۶ بیش از یک تغییر سامانه‌ای است. این تغییر به شرکت‌ها یادآوری می‌کند که انطباق باید تقویم، مالک مشخص و پرونده قابل‌ممیزی داشته باشد.`,
-image:"/assets/blog-cybersecurity-real.jpg",category:"مقررات جهانی کازمتیک",author:"تحریریه Clinoro",publishedAt:"2026-08-05",publishedTime:"16:00",published:true,
+image:"/assets/blog-cybersecurity-real.jpg",category:"مقررات جهانی کازمتیک",author:"تحریریه Clinoro",publishedAt:"2026-08-05",publishedTime:"2026-08-05T16:00:00+04:00",published:true,
 seoTitle:"تمدید ثبت تأسیسات آرایشی FDA در ۲۰۲۶ | Clinoro",seoDescription:"شرح تغییرات Cosmetics Direct و الزامات تمدید دوسالانه ثبت تأسیسات آرایشی در آمریکا.",
 sources:[{title:"FDA — Registration & Listing of Cosmetic Product Facilities and Products",url:"https://www.fda.gov/cosmetics/registration-listing-cosmetic-product-facilities-and-products"},{title:"FDA — MoCRA",url:"https://www.fda.gov/cosmetics/cosmetics-laws-regulations/modernization-cosmetics-regulation-act-2022-mocra"}],
 imageCredit:"Clinoro local asset",imageSource:"/assets/blog-cybersecurity-real.jpg",imageAlt:"مدیریت ثبت و انطباق محصولات آرایشی",imageLicense:"Local project asset"
@@ -176,7 +176,7 @@ content:`چارچوب اصلی محصولات آرایشی در اتحادیه �
 
 ## جمع‌بندی
 پیگیری مقررات مواد آرایشی باید در سطح ماده، محصول و بازار انجام شود. اتکا به فرمول قدیمی یا تأیید شفاهی تأمین‌کننده برای تصمیم تجاری کافی نیست.`,
-image:"/assets/blog-ai-imaging-real.jpg",category:"ایمنی مواد آرایشی",author:"تحریریه Clinoro",publishedAt:"2026-08-06",publishedTime:"09:00",published:true,
+image:"/assets/blog-ai-imaging-real.jpg",category:"ایمنی مواد آرایشی",author:"تحریریه Clinoro",publishedAt:"2026-08-06",publishedTime:"2026-08-06T09:00:00+04:00",published:true,
 seoTitle:"محدودیت مواد آرایشی اتحادیه اروپا در ۲۰۲۶ | Clinoro",seoDescription:"مرور تغییرات ۲۰۲۶ اتحادیه اروپا درباره مواد آرایشی، CMR، نانوذرات و مسئولیت شرکت‌ها.",
 sources:[{title:"European Commission — Cosmetics legislation",url:"https://single-market-economy.ec.europa.eu/sectors/cosmetics/legislation_en"},{title:"European Commission — TBT notification G/TBT/N/EU/1219",url:"https://technical-barriers-trade.ec.europa.eu/en/notification/39957"}],
 imageCredit:"Clinoro local asset",imageSource:"/assets/blog-ai-imaging-real.jpg",imageAlt:"بررسی علمی مواد آرایشی و مراقبت پوست",imageLicense:"Local project asset"
@@ -205,7 +205,7 @@ SCCS با توجه به داده‌های ارائه‌شده اعلام کرد 
 
 ## جمع‌بندی
 نظر SCCS نمونه‌ای از اهمیت جزئیات فرمولاسیون است. ایمنی یک ماده به نام عمومی آن محدود نیست و باید در شرایط واقعی استفاده ارزیابی شود.`,
-image:"/assets/hematology.jpg",category:"علم اسکین‌کر",author:"تحریریه Clinoro",publishedAt:"2026-08-06",publishedTime:"16:00",published:true,
+image:"/assets/hematology.jpg",category:"علم اسکین‌کر",author:"تحریریه Clinoro",publishedAt:"2026-08-06",publishedTime:"2026-08-06T16:00:00+04:00",published:true,
 seoTitle:"نظر SCCS درباره نقره در محصولات آرایشی ۲۰۲۶ | Clinoro",seoDescription:"شرح نظر علمی SCCS درباره ایمنی ذرات میکرونی نقره در محصولات شستنی و ماندگار آرایشی.",
 sources:[{title:"SCCS — Scientific Advice on Silver used in cosmetic products",url:"https://health.ec.europa.eu/publications/sccs-scientific-advice-silver-used-cosmetic-products-casec-no-7440-22-4231-131-3_en"},{title:"European Commission — Scientific Committee on Consumer Safety",url:"https://health.ec.europa.eu/scientific-committees/scientific-committee-consumer-safety-sccs_en"}],
 imageCredit:"Clinoro local asset",imageSource:"/assets/hematology.jpg",imageAlt:"ارزیابی آزمایشگاهی مواد مورد استفاده در کازمتیک",imageLicense:"Local project asset"

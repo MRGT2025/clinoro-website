@@ -48,7 +48,7 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,25);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,33);
   assert.match(html,/انبار تجهیزات پزشکی در ایران؛ ۱۲ کنترل/);
   assert.match(html,/هر صدایی هشدار حیاتی نیست؛ ۱۰ کنترل/);
   assert.match(html,/اکسیژن‌ساز بیمارستانی در ایران؛ ۱۲ کنترل/);
@@ -324,8 +324,14 @@ test("product detail renders structured data and technical content",async()=>{
 test("discovery files expose public routes and protect admin paths",async()=>{
   const sitemapResponse=await request("/sitemap.xml");const sitemap=await sitemapResponse.text();
   assert.equal(sitemapResponse.status,200);
+  assert.doesNotMatch(sitemap,/<lastmod>(?:09|16):00<\/lastmod>/);
+  assert.doesNotMatch(sitemap,/Invalid Date/);
+  const blogUrls=[...sitemap.matchAll(/<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g)].map(match=>match[1]);
+  assert.equal(blogUrls.length,33);
+  assert.equal(new Set(blogUrls).size,blogUrls.length);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/products\/icu-patient-monitor/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/credentials/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/terms/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/qmsr-supplier-quality-2026/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-cmms-who-2025/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-shortage-continuity-2026/);
@@ -346,4 +352,19 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);
   assert.match(robots,/Sitemap: https:\/\/clinoromedical\.com\/sitemap\.xml/);
+});
+
+test("blog timestamp, canonical, Open Graph and Article JSON-LD share one valid value",async()=>{
+  const response=await request("/blog/iran-skincare-product-authenticity-check");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-skincare-product-authenticity-check"/);
+  assert.equal((html.match(/2026-08-04T09:00:00\+04:00/g)??[]).length>=2,true);
+  assert.match(html,/"datePublished":"2026-08-04T09:00:00\+04:00"/);
+});
+
+test("terms page is public and canonical",async()=>{
+  const response=await request("/terms");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/شرایط استفاده/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/terms"/);
 });

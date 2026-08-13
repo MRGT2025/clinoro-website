@@ -1,5 +1,8 @@
 # vinext-starter
 
+Clinoro production ownership, build, deployment, verification, and rollback are
+documented in [`docs/PRODUCTION_DEPLOYMENT.md`](docs/PRODUCTION_DEPLOYMENT.md).
+
 A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
 Drizzle support.
