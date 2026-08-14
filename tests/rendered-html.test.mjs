@@ -37,6 +37,7 @@ test("home exposes production SEO and security metadata",async()=>{
   assert.match(html,/clinoro-hero-prism\.webp/);
   assert.match(html,/clinoro-logo-primary\.png/);
   assert.match(html,/clinoro-mark-primary\.png/);
+  assert.match(html,/لوگوی Clinoro با نشانه پالس پزشکی و درگاه تجارت/);
   assert.match(html,/clinoro-wordmark-primary\.png/);
   assert.match(html,/class="brand-intro"/);
   assert.match(html,/PRECISION/);

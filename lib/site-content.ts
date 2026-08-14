@@ -277,7 +277,10 @@ export async function saveSiteContent(content:SiteContent){
 }
 
 function mergeContent(base:SiteContent,value:Partial<SiteContent>):SiteContent{
-  const upgradedLogo=(value.schemaVersion??0)<15?base.general.logoUrl:(value.general?.logoUrl||base.general.logoUrl);
+  const upgradingIdentity=(value.schemaVersion??0)<15;
+  const upgradedLogo=upgradingIdentity?base.general.logoUrl:(value.general?.logoUrl||base.general.logoUrl);
+  const upgradedLogoAlt=upgradingIdentity?base.general.logoAlt:(value.general?.logoAlt||base.general.logoAlt);
+  const upgradedTagline=upgradingIdentity?base.general.tagline:(value.general?.tagline||base.general.tagline);
   const savedPosts=Array.isArray(value.blogPosts)?value.blogPosts:[];
   const seededIds=new Set(base.blogPosts.map(post=>post.id));
   const seededSlugs=new Set(base.blogPosts.map(post=>post.slug));
@@ -321,7 +324,7 @@ function mergeContent(base:SiteContent,value:Partial<SiteContent>):SiteContent{
   const solutions=(Array.isArray(value.solutions)?value.solutions:base.solutions).map((item,index)=>({...base.solutions[index],...item,image:(value.schemaVersion??0)<6?(legacyMap[item.image]||item.image):item.image}));
   return {
     ...base,...value,schemaVersion:base.schemaVersion,
-    general:{...base.general,...value.general,logoUrl:upgradedLogo,motionMode:(value.schemaVersion??0)<6&&value.general?.motionMode==="full"?"subtle":(value.general?.motionMode||base.general.motionMode)},
+    general:{...base.general,...value.general,logoUrl:upgradedLogo,logoAlt:upgradedLogoAlt,tagline:upgradedTagline,motionMode:(value.schemaVersion??0)<6&&value.general?.motionMode==="full"?"subtle":(value.general?.motionMode||base.general.motionMode)},
     home,
     pages,
     products,
