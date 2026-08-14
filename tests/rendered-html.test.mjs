@@ -48,7 +48,8 @@ test("catalog links to real product detail pages",async()=>{
 test("blog posts are present in initial HTML without client-side filtering",async()=>{
   const response=await request("/blog");const html=await response.text();
   assert.equal(response.status,200);
-  assert.equal((html.match(/<article class="blog-card/g)??[]).length,33);
+  assert.equal((html.match(/<article class="blog-card/g)??[]).length,34);
+  assert.match(html,/خدمات پس از فروش تجهیزات پزشکی در ایران؛ ۱۲ بند قرارداد/);
   assert.match(html,/انبار تجهیزات پزشکی در ایران؛ ۱۲ کنترل/);
   assert.match(html,/هر صدایی هشدار حیاتی نیست؛ ۱۰ کنترل/);
   assert.match(html,/اکسیژن‌ساز بیمارستانی در ایران؛ ۱۲ کنترل/);
@@ -296,6 +297,25 @@ test("daily Iran warehouse article includes complete SSR content, Iranian offici
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-device-warehouse"/);
 });
 
+test("daily Iran after-sales contract article includes complete SSR, Tehran timestamp and SEO metadata",async()=>{
+  const response=await request("/blog/iran-medical-device-after-sales-service-contract");const html=await response.text();
+  assert.equal(response.status,200);
+  assert.match(html,/۱۲ بند حیاتی قرارداد خدمات پس از فروش/);
+  assert.match(html,/ماتریس امتیازدهی که قیمت را از تصمیم جدا نمی‌کند/);
+  assert.match(html,/href="\/procurement"/);
+  assert.match(html,/href="\/contact"/);
+  assert.match(html,/qavanin\.ir\/Law\/TreeText/);
+  assert.match(html,/dotic\.ir\/news\/2293/);
+  assert.match(html,/iran-medical-device-after-sales-service-contract\.webp/);
+  assert.match(html,/تصویر تولیدشده برای Clinoro/);
+  assert.match(html,/"@type":"Article"/);
+  assert.match(html,/"articleSection":"ایران؛ خرید و خدمات"/);
+  assert.match(html,/<meta name="keywords" content="خدمات پس از فروش تجهیزات پزشکی,قرارداد تجهیزات پزشکی/);
+  assert.match(html,/خدمات پس از فروش تجهیزات پزشکی, قرارداد تجهیزات پزشکی/);
+  assert.match(html,/2026-08-14T08:00:00\+03:30/);
+  assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-device-after-sales-service-contract"/);
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image",async()=>{
   const response=await request("/blog/medical-device-alarm-management");const html=await response.text();
   assert.equal(response.status,200);
@@ -327,7 +347,7 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.doesNotMatch(sitemap,/<lastmod>(?:09|16):00<\/lastmod>/);
   assert.doesNotMatch(sitemap,/Invalid Date/);
   const blogUrls=[...sitemap.matchAll(/<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g)].map(match=>match[1]);
-  assert.equal(blogUrls.length,33);
+  assert.equal(blogUrls.length,34);
   assert.equal(new Set(blogUrls).size,blogUrls.length);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/products\/icu-patient-monitor/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/credentials/);
@@ -348,6 +368,7 @@ test("discovery files expose public routes and protect admin paths",async()=>{
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/loan-medical-device-control/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-medical-device-warehouse/);
   assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/medical-device-alarm-management/);
+  assert.match(sitemap,/https:\/\/clinoromedical\.com\/blog\/iran-medical-device-after-sales-service-contract/);
   const robotsResponse=await request("/robots.txt");const robots=await robotsResponse.text();
   assert.equal(robotsResponse.status,200);
   assert.match(robots,/Disallow: \/admin/);

@@ -1,4 +1,5 @@
 import { ensureDatabase, getD1 } from "../db";
+import { dailyBlogPosts20260814 } from "./daily-blog-posts-2026-08-14";
 import { dailyBlogPosts20260809 } from "./daily-blog-posts-2026-08-09";
 import { dailyBlogPosts20260803 } from "./daily-blog-posts-2026-08-03";
 import { dailyBlogPosts20260803Medical } from "./daily-blog-posts-2026-08-03-medical";
@@ -61,6 +62,7 @@ export type BlogPost = {
   imageSource:string;
   imageAlt?:string;
   imageLicense?:string;
+  keywords?:string[];
 };
 export type InjectionCode = { html:string; css:string; javascript:string };
 export type ContentBlock = {
@@ -107,7 +109,7 @@ export type SiteContent = {
 const emptyInjection=():InjectionCode=>({html:"",css:"",javascript:""});
 
 export const defaultSiteContent: SiteContent = {
-  schemaVersion:13,
+  schemaVersion:14,
   general:{ brand:"CLINORO", tagline:"MEDICAL TECHNOLOGIES", logoUrl:"/assets/clinoro-logo-minimal-grey.png", logoAlt:"لوگوی Clinoro", phone:"+98 913 898 6215", email:"info@clinoromedical.com", address:"اصفهان، ساختمان پردیس، طبقه ۴، واحد ۲۳", metaTitle:"Clinoro | تجهیزات و فناوری‌های پزشکی", metaDescription:"تأمین تجهیزات پزشکی، مشاوره فنی، نصب، آموزش و پشتیبانی تخصصی برای مراکز درمانی.",footerText:"معرفی و تأمین حرفه‌ای تجهیزات پزشکی، همراه با مشاوره فنی، نصب، آموزش و پشتیبانی ساختارمند.",motionMode:"subtle" },
   home:{ kicker:"CLINICAL TECHNOLOGY · PROCUREMENT · SUPPORT", title:"فناوری پزشکی،", signals:["انتخاب هوشمندتر","اجرای دقیق‌تر","پشتیبانی ماندگار"], intro:"تأمین حرفه‌ای تجهیزات پزشکی همراه با مشاوره فنی، نصب، آموزش و پشتیبانی؛ از انتخاب محصول تا بهره‌برداری مطمئن.", heroImage:"/assets/clinoro-hero-prism.webp", storyTitle:"تصمیم بهتر، اجرای دقیق‌تر، بهره‌برداری مطمئن‌تر", storyText:"ما تجهیزات را جدا از محیط استفاده نمی‌بینیم. هر پیشنهاد با درنظرگرفتن workflow، زیرساخت، آموزش، مصرفی و برنامه نگهداری شکل می‌گیرد.", storyImage:"/assets/medical-visual.jpg",
     proofPoints:[{title:"۸ گروه محصول",text:"پوشش نیازهای اصلی مراکز درمانی"},{title:"پاسخ اولیه در ۲۴ ساعت",text:"برای استعلام‌ها و درخواست‌های فنی"},{title:"پشتیبانی سراسری",text:"از تأمین و نصب تا آموزش و خدمات"}],
@@ -157,6 +159,7 @@ export const defaultSiteContent: SiteContent = {
   ],
   about:{headline:"فروش دستگاه کافی نیست؛ باید امکان یک تصمیم مطمئن را ساخت",paragraphs:["در تجهیزات پزشکی، کیفیت ارائه فقط به برند یا عددهای یک دیتاشیت وابسته نیست. تناسب تجهیز با محیط، امکان نصب، آمادگی کاربر، دسترسی به مصرفی و برنامه نگهداری همگی روی نتیجه نهایی اثر دارند.","به همین دلیل، معماری Clinoro بر پایه اطلاعات ساختارمند، مشاوره قابل فهم و پیگیری مرحله‌به‌مرحله شکل گرفته است."],image:"/assets/medical-visual.jpg",values:[{title:"شفافیت",text:"مشخصات، محدودیت‌ها، زمان‌بندی و تعهدات باید از ابتدا روشن باشند."},{title:"نگاه یکپارچه",text:"تجهیز، زیرساخت، آموزش، مصرفی و نگهداری را در کنار هم می‌بینیم."},{title:"دقت فنی",text:"پیشنهادها بر اساس سناریوی واقعی استفاده و نیاز قابل‌اندازه‌گیری شکل می‌گیرند."},{title:"پشتیبانی پایدار",text:"ارتباط با پروژه پس از تحویل هم ادامه دارد؛ چون بهره‌برداری بخشی از نتیجه است."}]},
   blogPosts:[
+    ...dailyBlogPosts20260814,
     ...dailyBlogPosts20260809,
     ...dailyBlogPosts20260803,
     ...dailyBlogPosts20260803Medical,
@@ -324,7 +327,7 @@ function mergeContent(base:SiteContent,value:Partial<SiteContent>):SiteContent{
     products,
     solutions,
     about:{...base.about,...value.about},
-    blogPosts:mergedPosts.map(post=>({...post,sources:Array.isArray(post.sources)?post.sources:[],imageCredit:post.imageCredit||"",imageSource:post.imageSource||"",imageAlt:post.imageAlt||post.title,imageLicense:post.imageLicense||""})),
+    blogPosts:mergedPosts.map(post=>({...post,sources:Array.isArray(post.sources)?post.sources:[],imageCredit:post.imageCredit||"",imageSource:post.imageSource||"",imageAlt:post.imageAlt||post.title,imageLicense:post.imageLicense||"",keywords:Array.isArray(post.keywords)?post.keywords:[]})),
     trustItems:Array.isArray(value.trustItems)?value.trustItems:base.trustItems,
     customBlocks:{...base.customBlocks,...value.customBlocks},
     injections:{
