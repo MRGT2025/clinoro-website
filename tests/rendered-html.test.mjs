@@ -35,6 +35,22 @@ test("home exposes production SEO and security metadata",async()=>{
   assert.match(html,/Organization/);
   assert.match(html,/rel="canonical" href="https:\/\/clinoromedical\.com\/"/);
   assert.match(html,/clinoro-hero-prism\.webp/);
+  assert.match(html,/clinoro-logo-primary\.png/);
+  assert.match(html,/clinoro-mark-primary\.png/);
+  assert.match(html,/clinoro-wordmark-primary\.png/);
+  assert.match(html,/class="brand-intro"/);
+  assert.match(html,/PRECISION/);
+  assert.match(html,/MEDICAL TECHNOLOGY/);
+  assert.match(html,/COMMERCE/);
+  assert.doesNotMatch(html,/clinoro-logo-minimal-grey\.png/);
+});
+
+test("manifest and document icons use the final Clinoro app mark",async()=>{
+  const response=await request("/manifest.webmanifest");const manifest=await response.json();
+  assert.equal(response.status,200);
+  assert.equal(manifest.theme_color,"#081f3a");
+  assert.equal(manifest.icons[0].src,"/assets/clinoro-app-icon.png");
+  assert.match(manifest.icons[0].purpose,/maskable/);
 });
 
 test("catalog links to real product detail pages",async()=>{
@@ -75,9 +91,12 @@ test("blog posts are present in initial HTML without client-side filtering",asyn
 test("all reveal content stays visible without JavaScript or an observer",async()=>{
   const css=await readFile(new URL("../app/globals.css",import.meta.url),"utf8");
   const experience=await readFile(new URL("../app/experience.tsx",import.meta.url),"utf8");
+  const intro=await readFile(new URL("../app/brand-intro.tsx",import.meta.url),"utf8");
   assert.match(css,/\.motion-ready \.motion-section,\.motion-ready \[data-reveal\]\{opacity:1;visibility:visible;transform:none;filter:none;scale:1/);
   assert.doesNotMatch(css,/\.motion-ready \.motion-section,\.motion-ready \[data-reveal\]\{[^}]*opacity:0/);
   assert.doesNotMatch(experience,/IntersectionObserver/);
+  assert.match(intro,/sessionStorage\.setItem\(INTRO_KEY,"seen"\)/);
+  assert.match(intro,/prefers-reduced-motion: reduce/);
 });
 
 test("new Clinoro V35 article renders complete server HTML",async()=>{

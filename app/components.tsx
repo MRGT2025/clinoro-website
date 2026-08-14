@@ -23,7 +23,7 @@ const staticSearchItems = [
 export function Brand() {
   const {general}=useSiteContent();
   return <Link className="brand" href="/" aria-label="صفحه اصلی کلینورو">
-    {general.logoUrl?<span className="brand-lockup"><Image src={general.logoUrl} alt={general.logoAlt||general.brand} width={190} height={48} unoptimized priority/></span>:<><span className="brand-copy"><b>{general.brand}</b><small>{general.tagline}</small></span><span className="brand-cross" aria-hidden="true"><i /><i /></span></>}
+    {general.logoUrl?<span className="brand-lockup"><Image src={general.logoUrl} alt={general.logoAlt||general.brand} width={225} height={55} unoptimized priority/></span>:<><span className="brand-copy"><b>{general.brand}</b><small>{general.tagline}</small></span><span className="brand-cross" aria-hidden="true"><i /><i /></span></>}
   </Link>;
 }
 
@@ -57,7 +57,7 @@ export function SiteHeader({ active = "/" }: { active?: string }) {
     <div className={`mobile-panel${menuOpen ? " open" : ""}`} aria-hidden={!menuOpen}>
       <button className="mobile-backdrop" onClick={() => setMenuOpen(false)} aria-label="بستن منو"/>
       <div className="mobile-sheet prism-edge" id="mobile-navigation"><div className="mobile-head"><Brand/><button className="icon-button" onClick={() => setMenuOpen(false)} aria-label="بستن منو"><X size={22}/></button></div>
-        <nav>{navigation.map(([label, href], index) => <Link href={href} key={href} onClick={() => setMenuOpen(false)}><span>{String(index + 1).padStart(2,"0")}</span>{label}<ChevronLeft size={18}/></Link>)}</nav>
+        <nav>{navigation.map(([label, href]) => <Link href={href} key={href} onClick={() => setMenuOpen(false)}>{label}<ChevronLeft size={18}/></Link>)}</nav>
       </div>
     </div>
     <div className={`search-layer${searchOpen ? " open" : ""}`} aria-hidden={!searchOpen}>

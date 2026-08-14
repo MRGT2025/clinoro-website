@@ -109,8 +109,8 @@ export type SiteContent = {
 const emptyInjection=():InjectionCode=>({html:"",css:"",javascript:""});
 
 export const defaultSiteContent: SiteContent = {
-  schemaVersion:14,
-  general:{ brand:"CLINORO", tagline:"MEDICAL TECHNOLOGIES", logoUrl:"/assets/clinoro-logo-minimal-grey.png", logoAlt:"لوگوی Clinoro", phone:"+98 913 898 6215", email:"info@clinoromedical.com", address:"اصفهان، ساختمان پردیس، طبقه ۴، واحد ۲۳", metaTitle:"Clinoro | تجهیزات و فناوری‌های پزشکی", metaDescription:"تأمین تجهیزات پزشکی، مشاوره فنی، نصب، آموزش و پشتیبانی تخصصی برای مراکز درمانی.",footerText:"معرفی و تأمین حرفه‌ای تجهیزات پزشکی، همراه با مشاوره فنی، نصب، آموزش و پشتیبانی ساختارمند.",motionMode:"subtle" },
+  schemaVersion:15,
+  general:{ brand:"CLINORO", tagline:"PRECISION · MEDICAL TECHNOLOGY · COMMERCE", logoUrl:"/assets/clinoro-logo-primary.png", logoAlt:"لوگوی Clinoro با نشانه پالس پزشکی و درگاه تجارت", phone:"+98 913 898 6215", email:"info@clinoromedical.com", address:"اصفهان، ساختمان پردیس، طبقه ۴، واحد ۲۳", metaTitle:"Clinoro | تجهیزات و فناوری‌های پزشکی", metaDescription:"تأمین تجهیزات پزشکی، مشاوره فنی، نصب، آموزش و پشتیبانی تخصصی برای مراکز درمانی.",footerText:"معرفی و تأمین حرفه‌ای تجهیزات پزشکی، همراه با مشاوره فنی، نصب، آموزش و پشتیبانی ساختارمند.",motionMode:"subtle" },
   home:{ kicker:"CLINICAL TECHNOLOGY · PROCUREMENT · SUPPORT", title:"فناوری پزشکی،", signals:["انتخاب هوشمندتر","اجرای دقیق‌تر","پشتیبانی ماندگار"], intro:"تأمین حرفه‌ای تجهیزات پزشکی همراه با مشاوره فنی، نصب، آموزش و پشتیبانی؛ از انتخاب محصول تا بهره‌برداری مطمئن.", heroImage:"/assets/clinoro-hero-prism.webp", storyTitle:"تصمیم بهتر، اجرای دقیق‌تر، بهره‌برداری مطمئن‌تر", storyText:"ما تجهیزات را جدا از محیط استفاده نمی‌بینیم. هر پیشنهاد با درنظرگرفتن workflow، زیرساخت، آموزش، مصرفی و برنامه نگهداری شکل می‌گیرد.", storyImage:"/assets/medical-visual.jpg",
     proofPoints:[{title:"۸ گروه محصول",text:"پوشش نیازهای اصلی مراکز درمانی"},{title:"پاسخ اولیه در ۲۴ ساعت",text:"برای استعلام‌ها و درخواست‌های فنی"},{title:"پشتیبانی سراسری",text:"از تأمین و نصب تا آموزش و خدمات"}],
     categories:[{title:"مراقبت ویژه",en:"Critical Care",image:"/assets/patient-monitor.jpg"},{title:"تصویربرداری",en:"Imaging Systems",image:"/assets/ultrasound.jpg"},{title:"آزمایشگاه",en:"Laboratory",image:"/assets/hematology.jpg"},{title:"اتاق عمل",en:"Operating Room",image:"/assets/surgical-light.jpg"},{title:"استریل و CSSD",en:"Sterile Processing",image:"/assets/autoclave.jpg"},{title:"تزریق و مراقبت",en:"Care Delivery",image:"/assets/infusion.jpg"}],
@@ -277,7 +277,7 @@ export async function saveSiteContent(content:SiteContent){
 }
 
 function mergeContent(base:SiteContent,value:Partial<SiteContent>):SiteContent{
-  const upgradedLogo=(value.schemaVersion??0)<3?base.general.logoUrl:(value.general?.logoUrl||base.general.logoUrl);
+  const upgradedLogo=(value.schemaVersion??0)<15?base.general.logoUrl:(value.general?.logoUrl||base.general.logoUrl);
   const savedPosts=Array.isArray(value.blogPosts)?value.blogPosts:[];
   const seededIds=new Set(base.blogPosts.map(post=>post.id));
   const seededSlugs=new Set(base.blogPosts.map(post=>post.slug));
