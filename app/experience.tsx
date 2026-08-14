@@ -4,20 +4,26 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Activity,
+  BadgeCheck,
   Boxes,
   Building2,
   CircleDot,
+  ClipboardCheck,
   FileCheck2,
   FlaskConical,
+  Gauge,
   HeartPulse,
   Hospital,
   MessageCircle,
   Microscope,
   Pause,
   Play,
+  Route,
   ScanLine,
+  ShieldCheck,
   Sparkles,
   Stethoscope,
+  Target,
   Wrench,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -179,7 +185,7 @@ export function ExperienceLayer() {
     const reactive = interactive
       ? [
           ...document.querySelectorAll<HTMLElement>(
-            ".glass-panel,.glass-nav,.service-lens,.product-card,.detail-card,.blog-card,.insight-card,.source-card,.related-card",
+            ".glass-panel,.glass-nav,.service-lens,.product-card,.detail-card,.blog-card,.insight-card,.source-card,.related-card,.decision-console,.trust-protocol-console,.catalog-decision-profile,.trust-control-grid article",
           ),
         ]
       : [];
@@ -462,6 +468,344 @@ export function IntentRibbon() {
           </span>
           <ArrowLeft size={17} />
         </Link>
+      </div>
+    </section>
+  );
+}
+
+const decisionEnvironments = [
+  {
+    id: "hospital",
+    label: "بیمارستان",
+    en: "HOSPITAL",
+    icon: Hospital,
+    category: "critical",
+    route: "تجهیزات حیاتی و زیرساخت متصل",
+  },
+  {
+    id: "clinic",
+    label: "کلینیک",
+    en: "CLINIC",
+    icon: Building2,
+    category: "imaging",
+    route: "تجهیزات فشرده با بهره‌برداری سریع",
+  },
+  {
+    id: "lab",
+    label: "آزمایشگاه",
+    en: "LABORATORY",
+    icon: Microscope,
+    category: "lab",
+    route: "ظرفیت، مصرفی و اتصال LIS",
+  },
+  {
+    id: "or",
+    label: "اتاق عمل",
+    en: "OPERATING ROOM",
+    icon: Stethoscope,
+    category: "surgery",
+    route: "ایمنی، بیهوشی و هماهنگی زیرساخت",
+  },
+] as const;
+
+const decisionPriorities = [
+  {
+    id: "performance",
+    label: "عملکرد بالینی",
+    detail: "دقت، قابلیت و workflow",
+    risk: "تطبیق ناکافی با کاربرد واقعی",
+  },
+  {
+    id: "lifecycle",
+    label: "چرخه عمر",
+    detail: "سرویس، قطعه و آموزش",
+    risk: "هزینه و توقف خارج از برنامه",
+  },
+  {
+    id: "timeline",
+    label: "زمان اجرا",
+    detail: "تأمین، نصب و تحویل",
+    risk: "تأخیر زیرساخت یا مدارک",
+  },
+] as const;
+
+const decisionStages = [
+  {
+    id: "explore",
+    label: "بررسی اولیه",
+    packet: "Shortlist و معیارهای غربال اولیه",
+  },
+  {
+    id: "rfq",
+    label: "استعلام فعال",
+    packet: "پیشنهاد فنی، اسناد و محدوده خدمات",
+  },
+  {
+    id: "replacement",
+    label: "جایگزینی تجهیز",
+    packet: "برنامه انتقال، آموزش و تداوم خدمت",
+  },
+] as const;
+
+export function BuyerDecisionStudio() {
+  const { home } = useSiteContent();
+  const [environment, setEnvironment] = useState(0);
+  const [priority, setPriority] = useState(0);
+  const [stage, setStage] = useState(0);
+  const selectedEnvironment = decisionEnvironments[environment];
+  const selectedPriority = decisionPriorities[priority];
+  const selectedStage = decisionStages[stage];
+  const SelectedIcon = selectedEnvironment.icon;
+  const productUrl = `/products?category=${selectedEnvironment.category}&intent=${selectedStage.id}&priority=${selectedPriority.id}`;
+  const contactUrl = `/contact?environment=${selectedEnvironment.id}&stage=${selectedStage.id}&priority=${selectedPriority.id}`;
+
+  return (
+    <section className="decision-studio motion-section" id="decision-studio">
+      <div className="decision-ambient" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </div>
+      <div className="site-wrap">
+        <header className="decision-heading" data-reveal>
+          <div>
+            <span className="eyebrow">
+              <Route size={15} /> {home.decisionStudio.eyebrow}
+            </span>
+            <h2>{home.decisionStudio.title}</h2>
+          </div>
+          <p>{home.decisionStudio.text}</p>
+        </header>
+
+        <div className="decision-console prism-edge" data-reveal>
+          <div className="decision-controls">
+            <fieldset>
+              <legend>
+                <span>01</span> محیط درمانی
+              </legend>
+              <div className="decision-options decision-options-icons">
+                {decisionEnvironments.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      type="button"
+                      className={environment === index ? "active" : ""}
+                      aria-pressed={environment === index}
+                      onClick={() => setEnvironment(index)}
+                      key={item.id}
+                    >
+                      <Icon size={19} />
+                      <span>{item.label}</span>
+                      <small>{item.en}</small>
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>
+                <span>02</span> اولویت تصمیم
+              </legend>
+              <div className="decision-options">
+                {decisionPriorities.map((item, index) => (
+                  <button
+                    type="button"
+                    className={priority === index ? "active" : ""}
+                    aria-pressed={priority === index}
+                    onClick={() => setPriority(index)}
+                    key={item.id}
+                  >
+                    <b>{item.label}</b>
+                    <small>{item.detail}</small>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>
+                <span>03</span> مرحله پروژه
+              </legend>
+              <div className="decision-options">
+                {decisionStages.map((item, index) => (
+                  <button
+                    type="button"
+                    className={stage === index ? "active" : ""}
+                    aria-pressed={stage === index}
+                    onClick={() => setStage(index)}
+                    key={item.id}
+                  >
+                    <b>{item.label}</b>
+                    <small>{item.packet}</small>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+
+          <aside className="decision-output" aria-live="polite">
+            <div className="decision-output-orbit" aria-hidden="true">
+              <i />
+              <i />
+              <span>
+                <SelectedIcon size={34} />
+              </span>
+            </div>
+            <span className="decision-status">
+              <i /> مسیر تصمیم آماده است
+            </span>
+            <small>{selectedEnvironment.en} · CLINORO FLOW</small>
+            <h3>{selectedEnvironment.route}</h3>
+            <dl>
+              <div>
+                <dt>
+                  <Target size={16} /> تمرکز اصلی
+                </dt>
+                <dd>{selectedPriority.label}</dd>
+              </div>
+              <div>
+                <dt>
+                  <ShieldCheck size={16} /> ریسک قابل کنترل
+                </dt>
+                <dd>{selectedPriority.risk}</dd>
+              </div>
+              <div>
+                <dt>
+                  <FileCheck2 size={16} /> بسته تصمیم
+                </dt>
+                <dd>{selectedStage.packet}</dd>
+              </div>
+            </dl>
+            <div className="decision-output-actions">
+              <Link className="button button-primary" href={productUrl}>
+                دیدن مسیر پیشنهادی <ArrowLeft size={18} />
+              </Link>
+              <Link href={contactUrl}>شروع RFQ اختصاصی</Link>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const trustStages = [
+  {
+    id: "definition",
+    icon: Target,
+    label: "تعریف نیاز",
+    en: "REQUIREMENT",
+    title: "معیار پذیرش قبل از انتخاب برند روشن می‌شود",
+    text: "کاربرد، ظرفیت، زیرساخت، محدودیت‌ها و مسئولیت‌ها به زبان قابل‌اندازه‌گیری ثبت می‌شوند.",
+    deliverables: ["Requirement brief", "Site constraints", "Acceptance criteria"],
+  },
+  {
+    id: "proposal",
+    icon: ClipboardCheck,
+    label: "پیشنهاد فنی",
+    en: "TECHNICAL OFFER",
+    title: "هر ادعا باید به مدل، سند و تعهد مشخص متصل باشد",
+    text: "پیشنهاد، دامنه تأمین، استثناها، خدمات و زمان‌بندی را کنار هم قرار می‌دهد تا مقایسه واقعی باشد.",
+    deliverables: ["Model & configuration", "Document index", "Service scope"],
+  },
+  {
+    id: "handover",
+    icon: BadgeCheck,
+    label: "تحویل و پذیرش",
+    en: "HANDOVER",
+    title: "تحویل زمانی کامل است که تجهیز قابل بهره‌برداری باشد",
+    text: "کنترل تحویل، نصب، آزمون پذیرش، آموزش و مدارک در یک پرونده قابل پیگیری بسته می‌شوند.",
+    deliverables: ["Acceptance record", "Training record", "Handover pack"],
+  },
+  {
+    id: "lifecycle",
+    icon: Wrench,
+    label: "پشتیبانی چرخه عمر",
+    en: "LIFECYCLE",
+    title: "خدمت پس از فروش باید پیش از خرید قابل سنجش باشد",
+    text: "زمان پاسخ، نگهداری، قطعه، آموزش تکمیلی و مسیر escalation از ابتدا به قرارداد متصل می‌شوند.",
+    deliverables: ["Response matrix", "PM framework", "Escalation path"],
+  },
+] as const;
+
+export function TrustProtocol() {
+  const { home } = useSiteContent();
+  const [active, setActive] = useState(0);
+  const item = trustStages[active];
+  const Icon = item.icon;
+  return (
+    <section className="trust-protocol motion-section">
+      <div className="trust-protocol-grid" aria-hidden="true" />
+      <div className="site-wrap trust-protocol-shell">
+        <header data-reveal>
+          <span className="eyebrow">
+            <ShieldCheck size={15} /> {home.trustProtocol.eyebrow}
+          </span>
+          <h2>{home.trustProtocol.title}</h2>
+          <p>{home.trustProtocol.text}</p>
+        </header>
+
+        <div className="trust-protocol-console prism-edge" data-reveal>
+          <nav aria-label="مراحل پروتکل اعتماد">
+            {trustStages.map((stage, index) => {
+              const StageIcon = stage.icon;
+              return (
+                <button
+                  type="button"
+                  className={active === index ? "active" : ""}
+                  aria-pressed={active === index}
+                  onClick={() => setActive(index)}
+                  key={stage.id}
+                >
+                  <span>
+                    <StageIcon size={18} />
+                  </span>
+                  <b>{stage.label}</b>
+                  <small>0{index + 1}</small>
+                </button>
+              );
+            })}
+          </nav>
+
+          <article key={item.id} className="trust-protocol-detail">
+            <div className="trust-protocol-mark">
+              <span>
+                <Icon size={31} />
+              </span>
+              <i />
+            </div>
+            <small>{item.en}</small>
+            <h3>{item.title}</h3>
+            <p>{item.text}</p>
+            <div>
+              {item.deliverables.map((deliverable) => (
+                <span key={deliverable}>
+                  <FileCheck2 size={15} /> {deliverable}
+                </span>
+              ))}
+            </div>
+            <footer>
+              <Link href="/credentials">
+                مرکز اسناد و اعتماد <ArrowLeft size={17} />
+              </Link>
+              <Link href="/procurement">مشاهده فرآیند تأمین</Link>
+            </footer>
+          </article>
+
+          <aside>
+            <Gauge size={22} />
+            <div>
+              <b>۴ دروازه کنترل</b>
+              <small>از نیاز تا چرخه عمر</small>
+            </div>
+            <i />
+            <div>
+              <b>مدرک‌محور</b>
+              <small>بدون ادعای تأییدنشده</small>
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
   );

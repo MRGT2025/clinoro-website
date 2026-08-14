@@ -19,6 +19,9 @@ export function CustomContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
           "--block-padding": `${style?.paddingY ?? 100}px`,
           "--block-title-size": `${style?.titleSize ?? 52}px`,
           "--block-gap": `${style?.gap ?? 70}px`,
+          "--block-mobile-title-size": `${block.responsive?.mobileTitleSize ?? 36}px`,
+          "--block-mobile-padding": `${block.responsive?.mobilePaddingY ?? 64}px`,
+          "--block-mobile-gap": `${block.responsive?.mobileGap ?? 28}px`,
         } as CSSProperties;
         return (
           <section
@@ -35,6 +38,7 @@ export function CustomContentBlocks({ blocks }: { blocks: ContentBlock[] }) {
               `cms-aspect-${block.mediaAspect || "wide"}`,
               `cms-motion-${block.motion || "reveal"}`,
               `cms-columns-${block.columns || 1}`,
+              block.responsive?.tabletStack ? "cms-tablet-stack" : "",
               block.hideOnDesktop ? "cms-hide-desktop" : "",
               block.hideOnMobile ? "cms-hide-mobile" : "",
               style?.background && style.background !== "transparent"

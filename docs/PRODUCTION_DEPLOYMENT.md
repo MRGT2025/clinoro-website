@@ -83,7 +83,7 @@ Required checks:
 The current global design-studio release marker is:
 
 ```html
-<meta name="clinoro-deployment" content="global-studio-20260814">
+<meta name="clinoro-deployment" content="clinoro-95-20260814">
 ```
 
 It is harmless and provides an exact end-to-end signal from the GitHub commit

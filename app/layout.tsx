@@ -34,7 +34,16 @@ export async function generateMetadata(): Promise<Metadata> {
     authors: [{ name: "Clinoro" }],
     creator: "Clinoro",
     publisher: "Clinoro",
-    other: { "clinoro-deployment": "global-studio-20260814" },
+    keywords: [
+      "تجهیزات پزشکی",
+      "خرید تجهیزات پزشکی",
+      "تأمین تجهیزات بیمارستانی",
+      "مشاوره تجهیزات پزشکی",
+      "نصب و نگهداری تجهیزات پزشکی",
+      "Clinoro",
+    ],
+    category: "Medical equipment and healthcare technology",
+    other: { "clinoro-deployment": "clinoro-95-20260814" },
     formatDetection: { email: false, address: false, telephone: false },
     robots: {
       index: true,
@@ -96,6 +105,7 @@ export default async function RootLayout({
     "--blue": design.colors.blue,
     "--teal": design.colors.teal,
     "--cyan": design.colors.cyan,
+    "--silver": design.colors.silver,
     "--pearl": design.colors.surface,
     "--muted": design.colors.muted,
     "--container-max": `${clamp(design.containerWidth, 1080, 1600)}px`,
@@ -105,6 +115,9 @@ export default async function RootLayout({
     "--content-grid-gap": `${clamp(design.gridGap, 8, 48)}px`,
     "--base-font-size": `${clamp(design.baseFontSize, 14, 20)}px`,
     "--heading-scale": clamp(design.headingScale, 0.82, 1.25),
+    "--glass-blur": `${clamp(design.glassBlur, 8, 42)}px`,
+    "--shadow-depth": clamp(design.shadowDepth, 0.5, 1.8),
+    "--motion-intensity": clamp(design.motionIntensity, 0.35, 1.5),
     "--font-fa": faFonts[design.faFont] || faFonts.vazirmatn,
     "--font-en": enFonts[design.enFont] || enFonts.manrope,
   } as CSSProperties;
@@ -138,6 +151,28 @@ export default async function RootLayout({
       availableLanguage: ["fa", "en"],
     },
   };
+  const website = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Clinoro Medical Technologies",
+    alternateName: "Clinoro",
+    url: "https://clinoromedical.com/",
+    inLanguage: "fa-IR",
+    publisher: {
+      "@type": "Organization",
+      name: "Clinoro Medical Technologies",
+      url: "https://clinoromedical.com/",
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate:
+          "https://clinoromedical.com/products?q={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+  };
   const introState = `try{if(sessionStorage.getItem("clinoro-brand-intro-v1")==="seen"||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.clinoroIntro="seen"}catch{}`;
   return (
     <html
@@ -149,12 +184,18 @@ export default async function RootLayout({
       data-header-style={design.headerStyle}
       data-card-style={design.cardStyle}
       data-density={design.density}
+      data-background-style={design.backgroundStyle}
+      data-button-style={design.buttonStyle}
     >
       <body>
         <script dangerouslySetInnerHTML={{ __html: introState }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }}
         />
         <BrandIntro motionMode={content.general.motionMode} />
         <SiteContentProvider content={clientContent}>

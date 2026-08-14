@@ -61,7 +61,10 @@ export async function generateMetadata({params}:BlogParams):Promise<Metadata>{
   const {slug}=await params;
   const content=await getSiteContent();
   const post=findPublishedBlogPost(content.blogPosts,slug);
-  return post?{title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,keywords:post.keywords,alternates:{canonical:`/blog/${post.slug}`},openGraph:{type:"article",title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,url:`/blog/${post.slug}`,publishedTime:post.publishedTime,authors:[post.author],images:[{url:post.image,alt:post.imageAlt||post.title}]},twitter:{card:"summary_large_image",title:post.seoTitle||post.title,description:post.seoDescription||post.excerpt,images:[post.image]}}:{};
+  if(!post)return {};
+  const socialTitle=post.seoTitle||`${post.title} | Clinoro`;
+  const title=socialTitle.replace(/\s*\|\s*Clinoro\s*$/i,"");
+  return {title,description:post.seoDescription||post.excerpt,keywords:post.keywords,alternates:{canonical:`/blog/${post.slug}`},openGraph:{type:"article",title:socialTitle,description:post.seoDescription||post.excerpt,url:`/blog/${post.slug}`,publishedTime:post.publishedTime,authors:[post.author],images:[{url:post.image,alt:post.imageAlt||post.title}]},twitter:{card:"summary_large_image",title:socialTitle,description:post.seoDescription||post.excerpt,images:[post.image]}};
 }
 
 export default async function BlogPostPage({params}:BlogParams){

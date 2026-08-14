@@ -98,6 +98,8 @@ export type DesignSettings = {
   headerStyle: "glass" | "solid" | "minimal";
   cardStyle: "glass" | "outline" | "elevated";
   density: "compact" | "balanced" | "spacious";
+  backgroundStyle: "aurora" | "grid" | "clean";
+  buttonStyle: "pill" | "rounded" | "compact";
   colors: {
     ink: string;
     ink2: string;
@@ -105,6 +107,7 @@ export type DesignSettings = {
     blue: string;
     teal: string;
     cyan: string;
+    silver: string;
     surface: string;
     muted: string;
   };
@@ -115,6 +118,15 @@ export type DesignSettings = {
   gridGap: number;
   baseFontSize: number;
   headingScale: number;
+  glassBlur: number;
+  shadowDepth: number;
+  motionIntensity: number;
+};
+export type SavedDesignPreset = {
+  id: string;
+  name: string;
+  createdAt: string;
+  settings: DesignSettings;
 };
 export type ContentBlockStyle = {
   background: string;
@@ -124,6 +136,12 @@ export type ContentBlockStyle = {
   paddingY: number;
   titleSize: number;
   gap: number;
+};
+export type ContentBlockResponsive = {
+  mobileTitleSize: number;
+  mobilePaddingY: number;
+  mobileGap: number;
+  tabletStack: boolean;
 };
 export type ContentBlock = {
   id: string;
@@ -143,9 +161,10 @@ export type ContentBlock = {
   mediaSide: "start" | "end";
   textAlign: "start" | "center" | "end";
   mediaAspect: "wide" | "square" | "portrait";
-  motion: "none" | "reveal" | "float";
+  motion: "none" | "reveal" | "float" | "parallax" | "pulse";
   columns: 1 | 2;
   style: ContentBlockStyle;
+  responsive: ContentBlockResponsive;
 };
 export type TrustItem = {
   id: string;
@@ -164,6 +183,7 @@ export type TrustItem = {
 export type SiteContent = {
   schemaVersion: number;
   design: DesignSettings;
+  designLibrary: SavedDesignPreset[];
   general: {
     brand: string;
     tagline: string;
@@ -191,6 +211,16 @@ export type SiteContent = {
     serviceCards: HomeTextCard[];
     process: HomeTextCard[];
     finalCta: HomeTextCard;
+    decisionStudio: {
+      eyebrow: string;
+      title: string;
+      text: string;
+    };
+    trustProtocol: {
+      eyebrow: string;
+      title: string;
+      text: string;
+    };
   };
   pages: Record<
     | "products"
@@ -225,14 +255,16 @@ const emptyInjection = (): InjectionCode => ({
 });
 
 export const defaultSiteContent: SiteContent = {
-  schemaVersion: 16,
+  schemaVersion: 17,
   design: {
     preset: "prism",
     faFont: "vazirmatn",
     enFont: "manrope",
     headerStyle: "glass",
-    cardStyle: "glass",
+    cardStyle: "elevated",
     density: "balanced",
+    backgroundStyle: "aurora",
+    buttonStyle: "rounded",
     colors: {
       ink: "#071a31",
       ink2: "#0c2848",
@@ -240,6 +272,7 @@ export const defaultSiteContent: SiteContent = {
       blue: "#3978ff",
       teal: "#22b8b0",
       cyan: "#47d7ee",
+      silver: "#d8dee9",
       surface: "#f4f8f8",
       muted: "#60758a",
     },
@@ -249,8 +282,12 @@ export const defaultSiteContent: SiteContent = {
     gridColumns: 12,
     gridGap: 16,
     baseFontSize: 16,
-    headingScale: 1,
+    headingScale: 1.04,
+    glassBlur: 22,
+    shadowDepth: 1.08,
+    motionIntensity: 1,
   },
+  designLibrary: [],
   general: {
     brand: "CLINORO",
     tagline: "PRECISION · MEDICAL TECHNOLOGY · COMMERCE",
@@ -264,7 +301,7 @@ export const defaultSiteContent: SiteContent = {
       "تأمین تجهیزات پزشکی، مشاوره فنی، نصب، آموزش و پشتیبانی تخصصی برای مراکز درمانی.",
     footerText:
       "معرفی و تأمین حرفه‌ای تجهیزات پزشکی، همراه با مشاوره فنی، نصب، آموزش و پشتیبانی ساختارمند.",
-    motionMode: "subtle",
+    motionMode: "full",
   },
   home: {
     kicker: "CLINICAL TECHNOLOGY · PROCUREMENT · SUPPORT",
@@ -352,6 +389,16 @@ export const defaultSiteContent: SiteContent = {
     finalCta: {
       title: "پروژه یا تجهیز موردنظرتان را با ما در میان بگذارید",
       text: "اطلاعات اولیه را ارسال کنید تا مسیر فنی و تجاری مناسب برایتان آماده شود.",
+    },
+    decisionStudio: {
+      eyebrow: "CLINORO DECISION STUDIO",
+      title: "قبل از دیدن کاتالوگ، مسیر خرید را روشن کنید",
+      text: "نوع مرکز، اولویت تصمیم و مرحله پروژه را انتخاب کنید تا مسیر مناسب محصول، مدارک و استعلام در چند ثانیه ساخته شود.",
+    },
+    trustProtocol: {
+      eyebrow: "VERIFIED PROCUREMENT PROTOCOL",
+      title: "اعتماد، یک ادعا نیست؛ یک زنجیره قابل پیگیری است",
+      text: "از تعریف نیاز تا تحویل و خدمات، هر مرحله با خروجی مشخص، مسئولیت روشن و مدرک قابل بررسی طراحی می‌شود.",
     },
   },
   pages: {
@@ -1224,7 +1271,18 @@ function mergeContent(
       ],
     ),
   ) as SiteContent["pages"];
-  const home = { ...base.home, ...value.home };
+  const home = {
+    ...base.home,
+    ...value.home,
+    decisionStudio: {
+      ...base.home.decisionStudio,
+      ...value.home?.decisionStudio,
+    },
+    trustProtocol: {
+      ...base.home.trustProtocol,
+      ...value.home?.trustProtocol,
+    },
+  };
   if ((value.schemaVersion ?? 0) < 6) {
     if (home.heroImage === "/assets/clinoro-hero-prism.png")
       home.heroImage = base.home.heroImage;
@@ -1254,6 +1312,16 @@ function mergeContent(
     ...value.design,
     colors: { ...base.design.colors, ...value.design?.colors },
   };
+  const designLibrary = (
+    Array.isArray(value.designLibrary) ? value.designLibrary : []
+  ).map((preset) => ({
+    ...preset,
+    settings: {
+      ...base.design,
+      ...preset.settings,
+      colors: { ...base.design.colors, ...preset.settings?.colors },
+    },
+  }));
   const blockStyle: ContentBlockStyle = {
     background: "transparent",
     foreground: "",
@@ -1262,6 +1330,12 @@ function mergeContent(
     paddingY: 96,
     titleSize: 46,
     gap: 54,
+  };
+  const blockResponsive: ContentBlockResponsive = {
+    mobileTitleSize: 36,
+    mobilePaddingY: 64,
+    mobileGap: 28,
+    tabletStack: true,
   };
   const blockDefaults: Omit<
     ContentBlock,
@@ -1286,6 +1360,7 @@ function mergeContent(
     motion: "reveal",
     columns: 2,
     style: blockStyle,
+    responsive: blockResponsive,
   };
   const customBlocks = Object.fromEntries(
     (Object.keys(base.customBlocks) as PageKey[]).map((key) => {
@@ -1298,6 +1373,7 @@ function mergeContent(
           ...blockDefaults,
           ...block,
           style: { ...blockStyle, ...block.style },
+          responsive: { ...blockResponsive, ...block.responsive },
         })),
       ];
     }),
@@ -1307,6 +1383,7 @@ function mergeContent(
     ...value,
     schemaVersion: base.schemaVersion,
     design,
+    designLibrary,
     general: {
       ...base.general,
       ...value.general,
@@ -1314,8 +1391,9 @@ function mergeContent(
       logoAlt: upgradedLogoAlt,
       tagline: upgradedTagline,
       motionMode:
-        (value.schemaVersion ?? 0) < 6 && value.general?.motionMode === "full"
-          ? "subtle"
+        (value.schemaVersion ?? 0) < 17 &&
+        value.general?.motionMode !== "reduced"
+          ? "full"
           : value.general?.motionMode || base.general.motionMode,
     },
     home,

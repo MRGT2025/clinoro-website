@@ -33,6 +33,7 @@ import {
   Palette,
   PanelTop,
   PlayCircle,
+  Redo2,
   RefreshCw,
   RotateCcw,
   Save,
@@ -43,6 +44,7 @@ import {
   Smartphone,
   Tablet,
   Trash2,
+  Undo2,
   Upload,
   UserPlus,
   Users,
@@ -58,6 +60,7 @@ import type {
   PageIntro,
   PageKey,
   ProductItem,
+  SavedDesignPreset,
   ServiceItem,
   SiteContent,
   SolutionItem,
@@ -136,6 +139,8 @@ export function AdminEditor({
   const [content, setContentState] = useState(initialContent);
   const [savedContent, setSavedContent] = useState(initialContent);
   const [dirty, setDirty] = useState(false);
+  const [history, setHistory] = useState<SiteContent[]>([]);
+  const [future, setFuture] = useState<SiteContent[]>([]);
   const [active, setActive] = useState<TabId>("general");
   const [state, setState] = useState<SaveState>("idle");
   const [builderPage, setBuilderPage] = useState<PageKey>("home");
@@ -151,10 +156,37 @@ export function AdminEditor({
   const [adminBusy, setAdminBusy] = useState(false);
 
   const setContent = (next: SiteContent) => {
+    if (next === content) return;
+    setHistory((current) => [...current.slice(-79), content]);
+    setFuture([]);
     setContentState(next);
     setDirty(true);
     if (state === "saved") setState("idle");
   };
+
+  const undo = useCallback(() => {
+    setHistory((current) => {
+      if (!current.length) return current;
+      const previous = current[current.length - 1];
+      setFuture((items) => [content, ...items].slice(0, 80));
+      setContentState(previous);
+      setDirty(JSON.stringify(previous) !== JSON.stringify(savedContent));
+      setState("idle");
+      return current.slice(0, -1);
+    });
+  }, [content, savedContent]);
+
+  const redo = useCallback(() => {
+    setFuture((current) => {
+      if (!current.length) return current;
+      const next = current[0];
+      setHistory((items) => [...items.slice(-79), content]);
+      setContentState(next);
+      setDirty(JSON.stringify(next) !== JSON.stringify(savedContent));
+      setState("idle");
+      return current.slice(1);
+    });
+  }, [content, savedContent]);
 
   const chooseTab = (id: TabId) => {
     setActive(id);
@@ -188,11 +220,22 @@ export function AdminEditor({
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
         void save();
+        return;
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (event.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        redo();
       }
     };
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
-  }, [save]);
+  }, [redo, save, undo]);
   const upload = async (
     file: File,
     onDone: (url: string, contentType: string) => void,
@@ -339,11 +382,41 @@ export function AdminEditor({
             </a>
             {active !== "admins" && active !== "rfq" && (
               <>
+                <div className="admin-history-controls" aria-label="تاریخچه ویرایش">
+                  <button
+                    type="button"
+                    onClick={undo}
+                    disabled={!history.length}
+                    title="Undo · Ctrl/⌘ + Z"
+                    aria-label="برگشت یک تغییر"
+                  >
+                    <Undo2 size={16} />
+                    <span>برگشت</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={redo}
+                    disabled={!future.length}
+                    title="Redo · Ctrl/⌘ + Shift + Z"
+                    aria-label="انجام دوباره تغییر"
+                  >
+                    <Redo2 size={16} />
+                    <span>دوباره</span>
+                  </button>
+                  <small>
+                    {history.length.toLocaleString("fa-IR")} مرحله
+                  </small>
+                </div>
                 {dirty && (
                   <button
                     type="button"
                     className="admin-reset"
                     onClick={() => {
+                      setHistory((current) => [
+                        ...current.slice(-79),
+                        content,
+                      ]);
+                      setFuture([]);
                       setContentState(savedContent);
                       setDirty(false);
                       setState("idle");
@@ -526,6 +599,30 @@ export function AdminEditor({
             <DesignStudio
               design={content.design}
               onChange={(design) => setContent({ ...content, design })}
+              savedPresets={content.designLibrary}
+              onSavePreset={(name) =>
+                setContent({
+                  ...content,
+                  designLibrary: [
+                    ...content.designLibrary,
+                    {
+                      id: crypto.randomUUID(),
+                      name,
+                      createdAt: new Date().toISOString(),
+                      settings: content.design,
+                    },
+                  ].slice(-12),
+                })
+              }
+              onApplyPreset={(design) => setContent({ ...content, design })}
+              onDeletePreset={(id) =>
+                setContent({
+                  ...content,
+                  designLibrary: content.designLibrary.filter(
+                    (preset) => preset.id !== id,
+                  ),
+                })
+              }
             />
           )}
           {active === "home" && (
@@ -594,6 +691,115 @@ export function AdminEditor({
                           home: { ...content.home, heroImage: url },
                         }),
                       )
+                    }
+                  />
+                </Grid>
+              </Panel>
+              <Panel
+                title="Decision Studio و پروتکل اعتماد"
+                text="عنوان‌ها و توضیحات دو بخش شاخص تجربه خریدار را بدون تغییر کد مدیریت کنید. منطق تعاملی و کنترل‌های فنی خودکار باقی می‌مانند."
+              >
+                <Grid>
+                  <Field
+                    wide
+                    label="عبارت بالای Decision Studio"
+                    value={content.home.decisionStudio.eyebrow}
+                    onChange={(eyebrow) =>
+                      setContent({
+                        ...content,
+                        home: {
+                          ...content.home,
+                          decisionStudio: {
+                            ...content.home.decisionStudio,
+                            eyebrow,
+                          },
+                        },
+                      })
+                    }
+                  />
+                  <Field
+                    wide
+                    label="عنوان Decision Studio"
+                    value={content.home.decisionStudio.title}
+                    onChange={(title) =>
+                      setContent({
+                        ...content,
+                        home: {
+                          ...content.home,
+                          decisionStudio: {
+                            ...content.home.decisionStudio,
+                            title,
+                          },
+                        },
+                      })
+                    }
+                  />
+                  <TextArea
+                    wide
+                    label="توضیح Decision Studio"
+                    value={content.home.decisionStudio.text}
+                    onChange={(text) =>
+                      setContent({
+                        ...content,
+                        home: {
+                          ...content.home,
+                          decisionStudio: {
+                            ...content.home.decisionStudio,
+                            text,
+                          },
+                        },
+                      })
+                    }
+                  />
+                  <Field
+                    wide
+                    label="عبارت بالای پروتکل اعتماد"
+                    value={content.home.trustProtocol.eyebrow}
+                    onChange={(eyebrow) =>
+                      setContent({
+                        ...content,
+                        home: {
+                          ...content.home,
+                          trustProtocol: {
+                            ...content.home.trustProtocol,
+                            eyebrow,
+                          },
+                        },
+                      })
+                    }
+                  />
+                  <Field
+                    wide
+                    label="عنوان پروتکل اعتماد"
+                    value={content.home.trustProtocol.title}
+                    onChange={(title) =>
+                      setContent({
+                        ...content,
+                        home: {
+                          ...content.home,
+                          trustProtocol: {
+                            ...content.home.trustProtocol,
+                            title,
+                          },
+                        },
+                      })
+                    }
+                  />
+                  <TextArea
+                    wide
+                    label="توضیح پروتکل اعتماد"
+                    value={content.home.trustProtocol.text}
+                    onChange={(text) =>
+                      setContent({
+                        ...content,
+                        home: {
+                          ...content.home,
+                          trustProtocol: {
+                            ...content.home.trustProtocol,
+                            text,
+                          },
+                        },
+                      })
                     }
                   />
                 </Grid>
@@ -1241,6 +1447,11 @@ const designPresets: Array<{
   headerStyle: DesignSettings["headerStyle"];
   cardStyle: DesignSettings["cardStyle"];
   density: DesignSettings["density"];
+  backgroundStyle: DesignSettings["backgroundStyle"];
+  buttonStyle: DesignSettings["buttonStyle"];
+  glassBlur: number;
+  shadowDepth: number;
+  motionIntensity: number;
 }> = [
   {
     id: "prism",
@@ -1253,12 +1464,18 @@ const designPresets: Array<{
       blue: "#3978ff",
       teal: "#22b8b0",
       cyan: "#47d7ee",
+      silver: "#d8dee9",
       surface: "#f4f8f8",
       muted: "#60758a",
     },
     headerStyle: "glass",
-    cardStyle: "glass",
+    cardStyle: "elevated",
     density: "balanced",
+    backgroundStyle: "aurora",
+    buttonStyle: "rounded",
+    glassBlur: 22,
+    shadowDepth: 1.08,
+    motionIntensity: 1,
   },
   {
     id: "midnight",
@@ -1271,12 +1488,18 @@ const designPresets: Array<{
       blue: "#4b83ff",
       teal: "#19bbb0",
       cyan: "#6be8f2",
+      silver: "#cfd8e8",
       surface: "#eaf3f5",
       muted: "#5d7486",
     },
     headerStyle: "solid",
     cardStyle: "elevated",
     density: "spacious",
+    backgroundStyle: "aurora",
+    buttonStyle: "pill",
+    glassBlur: 30,
+    shadowDepth: 1.35,
+    motionIntensity: 1.2,
   },
   {
     id: "sterile",
@@ -1289,22 +1512,37 @@ const designPresets: Array<{
       blue: "#2f71ed",
       teal: "#158f8a",
       cyan: "#39bfd2",
+      silver: "#dfe5ea",
       surface: "#f8fbfb",
       muted: "#647985",
     },
     headerStyle: "minimal",
     cardStyle: "outline",
     density: "compact",
+    backgroundStyle: "clean",
+    buttonStyle: "compact",
+    glassBlur: 12,
+    shadowDepth: 0.7,
+    motionIntensity: 0.65,
   },
 ];
 
 function DesignStudio({
   design,
   onChange,
+  savedPresets,
+  onSavePreset,
+  onApplyPreset,
+  onDeletePreset,
 }: {
   design: DesignSettings;
   onChange: (design: DesignSettings) => void;
+  savedPresets: SavedDesignPreset[];
+  onSavePreset: (name: string) => void;
+  onApplyPreset: (design: DesignSettings) => void;
+  onDeletePreset: (id: string) => void;
 }) {
+  const [presetName, setPresetName] = useState("");
   const patch = (next: Partial<DesignSettings>) =>
     onChange({ ...design, ...next });
   const color = (key: keyof DesignSettings["colors"], value: string) =>
@@ -1330,6 +1568,11 @@ function DesignStudio({
                   headerStyle: preset.headerStyle,
                   cardStyle: preset.cardStyle,
                   density: preset.density,
+                  backgroundStyle: preset.backgroundStyle,
+                  buttonStyle: preset.buttonStyle,
+                  glassBlur: preset.glassBlur,
+                  shadowDepth: preset.shadowDepth,
+                  motionIntensity: preset.motionIntensity,
                 })
               }
             >
@@ -1345,6 +1588,66 @@ function DesignStudio({
               <i>{design.preset === preset.id ? "فعال" : "اعمال تم"}</i>
             </button>
           ))}
+        </div>
+        <div className="design-library">
+          <header>
+            <div>
+              <b>کتابخانه تم‌های خودتان</b>
+              <small>
+                ترکیب فعلی رنگ، فونت، گرید، موشن و سبک اجزا را برای استفاده بعدی ذخیره کنید.
+              </small>
+            </div>
+            <label>
+              <input
+                value={presetName}
+                onChange={(event) => setPresetName(event.target.value)}
+                placeholder="نام تم؛ مثلاً کمپین ICU"
+              />
+              <button
+                type="button"
+                disabled={!presetName.trim()}
+                onClick={() => {
+                  onSavePreset(presetName.trim());
+                  setPresetName("");
+                }}
+              >
+                <Save size={15} /> ذخیره تم فعلی
+              </button>
+            </label>
+          </header>
+          {savedPresets.length > 0 && (
+            <div>
+              {savedPresets.map((preset) => (
+                <article key={preset.id}>
+                  <span
+                    style={{
+                      background: `linear-gradient(135deg,${preset.settings.colors.ink},${preset.settings.colors.blue},${preset.settings.colors.cyan})`,
+                    }}
+                  />
+                  <div>
+                    <b>{preset.name}</b>
+                    <small>
+                      {new Date(preset.createdAt).toLocaleDateString("fa-IR")} ·{" "}
+                      {preset.settings.faFont} / {preset.settings.cardStyle}
+                    </small>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onApplyPreset(preset.settings)}
+                  >
+                    اعمال
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDeletePreset(preset.id)}
+                    aria-label={`حذف تم ${preset.name}`}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       </Panel>
 
@@ -1386,6 +1689,11 @@ function DesignStudio({
             label="فیروزه‌ای نور"
             value={design.colors.cyan}
             onChange={(value) => color("cyan", value)}
+          />
+          <ColorField
+            label="نقره‌ای برند"
+            value={design.colors.silver}
+            onChange={(value) => color("silver", value)}
           />
           <ColorField
             label="سطح روشن"
@@ -1468,6 +1776,32 @@ function DesignStudio({
               ["spacious", "باز و لوکس"],
             ]}
           />
+          <SelectField
+            label="بافت پس‌زمینه"
+            value={design.backgroundStyle}
+            onChange={(value) =>
+              patch({
+                backgroundStyle: value as DesignSettings["backgroundStyle"],
+              })
+            }
+            options={[
+              ["aurora", "Aurora پویا"],
+              ["grid", "گرید مهندسی"],
+              ["clean", "مینیمال تمیز"],
+            ]}
+          />
+          <SelectField
+            label="فرم دکمه‌ها"
+            value={design.buttonStyle}
+            onChange={(value) =>
+              patch({ buttonStyle: value as DesignSettings["buttonStyle"] })
+            }
+            options={[
+              ["pill", "کپسولی"],
+              ["rounded", "مدرن گرد"],
+              ["compact", "فشرده دقیق"],
+            ]}
+          />
           <RangeField
             label="اندازه متن پایه"
             value={design.baseFontSize}
@@ -1483,6 +1817,32 @@ function DesignStudio({
             min={0.82}
             max={1.25}
             step={0.01}
+            suffix="×"
+          />
+          <RangeField
+            label="شفافیت شیشه"
+            value={design.glassBlur}
+            onChange={(glassBlur) => patch({ glassBlur })}
+            min={8}
+            max={42}
+            suffix="px"
+          />
+          <RangeField
+            label="عمق سایه‌ها"
+            value={design.shadowDepth}
+            onChange={(shadowDepth) => patch({ shadowDepth })}
+            min={0.5}
+            max={1.8}
+            step={0.05}
+            suffix="×"
+          />
+          <RangeField
+            label="شدت موشن"
+            value={design.motionIntensity}
+            onChange={(motionIntensity) => patch({ motionIntensity })}
+            min={0.35}
+            max={1.5}
+            step={0.05}
             suffix="×"
           />
         </Grid>
@@ -2836,6 +3196,12 @@ const makeContentBlock = (type: ContentBlock["type"]): ContentBlock => ({
     titleSize: 52,
     gap: 70,
   },
+  responsive: {
+    mobileTitleSize: 36,
+    mobilePaddingY: 64,
+    mobileGap: 28,
+    tabletStack: true,
+  },
 });
 
 function BlockBuilder({
@@ -2886,6 +3252,7 @@ function BlockBuilder({
       id: crypto.randomUUID(),
       title: `${source.title || blockTypeLabels[source.type]} — کپی`,
       style: { ...source.style },
+      responsive: { ...source.responsive },
     };
     const items = [...blocks];
     items.splice(index + 1, 0, copy);
@@ -3159,6 +3526,8 @@ function BlockBuilder({
                       ["none", "بدون موشن"],
                       ["reveal", "نمایش نرم"],
                       ["float", "شناور ملایم"],
+                      ["parallax", "پارالاکس عمقی"],
+                      ["pulse", "پالس پزشکی"],
                     ]}
                   />
                   <SelectField
@@ -3336,6 +3705,81 @@ function BlockBuilder({
                         })
                       }
                     />
+                    <div className="block-responsive-heading wide">
+                      <Smartphone size={17} />
+                      <div>
+                        <b>تنظیم مستقل موبایل و تبلت</b>
+                        <small>
+                          این مقادیر فقط در نمایش کوچک جایگزین تنظیم دسکتاپ می‌شوند.
+                        </small>
+                      </div>
+                    </div>
+                    <RangeField
+                      label="اندازه عنوان موبایل"
+                      value={block.responsive.mobileTitleSize}
+                      min={22}
+                      max={58}
+                      suffix="px"
+                      onChange={(mobileTitleSize) =>
+                        update(index, {
+                          ...block,
+                          responsive: {
+                            ...block.responsive,
+                            mobileTitleSize,
+                          },
+                        })
+                      }
+                    />
+                    <RangeField
+                      label="فاصله عمودی موبایل"
+                      value={block.responsive.mobilePaddingY}
+                      min={28}
+                      max={120}
+                      suffix="px"
+                      onChange={(mobilePaddingY) =>
+                        update(index, {
+                          ...block,
+                          responsive: {
+                            ...block.responsive,
+                            mobilePaddingY,
+                          },
+                        })
+                      }
+                    />
+                    <RangeField
+                      label="فاصله محتوا در موبایل"
+                      value={block.responsive.mobileGap}
+                      min={12}
+                      max={64}
+                      suffix="px"
+                      onChange={(mobileGap) =>
+                        update(index, {
+                          ...block,
+                          responsive: { ...block.responsive, mobileGap },
+                        })
+                      }
+                    />
+                    <button
+                      type="button"
+                      className={`admin-responsive-toggle${block.responsive.tabletStack ? " active" : ""}`}
+                      onClick={() =>
+                        update(index, {
+                          ...block,
+                          responsive: {
+                            ...block.responsive,
+                            tabletStack: !block.responsive.tabletStack,
+                          },
+                        })
+                      }
+                    >
+                      <Tablet size={17} />
+                      <span>
+                        <b>چیدمان ستونی در تبلت</b>
+                        <small>
+                          {block.responsive.tabletStack ? "فعال" : "غیرفعال"}
+                        </small>
+                      </span>
+                    </button>
                   </Grid>
                 </div>
               </div>
@@ -3637,6 +4081,8 @@ function DraftPreview({
     "--preview-surface": design.colors.surface,
     "--preview-muted": design.colors.muted,
     "--preview-radius": `${14 * design.radiusScale}px`,
+    "--preview-blur": `${design.glassBlur}px`,
+    "--preview-shadow": design.shadowDepth,
   } as CSSProperties;
   const pageIntro = page === "home" ? null : content.pages[page];
   const blocks = (content.customBlocks[page] || []).filter(
@@ -3645,7 +4091,7 @@ function DraftPreview({
 
   return (
     <div
-      className={`preview-site preview-preset-${design.preset} preview-card-${design.cardStyle}`}
+      className={`preview-site preview-preset-${design.preset} preview-card-${design.cardStyle} preview-bg-${design.backgroundStyle} preview-button-${design.buttonStyle}`}
       style={draftStyle}
     >
       <nav className={`preview-site-nav preview-header-${design.headerStyle}`}>
@@ -3692,6 +4138,21 @@ function DraftPreview({
               <h3>{content.home.storyTitle}</h3>
               <p>{content.home.storyText}</p>
             </div>
+          </section>
+          <section className="preview-decision-studio">
+            <small>{content.home.decisionStudio.eyebrow}</small>
+            <h3>{content.home.decisionStudio.title}</h3>
+            <p>{content.home.decisionStudio.text}</p>
+            <div>
+              <span>01 · محیط درمانی</span>
+              <span>02 · اولویت تصمیم</span>
+              <span>03 · مرحله پروژه</span>
+            </div>
+          </section>
+          <section className="preview-trust-protocol">
+            <small>{content.home.trustProtocol.eyebrow}</small>
+            <h3>{content.home.trustProtocol.title}</h3>
+            <p>{content.home.trustProtocol.text}</p>
           </section>
           <div className="preview-card-grid">
             {content.home.categories.slice(0, 4).map((item) => (

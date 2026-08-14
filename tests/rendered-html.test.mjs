@@ -90,6 +90,9 @@ test("home exposes production SEO and security metadata", async () => {
   assert.doesNotMatch(html, /codex-preview/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /Organization/);
+  assert.match(html, /WebSite/);
+  assert.match(html, /SearchAction/);
+  assert.match(html, /clinoro-95-20260814/);
   assert.match(html, /rel="canonical" href="https:\/\/clinoromedical\.com\/"/);
   assert.match(html, /clinoro-hero-prism\.webp/);
   assert.match(html, /clinoro-logo-primary\.png/);
@@ -122,6 +125,10 @@ test("catalog links to real product detail pages", async () => {
   assert.match(html, /مقایسه برای تصمیم خرید/);
   assert.match(html, /تا سه تجهیز را کنار هم بگذارید/);
   assert.match(html, /product-card-actions/);
+  assert.match(html, /BUYER DECISION PROFILE/);
+  assert.match(html, /کاتالوگ را بر اساس تصمیم خرید خودتان ببینید/);
+  assert.match(html, /"@type":"ItemList"/);
+  assert.match(html, /پوشش اطلاعات/);
 });
 
 test("design studio and responsive block canvas are wired to the shared content model", async () => {
@@ -135,13 +142,53 @@ test("design studio and responsive block canvas are wired to the shared content 
   assert.match(editor, /پیش‌نمایش زنده ادیت/);
   assert.match(editor, /onDragStart/);
   assert.match(editor, /پنهان در موبایل/);
-  assert.match(contentModel, /schemaVersion:\s*16/);
+  assert.match(editor, /Undo · Ctrl\/⌘ \+ Z/);
+  assert.match(editor, /شدت موشن/);
+  assert.match(editor, /تنظیم مستقل موبایل و تبلت/);
+  assert.match(editor, /کتابخانه تم‌های خودتان/);
+  assert.match(contentModel, /schemaVersion:\s*17/);
   assert.match(contentModel, /faFont:/);
   assert.match(contentModel, /mediaAspect:/);
+  assert.match(contentModel, /mobileTitleSize:/);
+  assert.match(contentModel, /backgroundStyle:/);
+  assert.match(contentModel, /designLibrary:/);
   assert.match(renderer, /cms-hide-mobile/);
   assert.match(renderer, /cms-layout-/);
+  assert.match(renderer, /block-mobile-title-size/);
   assert.match(css, /data-card-style="outline"/);
   assert.match(css, /\.compare-dialog/);
+  assert.match(css, /\.decision-studio/);
+  assert.match(css, /\.trust-protocol/);
+});
+
+test("home renders the interactive decision and documented trust layers", async () => {
+  const response = await request("/");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /CLINORO DECISION STUDIO/);
+  assert.match(html, /قبل از دیدن کاتالوگ، مسیر خرید را روشن کنید/);
+  assert.match(html, /VERIFIED PROCUREMENT PROTOCOL/);
+  assert.match(html, /اعتماد، یک ادعا نیست؛ یک زنجیره قابل پیگیری است/);
+  assert.match(html, /مرکز اسناد و اعتماد/);
+});
+
+test("document titles carry the Clinoro brand exactly once", async () => {
+  const paths = [
+    "/products/icu-patient-monitor",
+    "/credentials",
+    "/blog/qmsr-supplier-quality-2026",
+    "/privacy",
+    "/terms",
+  ];
+  for (const path of paths) {
+    const response = await request(path);
+    const html = await response.text();
+    assert.equal(response.status, 200, path);
+    const title = html.match(/<title>([^<]+)<\/title>/)?.[1] ?? "";
+    assert.match(title, /Clinoro/, path);
+    assert.doesNotMatch(title, /Clinoro\s*\|\s*Clinoro/i, path);
+    assert.equal((title.match(/Clinoro/gi) ?? []).length, 1, path);
+  }
 });
 
 test("blog posts are present in initial HTML without client-side filtering", async () => {
@@ -547,6 +594,10 @@ test("product detail renders structured data and technical content", async () =>
   assert.equal(response.status, 200);
   assert.match(html, /\"@type\":\"Product\"/);
   assert.match(html, /مشخصات قابل انتخاب/);
+  assert.match(html, /PROCUREMENT DECISION PACK/);
+  assert.match(html, /بسته تصمیم خرید این گروه محصول/);
+  assert.match(html, /"@type":"FAQPage"/);
+  assert.match(html, /"additionalProperty"/);
   assert.match(html, /درخواست پیشنهاد و دیتاشیت/);
   assert.match(html, /CC BY 4\.0/);
 });

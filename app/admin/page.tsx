@@ -6,7 +6,7 @@ import { listAdminMembers } from "../../lib/admin-users";
 import type { Metadata } from "next";
 
 export const dynamic="force-dynamic";
-export const metadata:Metadata={robots:{index:false,follow:false},title:"پنل مدیریت Clinoro"};
+export const metadata:Metadata={robots:{index:false,follow:false},title:"پنل مدیریت"};
 
 export default async function AdminPage(){
   const user=await requireAdminPage();

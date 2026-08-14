@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, BadgeCheck, BookOpenCheck, Boxes, CalendarDays, ClipboardCheck, Clock3, Gauge, HeartPulse, Microscope, PackageCheck, ScanLine, Settings, ShieldCheck, Sparkles, Stethoscope, Syringe, Wrench } from "lucide-react";
 import { PageShell, ProofRail, SectionTitle } from "./components";
-import { ClinicalPlanner, HeroSignal, InteractiveShowcase, IntentRibbon } from "./experience";
+import { BuyerDecisionStudio, ClinicalPlanner, HeroSignal, InteractiveShowcase, IntentRibbon, TrustProtocol } from "./experience";
 import { getSiteContent } from "../lib/site-content";
 import { CustomContentBlocks } from "./custom-content";
 import { InjectionLayer } from "./injection-layer";
@@ -29,6 +29,7 @@ export default async function Home() { const content=await getSiteContent(); con
     </div><div className="hero-side-label">ADVANCED MEDICAL SYSTEMS <span>2026</span></div><a className="scroll-cue" href="#systems" aria-label="حرکت به بخش بعدی"><span>SCROLL TO EXPLORE</span><i/></a>
   </section>
   <IntentRibbon/>
+  <BuyerDecisionStudio/>
   <div className="capability-ticker" aria-hidden="true"><div><span>CLINICAL TECHNOLOGY</span><i/> <span>PROCUREMENT</span><i/> <span>INSTALLATION</span><i/> <span>TRAINING</span><i/> <span>LIFECYCLE SUPPORT</span><i/> <span>CLINICAL TECHNOLOGY</span><i/> <span>PROCUREMENT</span><i/> <span>INSTALLATION</span></div></div>
   <div id="systems"><InteractiveShowcase/></div>
   <div id="planner"><ClinicalPlanner/></div>
@@ -46,6 +47,7 @@ export default async function Home() { const content=await getSiteContent(); con
       <article><span><Wrench size={20}/></span><div><b>خدمات قابل اتکا</b><p>نصب، آموزش و نگهداری بخشی از معماری اصلی پروژه‌اند.</p></div></article>
     </div><Link className="text-link" href="/about">بیشتر درباره Clinoro <ArrowLeft size={18}/></Link></div>
   </div></section>
+  <TrustProtocol/>
   {!!latestPosts.length&&<section className="section insight-section motion-section"><div className="insight-aura"/><div className="site-wrap"><SectionTitle eyebrow="CLINORO JOURNAL · UPDATED" title="تصمیم‌های بهتر با دانش به‌روز" text="تحلیل‌های کاربردی برای خرید، یکپارچه‌سازی، امنیت و نگهداری فناوری‌های پزشکی؛ مبتنی بر منابع معتبر و قابل پیگیری."/><div className="insight-grid" data-reveal>{latestPosts.map((post,index)=><Link className={`insight-card prism-edge${index===0?" lead":""}`} href={`/blog/${post.slug}`} key={post.id}><Image src={post.image} alt={post.title} fill unoptimized sizes="(max-width:800px) 100vw,40vw"/><span className="insight-shade"/><div><small>{post.category}</small><h3>{post.title}</h3><p>{post.excerpt}</p><footer><span><CalendarDays size={13}/>{new Date(post.publishedAt).toLocaleDateString("fa-IR")}</span><span><Clock3 size={13}/>{readingMinutes(post.content).toLocaleString("fa-IR")} دقیقه</span><em>بخوانید <ArrowLeft size={15}/></em></footer></div></Link>)}</div><div className="section-action light"><Link href="/blog">ورود به ژورنال Clinoro <ArrowLeft size={17}/></Link></div></div></section>}
   <section className="section process-section motion-section"><div className="site-wrap"><SectionTitle eyebrow="RFQ WORKFLOW" title="یک مسیر روشن از نیاز تا تحویل" text="فرآیند استعلام طوری طراحی شده که تصمیم‌ها سریع‌تر، مدارک کامل‌تر و مسئولیت‌ها از ابتدا مشخص باشند."/>
     <div className="process-line" data-reveal>{content.home.process.map(({title,text},index)=><article key={`${title}-${index}`}><span>{String(index+1).padStart(2,"0")}</span><h3>{title}</h3><p>{text}</p></article>)}</div>
