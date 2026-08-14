@@ -9,7 +9,7 @@ import { InjectionLayer } from "./injection-layer";
 import type { Metadata } from "next";
 import { getPublishedBlogPosts } from "../lib/blog";
 
-export const metadata:Metadata={alternates:{canonical:"/"}};
+export const metadata:Metadata={alternates:{canonical:"/",languages:{"fa-IR":"/","en":"/en"}}};
 
 const categoryIcons=[HeartPulse,ScanLine,Microscope,Stethoscope,Syringe,Gauge];
 const serviceIcons=[ClipboardCheck,PackageCheck,Settings,Wrench];

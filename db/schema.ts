@@ -48,3 +48,14 @@ export const rfqSubmissions = sqliteTable("rfq_submissions", {
   index("rfq_created_at_idx").on(table.createdAt),
   index("rfq_status_idx").on(table.status),
 ]);
+
+export const contentRevisions = sqliteTable("content_revisions", {
+  id: text("id").primaryKey(),
+  document: text("document").notNull(),
+  note: text("note").notNull().default(""),
+  createdBy: text("created_by").notNull(),
+  createdAt: integer("created_at").notNull(),
+  schemaVersion: integer("schema_version").notNull().default(1),
+}, table=>[
+  index("content_revisions_created_at_idx").on(table.createdAt),
+]);

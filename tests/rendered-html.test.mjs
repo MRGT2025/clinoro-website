@@ -92,7 +92,7 @@ test("home exposes production SEO and security metadata", async () => {
   assert.match(html, /Organization/);
   assert.match(html, /WebSite/);
   assert.match(html, /SearchAction/);
-  assert.match(html, /clinoro-95-20260814/);
+  assert.match(html, /clinoro-global-96-20260814/);
   assert.match(html, /rel="canonical" href="https:\/\/clinoromedical\.com\/"/);
   assert.match(html, /clinoro-hero-prism\.webp/);
   assert.match(html, /clinoro-logo-primary\.png/);
@@ -146,7 +146,18 @@ test("design studio and responsive block canvas are wired to the shared content 
   assert.match(editor, /شدت موشن/);
   assert.match(editor, /تنظیم مستقل موبایل و تبلت/);
   assert.match(editor, /کتابخانه تم‌های خودتان/);
-  assert.match(contentModel, /schemaVersion:\s*17/);
+  assert.match(editor, /نسخه بین‌المللی/);
+  assert.match(editor, /نسخه‌ها و انتشار/);
+  assert.match(editor, /ذخیره پیش‌نویس/);
+  assert.match(editor, /انتشار سایت/);
+  assert.match(editor, /پیش‌نویس منتشرنشده/);
+  assert.match(editor, /preview-inline-edit/);
+  assert.match(contentModel, /schemaVersion:\s*19/);
+  assert.match(contentModel, /ProductInternational/);
+  assert.match(contentModel, /ProductInternationalProcurement/);
+  assert.match(contentModel, /ProductProcurement/);
+  assert.match(contentModel, /saveDraftSiteContent/);
+  assert.match(contentModel, /stripCodeInjections/);
   assert.match(contentModel, /faFont:/);
   assert.match(contentModel, /mediaAspect:/);
   assert.match(contentModel, /mobileTitleSize:/);
@@ -159,6 +170,28 @@ test("design studio and responsive block canvas are wired to the shared content 
   assert.match(css, /\.compare-dialog/);
   assert.match(css, /\.decision-studio/);
   assert.match(css, /\.trust-protocol/);
+  assert.match(css, /\.decision-pack-workspace/);
+  assert.match(css, /\.global-hero/);
+  assert.match(css, /\.revision-list/);
+});
+
+test("admin publishing workflow persists drafts and recoverable revisions", async () => {
+  const [contentRoute, revisionRoute, revisionStore, migration] = await Promise.all([
+    readFile(new URL("../app/api/admin/content/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/api/admin/revisions/route.ts", import.meta.url), "utf8"),
+    readFile(new URL("../lib/content-revisions.ts", import.meta.url), "utf8"),
+    readFile(new URL("../drizzle/0004_brainy_puma.sql", import.meta.url), "utf8"),
+  ]);
+  assert.match(contentRoute, /mode===\"draft\"/);
+  assert.match(contentRoute, /publishContentRevision/);
+  assert.match(contentRoute, /normalizeSiteContent/);
+  assert.match(revisionStore, /db\.prepare\(upsert\)\.bind\("primary"/);
+  assert.match(revisionStore, /db\.prepare\(upsert\)\.bind\("draft"/);
+  assert.match(revisionRoute, /getContentRevision/);
+  assert.match(revisionRoute, /stripCodeInjections/);
+  assert.match(revisionStore, /LIMIT 40/);
+  assert.match(migration, /CREATE TABLE `content_revisions`/);
+  assert.match(migration, /content_revisions_created_at_idx/);
 });
 
 test("home renders the interactive decision and documented trust layers", async () => {
@@ -596,10 +629,65 @@ test("product detail renders structured data and technical content", async () =>
   assert.match(html, /مشخصات قابل انتخاب/);
   assert.match(html, /PROCUREMENT DECISION PACK/);
   assert.match(html, /بسته تصمیم خرید این گروه محصول/);
+  assert.match(html, /PRODUCT INTELLIGENCE/);
+  assert.match(html, /سطح شواهد فعلی/);
   assert.match(html, /"@type":"FAQPage"/);
   assert.match(html, /"additionalProperty"/);
   assert.match(html, /درخواست پیشنهاد و دیتاشیت/);
   assert.match(html, /CC BY 4\.0/);
+});
+
+test("catalog exposes the buyer Decision Pack and lifecycle cost workspace", async () => {
+  const [response, browser, pack] = await Promise.all([
+    request("/products"),
+    readFile(new URL("../app/products/product-browser.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/products/decision-pack.tsx", import.meta.url), "utf8"),
+  ]);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /مقایسه برای تصمیم خرید/);
+  assert.match(browser, /Decision Pack/);
+  assert.match(browser, /DecisionPackWorkspace/);
+  assert.match(pack, /TOTAL COST OF OWNERSHIP/);
+  assert.match(pack, /برآورد برنامه‌ریزی هزینه چرخه عمر/);
+  assert.match(pack, /اطلاعات گروه محصول/);
+  assert.match(pack, /این محاسبه فقط ابزار برنامه‌ریزی است/);
+});
+
+test("English buyer journey renders complete localized server HTML", async () => {
+  const localeControl = await readFile(
+    new URL("../app/en/document-locale.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(localeControl, /root\.lang = "en"/);
+  assert.match(localeControl, /root\.dir = "ltr"/);
+  const routes = [
+    ["/en", /BUYER DECISION SYSTEM/],
+    ["/en/products", /Equipment decisions with lifecycle context/],
+    ["/en/products/icu-patient-monitor", /PROCUREMENT INTELLIGENCE/],
+    ["/en/credentials", /Trust is documented, not implied/],
+    ["/en/contact", /Start with the project, not the catalogue/],
+    ["/en/privacy", /Information we collect/],
+    ["/en/terms", /Equipment information/],
+  ];
+  for (const [path, expected] of routes) {
+    const response = await request(path);
+    const html = await response.text();
+    assert.equal(response.status, 200, path);
+    assert.match(html, expected, path);
+    assert.match(html, /lang="en" dir="ltr"/, path);
+    assert.match(html, /PRECISION · TRUST · INNOVATION · COMMERCE/, path);
+  }
+  const response = await request("/en/products/icu-patient-monitor");
+  const html = await response.text();
+  assert.match(html, /rel="alternate" hrefLang="fa-IR"/);
+  assert.match(html, /rel="canonical" href="https:\/\/clinoromedical\.com\/en\/products\/icu-patient-monitor"/);
+  assert.match(html, /"inLanguage":"en"/);
+  assert.match(html, /Protected and backup power/);
+  assert.match(html, /<meta property="og:locale" content="en_US"/);
+  assert.match(html, /<meta name="twitter:title" content="ICU Patient Monitor \| Clinoro"/);
+  const contactResponse = await request("/en/contact");
+  assert.match(await contactResponse.text(), /href="\/en\/privacy"/);
 });
 
 test("discovery files expose public routes and protect admin paths", async () => {
@@ -620,6 +708,13 @@ test("discovery files expose public routes and protect admin paths", async () =>
     /https:\/\/clinoromedical\.com\/products\/icu-patient-monitor/,
   );
   assert.match(sitemap, /https:\/\/clinoromedical\.com\/credentials/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en<\/loc>/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en\/products<\/loc>/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en\/products\/icu-patient-monitor/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en\/credentials/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en\/contact/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en\/privacy/);
+  assert.match(sitemap, /https:\/\/clinoromedical\.com\/en\/terms/);
   assert.match(sitemap, /https:\/\/clinoromedical\.com\/terms/);
   assert.match(
     sitemap,

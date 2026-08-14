@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { ProductItem } from "../../lib/site-content";
+import { DecisionPackWorkspace } from "./decision-pack";
 
 const filters = [
   ["all", "همه"],
@@ -34,6 +35,10 @@ const fixedRows: Array<[string, (product: ProductItem) => string]> = [
   ["مدل / پیکربندی", (product) => product.model],
   ["کاربرد موردنظر", (product) => product.intendedUse],
   ["وضعیت تأمین", (product) => product.availability],
+  ["سطح شواهد", (product) => ({category:"گروه محصول",model:"مدل مشخص",verified:"مدل تأییدشده"})[product.procurement.evidenceLevel]],
+  ["زمان تأمین", (product) => product.procurement.leadTime],
+  ["گارانتی", (product) => product.procurement.warranty],
+  ["SLA خدمات", (product) => product.procurement.serviceResponse],
 ];
 
 const buyerIntents = [
@@ -57,6 +62,10 @@ const decisionCoverage = (product: ProductItem) => {
     product.summary,
     product.technicalSpecs.length ? "specs" : "",
     product.services.length ? "services" : "",
+    product.procurement.infrastructure.length ? "infrastructure" : "",
+    product.procurement.lifecycle.length ? "lifecycle" : "",
+    product.documents.length ? "documents" : "",
+    product.procurement.evidenceLevel !== "category" ? "model-evidence" : "",
   ];
   return Math.round(
     (fields.filter((value) => Boolean(String(value).trim())).length /
@@ -70,6 +79,7 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
   const [q, setQ] = useState("");
   const [compareSlugs, setCompareSlugs] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [dialogView, setDialogView] = useState<"compare" | "pack">("compare");
   const [intent, setIntent] = useState<(typeof buyerIntents)[number][0]>(
     "explore",
   );
@@ -119,6 +129,20 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
       JSON.stringify(compareSlugs),
     );
   }, [compareSlugs, hydrated]);
+
+  useEffect(() => {
+    if (!compareOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setCompareOpen(false);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [compareOpen]);
 
   const shown = useMemo(
     () =>
@@ -418,10 +442,18 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
             <button
               type="button"
               className="compare-open"
-              onClick={() => setCompareOpen(true)}
+              onClick={() => { setDialogView("compare"); setCompareOpen(true); }}
             >
               مشاهده مقایسه
               <ArrowLeft size={17} />
+            </button>
+            <button
+              type="button"
+              className="compare-pack-open"
+              onClick={() => { setDialogView("pack"); setCompareOpen(true); }}
+            >
+              Decision Pack
+              <ClipboardList size={17} />
             </button>
           </div>
         </div>
@@ -470,11 +502,17 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
                   type="button"
                   onClick={() => setCompareOpen(false)}
                   aria-label="بستن"
+                  autoFocus
                 >
                   <X size={21} />
                 </button>
               </div>
             </header>
+            <div className="compare-view-tabs" role="tablist" aria-label="نمای مقایسه و تصمیم خرید">
+              <button type="button" role="tab" aria-selected={dialogView==="compare"} className={dialogView==="compare"?"active":""} onClick={()=>setDialogView("compare")}><GitCompareArrows size={16}/> مقایسه فنی</button>
+              <button type="button" role="tab" aria-selected={dialogView==="pack"} className={dialogView==="pack"?"active":""} onClick={()=>setDialogView("pack")}><ClipboardList size={16}/> Decision Pack و TCO</button>
+            </div>
+            {dialogView === "compare" ? <>
             <div className="compare-decision-summary">
               <article>
                 <Target size={18} />
@@ -599,6 +637,14 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
                 استعلام این انتخاب‌ها <ArrowLeft size={18} />
               </Link>
             </footer>
+            </> : (
+              <DecisionPackWorkspace
+                products={compared}
+                intent={currentIntent[1]}
+                priority={currentPriority[1]}
+                coverage={comparisonCoverage}
+              />
+            )}
           </section>
         </div>
       )}

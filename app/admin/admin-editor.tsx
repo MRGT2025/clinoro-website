@@ -5,6 +5,8 @@ import {
   useEffect,
   useState,
   type CSSProperties,
+  type ElementType,
+  type FocusEvent,
 } from "react";
 import Image from "next/image";
 import {
@@ -15,12 +17,15 @@ import {
   BookOpenText,
   Check,
   ChevronDown,
+  ClipboardList,
   Code2,
   Copy,
   Download,
   Eye,
   FileJson,
+  FileClock,
   FileText,
+  Globe2,
   GripVertical,
   ImagePlus,
   LayoutDashboard,
@@ -36,6 +41,7 @@ import {
   Redo2,
   RefreshCw,
   RotateCcw,
+  Rocket,
   Save,
   Settings2,
   ShieldCheck,
@@ -67,6 +73,7 @@ import type {
   StepItem,
   TrustItem,
 } from "../../lib/site-content";
+import type { ContentRevisionSummary } from "../../lib/content-revisions";
 import type { AdminMember } from "../../lib/admin-users";
 import type { RfqStatus, RfqSubmission } from "../../lib/rfq";
 
@@ -108,6 +115,7 @@ const blockTypeLabels: Record<ContentBlock["type"], string> = {
 const tabs = [
   { id: "general", label: "تنظیمات و لوگو", icon: Settings2 },
   { id: "design", label: "طراحی سایت", icon: Palette },
+  { id: "international", label: "نسخه بین‌المللی", icon: Globe2 },
   { id: "home", label: "صفحه اصلی", icon: LayoutDashboard },
   { id: "pages", label: "سربرگ صفحات", icon: ArrowUpLeft },
   { id: "products", label: "محصولات", icon: PackagePlus },
@@ -116,21 +124,24 @@ const tabs = [
   { id: "rfq", label: "صندوق RFQ", icon: Inbox },
   { id: "trust", label: "مدارک و اعتماد", icon: ShieldCheck },
   { id: "builder", label: "سازنده همه صفحات", icon: Blocks },
+  { id: "revisions", label: "نسخه‌ها و انتشار", icon: FileClock },
   { id: "code", label: "تزریق کد", icon: Code2, ownerOnly: true },
   { id: "advanced", label: "ویرایش پیشرفته", icon: FileJson },
   { id: "admins", label: "مدیران", icon: Users, ownerOnly: true },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
-type SaveState = "idle" | "saving" | "saved" | "error";
+type SaveState = "idle" | "saving" | "draft" | "published" | "error";
 
 export function AdminEditor({
   initialContent,
+  initialHasUnpublishedDraft,
   initialAdmins,
   currentAdmin,
   user,
   signOut,
 }: {
   initialContent: SiteContent;
+  initialHasUnpublishedDraft: boolean;
   initialAdmins: AdminMember[];
   currentAdmin: AdminMember;
   user: string;
@@ -139,6 +150,9 @@ export function AdminEditor({
   const [content, setContentState] = useState(initialContent);
   const [savedContent, setSavedContent] = useState(initialContent);
   const [dirty, setDirty] = useState(false);
+  const [hasUnpublishedDraft, setHasUnpublishedDraft] = useState(
+    initialHasUnpublishedDraft,
+  );
   const [history, setHistory] = useState<SiteContent[]>([]);
   const [future, setFuture] = useState<SiteContent[]>([]);
   const [active, setActive] = useState<TabId>("general");
@@ -154,6 +168,8 @@ export function AdminEditor({
   const [adminForm, setAdminForm] = useState({ username: "", email: "" });
   const [adminMessage, setAdminMessage] = useState("");
   const [adminBusy, setAdminBusy] = useState(false);
+  const [revisionNote, setRevisionNote] = useState("");
+  const [revisionRefresh, setRevisionRefresh] = useState(0);
 
   const setContent = (next: SiteContent) => {
     if (next === content) return;
@@ -161,7 +177,7 @@ export function AdminEditor({
     setFuture([]);
     setContentState(next);
     setDirty(true);
-    if (state === "saved") setState("idle");
+    if (state === "draft" || state === "published") setState("idle");
   };
 
   const undo = useCallback(() => {
@@ -197,29 +213,39 @@ export function AdminEditor({
     };
     if (map[id]) setPreviewPage(map[id]!);
   };
-  const save = useCallback(async () => {
+  const persist = useCallback(async (mode: "draft" | "publish") => {
     setState("saving");
     try {
       const response = await fetch("/api/admin/content", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(content),
+        body: JSON.stringify({ content, mode, note: revisionNote }),
       });
       if (!response.ok) throw new Error();
       setSavedContent(content);
       setDirty(false);
-      setPreviewRevision((value) => value + 1);
-      setState("saved");
+      if (mode === "publish") {
+        setHasUnpublishedDraft(false);
+        setPreviewRevision((value) => value + 1);
+        setRevisionRefresh((value) => value + 1);
+        setRevisionNote("");
+      }
+      if (mode === "draft")
+        setHasUnpublishedDraft((current) => current || dirty);
+      setState(mode === "publish" ? "published" : "draft");
       window.setTimeout(() => setState("idle"), 2200);
     } catch {
       setState("error");
     }
-  }, [content]);
+  }, [content, dirty, revisionNote]);
+  const saveDraft = useCallback(() => persist("draft"), [persist]);
+  const publish = useCallback(() => persist("publish"), [persist]);
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
         event.preventDefault();
-        void save();
+        if (event.shiftKey) void publish();
+        else void saveDraft();
         return;
       }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
@@ -235,7 +261,7 @@ export function AdminEditor({
     };
     window.addEventListener("keydown", handleShortcut);
     return () => window.removeEventListener("keydown", handleShortcut);
-  }, [redo, save, undo]);
+  }, [publish, redo, saveDraft, undo]);
   const upload = async (
     file: File,
     onDone: (url: string, contentType: string) => void,
@@ -324,7 +350,7 @@ export function AdminEditor({
           />
           <div>
             <b>CLINORO</b>
-            <small>CONTENT STUDIO V4</small>
+            <small>CONTENT STUDIO V5</small>
           </div>
         </div>
         <nav>
@@ -367,8 +393,8 @@ export function AdminEditor({
             <small>CLINORO CMS / DESIGN STUDIO</small>
             <h1>
               {tabs.find((tab) => tab.id === active)?.label}
-              <span className={dirty ? "admin-dirty active" : "admin-dirty"}>
-                {dirty ? "تغییر ذخیره‌نشده" : "همگام"}
+              <span className={dirty ? "admin-dirty active" : hasUnpublishedDraft ? "admin-dirty draft" : "admin-dirty"}>
+                {dirty ? "تغییر ذخیره‌نشده" : hasUnpublishedDraft ? "پیش‌نویس منتشرنشده" : "همگام با سایت"}
               </span>
             </h1>
           </div>
@@ -427,25 +453,23 @@ export function AdminEditor({
                 )}
                 <button
                   type="button"
-                  className={`admin-save ${state}`}
-                  onClick={() => void save()}
+                  className={`admin-save-draft ${state}`}
+                  onClick={() => void saveDraft()}
                   disabled={state === "saving"}
-                  title="ذخیره با Ctrl/⌘ + S"
+                  title="ذخیره پیش‌نویس با Ctrl/⌘ + S"
                 >
-                  {state === "saving" ? (
-                    <LoaderCircle className="spin" size={18} />
-                  ) : state === "saved" ? (
-                    <Check size={18} />
-                  ) : (
-                    <Save size={18} />
-                  )}{" "}
-                  {state === "saving"
-                    ? "در حال ذخیره"
-                    : state === "saved"
-                      ? "ذخیره شد"
-                      : state === "error"
-                        ? "خطا؛ دوباره تلاش کنید"
-                        : "ذخیره تغییرات"}
+                  {state === "saving" ? <LoaderCircle className="spin" size={17} /> : state === "draft" ? <Check size={17} /> : <Save size={17} />}
+                  {state === "draft" ? "پیش‌نویس ذخیره شد" : "ذخیره پیش‌نویس"}
+                </button>
+                <button
+                  type="button"
+                  className={`admin-save admin-publish ${state}`}
+                  onClick={() => void publish()}
+                  disabled={state === "saving"}
+                  title="انتشار با Ctrl/⌘ + Shift + S"
+                >
+                  {state === "saving" ? <LoaderCircle className="spin" size={18} /> : state === "published" ? <Check size={18} /> : <Rocket size={18} />}
+                  {state === "saving" ? "در حال پردازش" : state === "published" ? "منتشر شد" : state === "error" ? "خطا؛ دوباره تلاش کنید" : "انتشار سایت"}
                 </button>
               </>
             )}
@@ -624,6 +648,93 @@ export function AdminEditor({
                 })
               }
             />
+          )}
+          {active === "international" && (
+            <>
+              <Panel
+                title="نسخه انگلیسی و حضور بین‌المللی"
+                text="محتوای مسیر انگلیسی سایت را مستقل و حرفه‌ای مدیریت کنید. ادعاهای تجاری فقط پس از ثبت سند واقعی در مرکز اعتماد منتشر شوند."
+              >
+                <Grid>
+                  <label className="admin-switch">
+                    <span>فعال‌بودن نسخه انگلیسی</span>
+                    <button
+                      className={content.international.enabled ? "on" : ""}
+                      onClick={() =>
+                        setContent({
+                          ...content,
+                          international: {
+                            ...content.international,
+                            enabled: !content.international.enabled,
+                          },
+                        })
+                      }
+                      type="button"
+                    >
+                      <i />
+                      {content.international.enabled ? "فعال" : "غیرفعال"}
+                    </button>
+                  </label>
+                  <Field
+                    wide
+                    label="Eyebrow"
+                    value={content.international.eyebrow}
+                    onChange={(eyebrow) => setContent({...content,international:{...content.international,eyebrow}})}
+                  />
+                  <Field
+                    wide
+                    label="International hero title"
+                    value={content.international.title}
+                    onChange={(title) => setContent({...content,international:{...content.international,title}})}
+                  />
+                  <TextArea
+                    wide
+                    label="International hero description"
+                    value={content.international.text}
+                    onChange={(text) => setContent({...content,international:{...content.international,text}})}
+                  />
+                  <Field
+                    wide
+                    label="Buyer journey title"
+                    value={content.international.buyerTitle}
+                    onChange={(buyerTitle) => setContent({...content,international:{...content.international,buyerTitle}})}
+                  />
+                  <TextArea
+                    wide
+                    label="Buyer journey description"
+                    value={content.international.buyerText}
+                    onChange={(buyerText) => setContent({...content,international:{...content.international,buyerText}})}
+                  />
+                  <Field
+                    wide
+                    label="Trust title"
+                    value={content.international.trustTitle}
+                    onChange={(trustTitle) => setContent({...content,international:{...content.international,trustTitle}})}
+                  />
+                  <TextArea
+                    wide
+                    label="Trust description"
+                    value={content.international.trustText}
+                    onChange={(trustText) => setContent({...content,international:{...content.international,trustText}})}
+                  />
+                  <Field
+                    wide
+                    label="Contact title"
+                    value={content.international.contactTitle}
+                    onChange={(contactTitle) => setContent({...content,international:{...content.international,contactTitle}})}
+                  />
+                  <TextArea
+                    wide
+                    label="Contact description"
+                    value={content.international.contactText}
+                    onChange={(contactText) => setContent({...content,international:{...content.international,contactText}})}
+                  />
+                </Grid>
+              </Panel>
+              <div className="admin-global-note">
+                <Globe2 size={22}/><div><b>مسیرهای فعال</b><span>/en · /en/products · /en/contact · /en/credentials</span></div>
+              </div>
+            </>
           )}
           {active === "home" && (
             <>
@@ -967,6 +1078,35 @@ export function AdminEditor({
                       technicalSpecs: [{ label: "مشخصه", value: "مقدار" }],
                       services: ["مشاوره و انتخاب"],
                       documents: [],
+                      international: {
+                        summary: "Product overview pending verified model data.",
+                        intendedUse: "Intended use must be confirmed for the selected model.",
+                        specs: ["Configuration to be confirmed"],
+                        services: ["Technical consultation"],
+                        procurement: {
+                          leadTime: "Confirmed in the project-specific proposal",
+                          warranty: "Defined for the selected brand, model and service scope",
+                          serviceResponse: "Defined in the project SLA",
+                          infrastructure: ["Record project infrastructure requirements"],
+                          consumables: ["Record compatible consumables and accessories"],
+                          training: ["User training"],
+                          acceptance: ["Acceptance testing"],
+                          lifecycle: ["Preventive maintenance and service plan"],
+                          tcoFactors: ["Acquisition", "Service", "Consumables"],
+                        },
+                      },
+                      procurement: {
+                        evidenceLevel: "category",
+                        leadTime: "در پیشنهاد همان پروژه تأیید می‌شود",
+                        warranty: "بر اساس برند و مدل منتخب",
+                        serviceResponse: "در SLA پیشنهاد فنی تعریف می‌شود",
+                        infrastructure: ["نیازهای زیرساختی را ثبت کنید"],
+                        consumables: ["مصرفی و اکسسوری را ثبت کنید"],
+                        training: ["آموزش کاربر"],
+                        acceptance: ["آزمون پذیرش"],
+                        lifecycle: ["برنامه PM و خدمات"],
+                        tcoFactors: ["قیمت خرید", "خدمات", "مصرفی"],
+                      },
                       imageCredit: "",
                       imageSource: "",
                       imageLicense: "",
@@ -1226,6 +1366,16 @@ export function AdminEditor({
               upload={upload}
             />
           )}
+          {active === "revisions" && (
+            <RevisionManager
+              note={revisionNote}
+              setNote={setRevisionNote}
+              refreshKey={revisionRefresh}
+              onRestore={(restored) => setContent(restored)}
+              onPublish={() => void publish()}
+              publishing={state === "saving"}
+            />
+          )}
           {active === "code" && currentAdmin.role === "owner" && (
             <CodeInjectionEditor content={content} setContent={setContent} />
           )}
@@ -1248,6 +1398,7 @@ export function AdminEditor({
       </section>
       <LivePreview
         content={content}
+        onChange={setContent}
         page={previewPage}
         setPage={setPreviewPage}
         device={previewDevice}
@@ -2216,6 +2367,70 @@ function ProductEditor({
             })
           }
         />
+        <div className="admin-subsection-title wide"><Globe2 size={18}/><div><b>محتوای انگلیسی محصول</b><small>برای صفحات بین‌المللی و metadata</small></div></div>
+        <TextArea
+          wide
+          label="English summary"
+          value={item.international.summary}
+          onChange={(summary) => onChange({...item,international:{...item.international,summary}})}
+        />
+        <TextArea
+          wide
+          label="English intended use"
+          value={item.international.intendedUse}
+          onChange={(intendedUse) => onChange({...item,international:{...item.international,intendedUse}})}
+        />
+        <TextArea
+          wide
+          label="English key points; one per line"
+          value={item.international.specs.join("\n")}
+          onChange={(value) => onChange({...item,international:{...item.international,specs:value.split("\n").map(line=>line.trim()).filter(Boolean)}})}
+        />
+        <TextArea
+          wide
+          label="English services; one per line"
+          value={item.international.services.join("\n")}
+          onChange={(value) => onChange({...item,international:{...item.international,services:value.split("\n").map(line=>line.trim()).filter(Boolean)}})}
+        />
+        <Field
+          label="English lead time"
+          value={item.international.procurement.leadTime}
+          onChange={(leadTime)=>onChange({...item,international:{...item.international,procurement:{...item.international.procurement,leadTime}}})}
+        />
+        <Field
+          label="English warranty scope"
+          value={item.international.procurement.warranty}
+          onChange={(warranty)=>onChange({...item,international:{...item.international,procurement:{...item.international.procurement,warranty}}})}
+        />
+        <Field
+          label="English service response / SLA"
+          value={item.international.procurement.serviceResponse}
+          onChange={(serviceResponse)=>onChange({...item,international:{...item.international,procurement:{...item.international.procurement,serviceResponse}}})}
+        />
+        {(["infrastructure","consumables","training","acceptance","lifecycle","tcoFactors"] as const).map((key)=><TextArea
+          wide
+          key={`international-${key}`}
+          label={({infrastructure:"English infrastructure; one per line",consumables:"English consumables; one per line",training:"English training; one per line",acceptance:"English acceptance; one per line",lifecycle:"English lifecycle; one per line",tcoFactors:"English TCO factors; one per line"})[key]}
+          value={item.international.procurement[key].join("\n")}
+          onChange={(value)=>onChange({...item,international:{...item.international,procurement:{...item.international.procurement,[key]:value.split("\n").map(line=>line.trim()).filter(Boolean)}}})}
+        />)}
+        <div className="admin-subsection-title wide"><ClipboardList size={18}/><div><b>Product Intelligence و چرخه عمر</b><small>اطلاعاتی که وارد می‌کنید در Decision Pack و مقایسه خریدار استفاده می‌شود</small></div></div>
+        <SelectField
+          label="سطح شواهد"
+          value={item.procurement.evidenceLevel}
+          onChange={(evidenceLevel) => onChange({...item,procurement:{...item.procurement,evidenceLevel:evidenceLevel as ProductItem["procurement"]["evidenceLevel"]}})}
+          options={[["category","اطلاعات گروه محصول"],["model","مدل مشخص"],["verified","مدل و مدارک تأییدشده"]]}
+        />
+        <Field label="زمان تأمین" value={item.procurement.leadTime} onChange={(leadTime)=>onChange({...item,procurement:{...item.procurement,leadTime}})}/>
+        <Field label="گارانتی" value={item.procurement.warranty} onChange={(warranty)=>onChange({...item,procurement:{...item.procurement,warranty}})}/>
+        <Field label="SLA / زمان پاسخ" value={item.procurement.serviceResponse} onChange={(serviceResponse)=>onChange({...item,procurement:{...item.procurement,serviceResponse}})}/>
+        {(["infrastructure","consumables","training","acceptance","lifecycle","tcoFactors"] as const).map((key)=><TextArea
+          wide
+          key={key}
+          label={({infrastructure:"زیرساخت؛ هر خط یک مورد",consumables:"مصرفی و اکسسوری؛ هر خط یک مورد",training:"آموزش؛ هر خط یک مورد",acceptance:"آزمون پذیرش؛ هر خط یک مورد",lifecycle:"چرخه عمر؛ هر خط یک مورد",tcoFactors:"عوامل TCO؛ هر خط یک مورد"})[key]}
+          value={item.procurement[key].join("\n")}
+          onChange={(value)=>onChange({...item,procurement:{...item.procurement,[key]:value.split("\n").map(line=>line.trim()).filter(Boolean)}})}
+        />)}
         <TextArea
           wide
           label="دیتاشیت و مدارک؛ هر خط: عنوان | نوع | لینک"
@@ -3892,6 +4107,88 @@ function CodeInjectionEditor({
   );
 }
 
+function RevisionManager({
+  note,
+  setNote,
+  refreshKey,
+  onRestore,
+  onPublish,
+  publishing,
+}: {
+  note: string;
+  setNote: (value: string) => void;
+  refreshKey: number;
+  onRestore: (content: SiteContent) => void;
+  onPublish: () => void;
+  publishing: boolean;
+}) {
+  const [revisions, setRevisions] = useState<ContentRevisionSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+  const fetchRevisions = useCallback(async () => {
+    const response = await fetch("/api/admin/revisions");
+    const result = (await response.json()) as { revisions?: ContentRevisionSummary[] };
+    if (!response.ok) throw new Error();
+    return result.revisions || [];
+  }, []);
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setRevisions(await fetchRevisions());
+    } catch {
+      setMessage("دریافت تاریخچه انجام نشد.");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchRevisions]);
+  useEffect(() => {
+    let active = true;
+    fetchRevisions()
+      .then((items) => { if (active) setRevisions(items); })
+      .catch(() => { if (active) setMessage("دریافت تاریخچه انجام نشد."); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [fetchRevisions, refreshKey]);
+  const restore = async (id: string) => {
+    setMessage("در حال بازیابی نسخه…");
+    try {
+      const response = await fetch("/api/admin/revisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const result = (await response.json()) as { content?: SiteContent };
+      if (!response.ok || !result.content) throw new Error();
+      onRestore(result.content);
+      setMessage("نسخه داخل ویرایشگر بازیابی شد؛ ابتدا پیش‌نمایش کنید و سپس در صورت تأیید منتشر کنید.");
+    } catch {
+      setMessage("بازیابی این نسخه انجام نشد.");
+    }
+  };
+  return <>
+    <Panel title="پیش‌نویس، انتشار و توضیح نسخه" text="ذخیره پیش‌نویس سایت عمومی را تغییر نمی‌دهد. هر انتشار یک نسخه پایدار و قابل بازیابی می‌سازد.">
+      <div className="revision-publish-card">
+        <label><span>توضیح کوتاه این انتشار</span><input value={note} maxLength={180} onChange={(event)=>setNote(event.target.value)} placeholder="مثلاً تکمیل اطلاعات خرید و نسخه انگلیسی"/></label>
+        <button type="button" onClick={onPublish} disabled={publishing}><Rocket size={18}/>{publishing?"در حال انتشار":"انتشار نسخه فعلی"}</button>
+      </div>
+      <div className="revision-safety"><ShieldCheck size={19}/><span>بازیابی یک نسخه فقط آن را داخل ویرایشگر باز می‌کند و بدون فشردن «انتشار سایت» چیزی روی سایت عمومی تغییر نمی‌دهد.</span></div>
+    </Panel>
+    <Panel title="تاریخچه انتشار" text="تا ۴۰ نسخه آخر به‌صورت پایدار در پایگاه داده نگهداری می‌شود.">
+      <div className="revision-toolbar"><button type="button" onClick={()=>void load()} disabled={loading}><RefreshCw className={loading?"spin":""} size={16}/> تازه‌سازی</button><small>{revisions.length.toLocaleString("fa-IR")} نسخه</small></div>
+      {message&&<p className="admin-message">{message}</p>}
+      <div className="revision-list">
+        {revisions.map((revision,index)=><article key={revision.id}>
+          <span>{String(index+1).padStart(2,"0")}</span>
+          <div><b>{revision.note||"انتشار بدون توضیح"}</b><small>{new Date(revision.createdAt).toLocaleString("fa-IR")} · {revision.createdBy}</small></div>
+          <em>Schema {revision.schemaVersion}</em>
+          <button type="button" onClick={()=>void restore(revision.id)}><RotateCcw size={15}/> بازیابی در ادیتور</button>
+        </article>)}
+        {!loading&&!revisions.length&&<div className="admin-empty"><FileClock size={29}/><b>اولین تاریخچه با انتشار بعدی ساخته می‌شود</b><span>پیش‌نویس‌ها در تاریخچه انتشار عمومی ثبت نمی‌شوند.</span></div>}
+      </div>
+    </Panel>
+  </>;
+}
+
 function AdvancedEditor({
   content,
   setContent,
@@ -4065,12 +4362,36 @@ function AdminManager({
   );
 }
 
+function InlinePreviewText({
+  as: Tag = "span",
+  value,
+  onCommit,
+}: {
+  as?: ElementType;
+  value: string;
+  onCommit: (value: string) => void;
+}) {
+  return <Tag
+    className="preview-inline-edit"
+    contentEditable
+    suppressContentEditableWarning
+    spellCheck={false}
+    title="برای ویرایش مستقیم کلیک کنید"
+    onBlur={(event: FocusEvent<HTMLElement>) => {
+      const next = event.currentTarget.textContent?.trim() || "";
+      if (next && next !== value) onCommit(next);
+    }}
+  >{value}</Tag>;
+}
+
 function DraftPreview({
   content,
   page,
+  onChange,
 }: {
   content: SiteContent;
   page: PageKey;
+  onChange: (content: SiteContent) => void;
 }) {
   const design = content.design;
   const draftStyle = {
@@ -4117,11 +4438,11 @@ function DraftPreview({
             />
             <div />
             <article>
-              <small>{content.home.kicker}</small>
+              <InlinePreviewText as="small" value={content.home.kicker} onCommit={(kicker)=>onChange({...content,home:{...content.home,kicker}})}/>
               <h2>
-                {content.home.title} <em>{content.home.signals[0] || ""}</em>
+                <InlinePreviewText value={content.home.title} onCommit={(title)=>onChange({...content,home:{...content.home,title}})}/> <em>{content.home.signals[0] || ""}</em>
               </h2>
-              <p>{content.home.intro}</p>
+              <InlinePreviewText as="p" value={content.home.intro} onCommit={(intro)=>onChange({...content,home:{...content.home,intro}})}/>
               <button type="button">شروع استعلام</button>
             </article>
           </section>
@@ -4135,14 +4456,14 @@ function DraftPreview({
             />
             <div>
               <small>CLINORO APPROACH</small>
-              <h3>{content.home.storyTitle}</h3>
-              <p>{content.home.storyText}</p>
+              <InlinePreviewText as="h3" value={content.home.storyTitle} onCommit={(storyTitle)=>onChange({...content,home:{...content.home,storyTitle}})}/>
+              <InlinePreviewText as="p" value={content.home.storyText} onCommit={(storyText)=>onChange({...content,home:{...content.home,storyText}})}/>
             </div>
           </section>
           <section className="preview-decision-studio">
-            <small>{content.home.decisionStudio.eyebrow}</small>
-            <h3>{content.home.decisionStudio.title}</h3>
-            <p>{content.home.decisionStudio.text}</p>
+            <InlinePreviewText as="small" value={content.home.decisionStudio.eyebrow} onCommit={(eyebrow)=>onChange({...content,home:{...content.home,decisionStudio:{...content.home.decisionStudio,eyebrow}}})}/>
+            <InlinePreviewText as="h3" value={content.home.decisionStudio.title} onCommit={(title)=>onChange({...content,home:{...content.home,decisionStudio:{...content.home.decisionStudio,title}}})}/>
+            <InlinePreviewText as="p" value={content.home.decisionStudio.text} onCommit={(text)=>onChange({...content,home:{...content.home,decisionStudio:{...content.home.decisionStudio,text}}})}/>
             <div>
               <span>01 · محیط درمانی</span>
               <span>02 · اولویت تصمیم</span>
@@ -4150,9 +4471,9 @@ function DraftPreview({
             </div>
           </section>
           <section className="preview-trust-protocol">
-            <small>{content.home.trustProtocol.eyebrow}</small>
-            <h3>{content.home.trustProtocol.title}</h3>
-            <p>{content.home.trustProtocol.text}</p>
+            <InlinePreviewText as="small" value={content.home.trustProtocol.eyebrow} onCommit={(eyebrow)=>onChange({...content,home:{...content.home,trustProtocol:{...content.home.trustProtocol,eyebrow}}})}/>
+            <InlinePreviewText as="h3" value={content.home.trustProtocol.title} onCommit={(title)=>onChange({...content,home:{...content.home,trustProtocol:{...content.home.trustProtocol,title}}})}/>
+            <InlinePreviewText as="p" value={content.home.trustProtocol.text} onCommit={(text)=>onChange({...content,home:{...content.home,trustProtocol:{...content.home.trustProtocol,text}}})}/>
           </section>
           <div className="preview-card-grid">
             {content.home.categories.slice(0, 4).map((item) => (
@@ -4182,9 +4503,9 @@ function DraftPreview({
             />
             <div />
             <article>
-              <small>{pageIntro.eyebrow}</small>
-              <h2>{pageIntro.title}</h2>
-              <p>{pageIntro.text}</p>
+              <InlinePreviewText as="small" value={pageIntro.eyebrow} onCommit={(eyebrow)=>onChange({...content,pages:{...content.pages,[page]:{...pageIntro,eyebrow}}})}/>
+              <InlinePreviewText as="h2" value={pageIntro.title} onCommit={(title)=>onChange({...content,pages:{...content.pages,[page]:{...pageIntro,title}}})}/>
+              <InlinePreviewText as="p" value={pageIntro.text} onCommit={(text)=>onChange({...content,pages:{...content.pages,[page]:{...pageIntro,text}}})}/>
             </article>
           </section>
           {page === "products" && (
@@ -4327,6 +4648,7 @@ function DraftPreview({
 
 function LivePreview({
   content,
+  onChange,
   page,
   setPage,
   device,
@@ -4336,6 +4658,7 @@ function LivePreview({
   revision,
 }: {
   content: SiteContent;
+  onChange: (content: SiteContent) => void;
   page: PageKey;
   setPage: (page: PageKey) => void;
   device: "desktop" | "tablet" | "mobile";
@@ -4355,7 +4678,7 @@ function LivePreview({
           <small>
             {mode === "draft"
               ? "تغییرات ذخیره‌نشده همین لحظه"
-              : "آخرین نسخه ذخیره‌شده سایت"}
+              : "آخرین نسخه منتشرشده سایت"}
           </small>
         </div>
         <div className="preview-devices">
@@ -4413,13 +4736,13 @@ function LivePreview({
           className={mode === "live" ? "active" : ""}
           onClick={() => setMode("live")}
         >
-          <Eye size={14} /> سایت ذخیره‌شده
+          <Eye size={14} /> سایت منتشرشده
         </button>
       </div>
       <p className="preview-hint">
         {mode === "draft"
-          ? "رنگ، فونت، محتوا و چیدمان پیش از ذخیره قابل بررسی‌اند."
-          : "این نما دقیقاً آخرین وضعیت ذخیره‌شده را نمایش می‌دهد."}
+          ? "روی متن‌های خط‌چین کلیک کنید؛ ویرایش مستقیم پیش از ذخیره و انتشار اعمال می‌شود."
+          : "این نما دقیقاً آخرین وضعیت منتشرشده را نمایش می‌دهد."}
       </p>
       <div className={`preview-stage ${device}`}>
         <div className="preview-browser">
@@ -4429,7 +4752,7 @@ function LivePreview({
             <i />
           </div>
           {mode === "draft" ? (
-            <DraftPreview content={content} page={page} />
+            <DraftPreview content={content} page={page} onChange={onChange} />
           ) : (
             <iframe
               key={source}

@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "Clinoro",
     ],
     category: "Medical equipment and healthcare technology",
-    other: { "clinoro-deployment": "clinoro-95-20260814" },
+    other: { "clinoro-deployment": "clinoro-global-96-20260814" },
     formatDetection: { email: false, address: false, telephone: false },
     robots: {
       index: true,

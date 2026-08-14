@@ -28,7 +28,7 @@ export function Brand() {
 }
 
 export function SiteHeader({ active = "/" }: { active?: string }) {
-  const {blogPosts,products}=useSiteContent();
+  const {blogPosts,products,international}=useSiteContent();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -49,6 +49,7 @@ export function SiteHeader({ active = "/" }: { active?: string }) {
       <Brand />
       <nav className="desktop-nav" aria-label="منوی اصلی">{navigation.map(([label, href]) => <Link className={active === href ? "active" : ""} href={href} key={href}>{label}</Link>)}</nav>
       <div className="header-actions">
+        {international.enabled&&<Link className="header-language" href="/en" lang="en" dir="ltr">EN</Link>}
         <button className="icon-button search-button" onClick={() => setSearchOpen(true)} aria-label="جستجو" aria-controls="site-search-dialog" aria-expanded={searchOpen}><Search size={19}/><span>جستجو</span><kbd>⌘ K</kbd></button>
         <Link className="header-rfq" href="/contact">شروع استعلام <ArrowLeft size={16}/></Link>
         <button className="icon-button menu-button" onClick={() => setMenuOpen(true)} aria-label="باز کردن منو" aria-controls="mobile-navigation" aria-expanded={menuOpen}><Menu size={23}/></button>
@@ -57,7 +58,7 @@ export function SiteHeader({ active = "/" }: { active?: string }) {
     <div className={`mobile-panel${menuOpen ? " open" : ""}`} aria-hidden={!menuOpen}>
       <button className="mobile-backdrop" onClick={() => setMenuOpen(false)} aria-label="بستن منو"/>
       <div className="mobile-sheet prism-edge" id="mobile-navigation"><div className="mobile-head"><Brand/><button className="icon-button" onClick={() => setMenuOpen(false)} aria-label="بستن منو"><X size={22}/></button></div>
-        <nav>{navigation.map(([label, href]) => <Link href={href} key={href} onClick={() => setMenuOpen(false)}>{label}<ChevronLeft size={18}/></Link>)}</nav>
+        <nav>{navigation.map(([label, href]) => <Link href={href} key={href} onClick={() => setMenuOpen(false)}>{label}<ChevronLeft size={18}/></Link>)}{international.enabled&&<Link href="/en" lang="en" dir="ltr" onClick={()=>setMenuOpen(false)}>English<ChevronLeft size={18}/></Link>}</nav>
       </div>
     </div>
     <div className={`search-layer${searchOpen ? " open" : ""}`} aria-hidden={!searchOpen}>

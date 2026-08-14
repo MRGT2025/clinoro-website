@@ -5,7 +5,7 @@ import { ArrowLeft, BadgeCheck, Building2, CheckCircle2, ClipboardCheck, FileChe
 import { getSiteContent } from "../../lib/site-content";
 import { PageShell } from "../components";
 
-export const metadata:Metadata={title:"مدارک، پروژه‌ها و اعتماد",description:"مرکز شفافیت Clinoro برای نمایش مدارک، گواهی‌ها و سوابق تأییدشده.",alternates:{canonical:"/credentials"}};
+export const metadata:Metadata={title:"مدارک، پروژه‌ها و اعتماد",description:"مرکز شفافیت Clinoro برای نمایش مدارک، گواهی‌ها و سوابق تأییدشده.",alternates:{canonical:"/credentials",languages:{"fa-IR":"/credentials","en":"/en/credentials"}}};
 const typeLabels={project:"پروژه",client:"مشتری",certificate:"گواهی",document:"مدرک"} as const;
 
 export default async function CredentialsPage(){const content=await getSiteContent();const items=content.trustItems.filter(item=>item.published&&item.verified);return <PageShell><main id="main-content" className="trust-page">

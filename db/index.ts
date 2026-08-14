@@ -38,9 +38,11 @@ async function initializeDatabase() {
     db.prepare("CREATE TABLE IF NOT EXISTS media (id TEXT PRIMARY KEY NOT NULL, object_key TEXT NOT NULL, filename TEXT NOT NULL, content_type TEXT NOT NULL, size INTEGER NOT NULL, created_at INTEGER NOT NULL)"),
     db.prepare("CREATE TABLE IF NOT EXISTS admin_users (email TEXT PRIMARY KEY NOT NULL, username TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'admin', active INTEGER NOT NULL DEFAULT 1, created_by TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)"),
     db.prepare("CREATE TABLE IF NOT EXISTS rfq_submissions (id TEXT PRIMARY KEY NOT NULL, reference TEXT NOT NULL UNIQUE, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'new', name TEXT NOT NULL, organization TEXT NOT NULL DEFAULT '', phone TEXT NOT NULL, email TEXT NOT NULL DEFAULT '', topic TEXT NOT NULL, product_slug TEXT NOT NULL DEFAULT '', city TEXT NOT NULL DEFAULT '', quantity TEXT NOT NULL DEFAULT '', timeline TEXT NOT NULL DEFAULT '', message TEXT NOT NULL, consent INTEGER NOT NULL DEFAULT 0, source_url TEXT NOT NULL DEFAULT '', user_agent TEXT NOT NULL DEFAULT '')"),
+    db.prepare("CREATE TABLE IF NOT EXISTS content_revisions (id TEXT PRIMARY KEY NOT NULL, document TEXT NOT NULL, note TEXT NOT NULL DEFAULT '', created_by TEXT NOT NULL, created_at INTEGER NOT NULL, schema_version INTEGER NOT NULL DEFAULT 1)"),
     db.prepare("CREATE INDEX IF NOT EXISTS media_created_at_idx ON media(created_at)"),
     db.prepare("CREATE INDEX IF NOT EXISTS admin_users_active_idx ON admin_users(active)"),
     db.prepare("CREATE INDEX IF NOT EXISTS rfq_created_at_idx ON rfq_submissions(created_at)"),
     db.prepare("CREATE INDEX IF NOT EXISTS rfq_status_idx ON rfq_submissions(status)"),
+    db.prepare("CREATE INDEX IF NOT EXISTS content_revisions_created_at_idx ON content_revisions(created_at)"),
   ]);
 }

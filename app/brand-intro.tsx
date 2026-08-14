@@ -26,7 +26,7 @@ export function BrandIntro({motionMode}:{motionMode:SiteContent["general"]["moti
   },[finish,motionMode]);
 
   if(!visible)return null;
-  return <div className="brand-intro" role="dialog" aria-modal="true" aria-label="معرفی برند Clinoro">
+  return <div className="brand-intro" role="dialog" aria-modal="true" aria-label="Clinoro brand introduction · معرفی برند Clinoro">
     <div className="brand-intro-grid" aria-hidden="true"/>
     <div className="brand-intro-glow" aria-hidden="true"/>
     <div className="brand-intro-orbit orbit-outer" aria-hidden="true"><i/><i/><i/></div>
@@ -38,7 +38,7 @@ export function BrandIntro({motionMode}:{motionMode:SiteContent["general"]["moti
       <div className="brand-intro-pulse" aria-hidden="true"><i/><b/><i/></div>
       <p>PRECISION <em/> MEDICAL TECHNOLOGY <em/> COMMERCE</p>
     </div>
-    <button type="button" className="brand-intro-skip" onClick={finish}>ورود به سایت</button>
+    <button type="button" className="brand-intro-skip" onClick={finish}>ENTER SITE · ورود</button>
     <span className="brand-intro-index" aria-hidden="true">CLINORO / 01</span>
   </div>;
 }
