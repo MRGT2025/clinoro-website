@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 34);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 35);
+  assert.match(html, /eIFU تجهیزات پزشکی در اروپا؛ ۱۰ کنترل خرید/);
   assert.match(html, /خدمات پس از فروش تجهیزات پزشکی در ایران؛ ۱۲ بند قرارداد/);
   assert.match(html, /انبار تجهیزات پزشکی در ایران؛ ۱۲ کنترل/);
   assert.match(html, /هر صدایی هشدار حیاتی نیست؛ ۱۰ کنترل/);
@@ -601,6 +602,34 @@ test("daily Iran after-sales contract article includes complete SSR, Tehran time
   );
 });
 
+test("daily EU eIFU article includes complete SSR, primary sources and buyer controls", async () => {
+  const response = await request(
+    "/blog/eu-medical-device-eifu-procurement-2026",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /۱۰ کنترل خریدار پیش از قرارداد/);
+  assert.match(html, /آزمون ۳۰ دقیقه‌ای هنگام تحویل/);
+  assert.match(html, /حداکثر ظرف هفت روز تقویمی/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /eur-lex\.europa\.eu\/legal-content\/EN\/TXT\/HTML/);
+  assert.match(html, /health\.ec\.europa\.eu\/latest-updates/);
+  assert.match(html, /eu-medical-device-eifu-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /"articleSection":"جهانی؛ مقررات و بهره‌برداری"/);
+  assert.match(
+    html,
+    /<meta name="keywords" content="eIFU تجهیزات پزشکی,راهنمای الکترونیکی تجهیزات پزشکی/,
+  );
+  assert.match(html, /2026-08-15T08:00:00\+03:30/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/eu-medical-device-eifu-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -701,8 +730,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 34);
+  assert.equal(blogUrls.length, 35);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/eu-medical-device-eifu-procurement-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/products\/icu-patient-monitor/,
