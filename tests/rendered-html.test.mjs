@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 35);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 36);
+  assert.match(html, /برق، ارت و UPS تجهیزات پزشکی در ایران؛ ۱۲ آزمون/);
   assert.match(html, /eIFU تجهیزات پزشکی در اروپا؛ ۱۰ کنترل خرید/);
   assert.match(html, /خدمات پس از فروش تجهیزات پزشکی در ایران؛ ۱۲ بند قرارداد/);
   assert.match(html, /انبار تجهیزات پزشکی در ایران؛ ۱۲ کنترل/);
@@ -630,6 +631,36 @@ test("daily EU eIFU article includes complete SSR, primary sources and buyer con
   );
 });
 
+test("daily Iran electrical site-readiness article includes SSR, primary sources, Tehran timestamp and buyer controls", async () => {
+  const response = await request(
+    "/blog/iran-medical-equipment-electrical-site-readiness",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /۱۲ آزمون و مدرک پیش از تحویل/);
+  assert.match(html, /پنج خط قرمز برای توقف تحویل/);
+  assert.match(html, /Site Readiness Sheet/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /fdo\.tums\.ac\.ir\/uploads\/282\/2024\/May\/12\/stnbook2\.pdf/);
+  assert.match(html, /standard\.ac\.ir\/fa\/introduction\/researchinstitutes/);
+  assert.match(html, /iec\.ch\/government-regulators\/medical-devices/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789241501378/);
+  assert.match(html, /iran-medical-equipment-electrical-site-readiness\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /"articleSection":"ایران؛ زیرساخت، ایمنی و خرید"/);
+  assert.match(
+    html,
+    /<meta name="keywords" content="برق تجهیزات پزشکی,UPS تجهیزات پزشکی,ارت تجهیزات پزشکی/,
+  );
+  assert.match(html, /2026-08-16T08:00:00\+03:30/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-equipment-electrical-site-readiness"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -730,11 +761,15 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 35);
+  assert.equal(blogUrls.length, 36);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/eu-medical-device-eifu-procurement-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-medical-equipment-electrical-site-readiness/,
   );
   assert.match(
     sitemap,
