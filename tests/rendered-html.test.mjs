@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 36);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 37);
+  assert.match(html, /HL7\/FHIR روی بروشور کافی نیست؛ ۱۲ آزمون اتصال/);
   assert.match(html, /برق، ارت و UPS تجهیزات پزشکی در ایران؛ ۱۲ آزمون/);
   assert.match(html, /eIFU تجهیزات پزشکی در اروپا؛ ۱۰ کنترل خرید/);
   assert.match(html, /خدمات پس از فروش تجهیزات پزشکی در ایران؛ ۱۲ بند قرارداد/);
@@ -661,6 +662,39 @@ test("daily Iran electrical site-readiness article includes SSR, primary sources
   );
 });
 
+test("daily medical-device interoperability article includes SSR, current primary sources, Tehran timestamp and buyer acceptance controls", async () => {
+  const response = await request(
+    "/blog/medical-device-interoperability-acceptance-2026",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /۱۲ آزمون اتصال پیش از Go-Live/);
+  assert.match(html, /پنج خط قرمز برای توقف Go-Live/);
+  assert.match(html, /Reconciliation عددی/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /fda\.gov\/media\/95636\/download/);
+  assert.match(html, /hl7\.org\/fhir/);
+  assert.match(html, /profiles\.ihe\.net\/DEV\/SDPi/);
+  assert.match(html, /nccoe\.nist\.gov\/publication\/1800-24/);
+  assert.match(html, /medical-device-interoperability-acceptance-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ سلامت دیجیتال و یکپارچه‌سازی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="اتصال تجهیزات پزشکی به HIS,HL7 تجهیزات پزشکی,FHIR تجهیزات پزشکی/,
+  );
+  assert.match(html, /2026-08-17T08:00:00\+03:30/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-interoperability-acceptance-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -761,7 +795,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 36);
+  assert.equal(blogUrls.length, 37);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -770,6 +804,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-medical-equipment-electrical-site-readiness/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/medical-device-interoperability-acceptance-2026/,
   );
   assert.match(
     sitemap,
