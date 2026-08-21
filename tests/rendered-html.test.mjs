@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 37);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 38);
+  assert.match(html, /تجهیز بیمارستانی را به خانه نبرید؛ ۱۲ کنترل خرید/);
   assert.match(html, /HL7\/FHIR روی بروشور کافی نیست؛ ۱۲ آزمون اتصال/);
   assert.match(html, /برق، ارت و UPS تجهیزات پزشکی در ایران؛ ۱۲ آزمون/);
   assert.match(html, /eIFU تجهیزات پزشکی در اروپا؛ ۱۰ کنترل خرید/);
@@ -695,6 +696,36 @@ test("daily medical-device interoperability article includes SSR, current primar
   );
 });
 
+test("daily home-healthcare procurement article includes SSR, primary sources, Tehran metadata and home acceptance controls", async () => {
+  const response = await request(
+    "/blog/home-healthcare-medical-device-procurement-2026",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /۱۲ کنترل خرید تجهیزات مراقبت خانگی/);
+  assert.match(html, /آزمون پذیرش در خانه؛ نه در نمایشگاه/);
+  assert.match(html, /شش خط قرمز پیش از سفارش/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /fda\.gov\/medical-devices\/home-health-care-hub\/fda-readi-home/);
+  assert.match(html, /fda\.gov\/medical-devices\/home-health-care-hub\/idea-lab/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67384/);
+  assert.match(html, /csrc\.nist\.gov\/pubs\/sp\/1800\/30\/final/);
+  assert.match(html, /home-healthcare-medical-device-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /"articleSection":"جهانی؛ مراقبت خانگی و ایمنی"/);
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید تجهیزات پزشکی خانگی,تجهیزات مراقبت در منزل,استاندارد تجهیزات پزشکی خانگی/,
+  );
+  assert.match(html, /2026-08-21T08:00:00\+03:30/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/home-healthcare-medical-device-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -795,7 +826,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 37);
+  assert.equal(blogUrls.length, 38);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -808,6 +839,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/medical-device-interoperability-acceptance-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/home-healthcare-medical-device-procurement-2026/,
   );
   assert.match(
     sitemap,
