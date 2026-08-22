@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 38);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 39);
+  assert.match(html, /استوک، دست‌دوم یا Refurbished؟ ۱۲ کنترل/);
   assert.match(html, /تجهیز بیمارستانی را به خانه نبرید؛ ۱۲ کنترل خرید/);
   assert.match(html, /HL7\/FHIR روی بروشور کافی نیست؛ ۱۲ آزمون اتصال/);
   assert.match(html, /برق، ارت و UPS تجهیزات پزشکی در ایران؛ ۱۲ آزمون/);
@@ -726,6 +727,31 @@ test("daily home-healthcare procurement article includes SSR, primary sources, T
   );
 });
 
+test("daily Iran used and refurbished device article includes SSR, primary sources, legal nuance and buyer controls", async () => {
+  const response = await request(
+    "/blog/iran-used-refurbished-medical-device-procurement",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /استوک، دست‌دوم یا Refurbished؟/);
+  assert.match(html, /ماده ۵۶/);
+  assert.match(html, /ماده ۵۷/);
+  assert.match(html, /هر معامله داخلی/);
+  assert.match(html, /۱۲ کنترل پیش از سفارش/);
+  assert.match(html, /سه دروازه تصمیم/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /fdo\.mui\.ac\.ir/);
+  assert.match(html, /who\.int\/publications/);
+  assert.match(html, /fda\.gov\/medical-devices/);
+  assert.match(html, /iran-used-refurbished-medical-device-procurement\.webp/);
+  assert.match(html, /2026-08-22T08:00:00\+03:30/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-used-refurbished-medical-device-procurement"/,
+  );
+  assert.match(html, /"@type":"Article"/);
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -826,7 +852,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 38);
+  assert.equal(blogUrls.length, 39);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -843,6 +869,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/home-healthcare-medical-device-procurement-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-used-refurbished-medical-device-procurement/,
   );
   assert.match(
     sitemap,
