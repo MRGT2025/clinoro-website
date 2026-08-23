@@ -228,7 +228,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 39);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 40);
   assert.match(html, /استوک، دست‌دوم یا Refurbished؟ ۱۲ کنترل/);
   assert.match(html, /تجهیز بیمارستانی را به خانه نبرید؛ ۱۲ کنترل خرید/);
   assert.match(html, /HL7\/FHIR روی بروشور کافی نیست؛ ۱۲ آزمون اتصال/);
@@ -752,6 +752,43 @@ test("daily Iran used and refurbished device article includes SSR, primary sourc
   assert.match(html, /"@type":"Article"/);
 });
 
+test("daily EU MDR legacy-device article includes SSR, current primary sources, transition evidence and buyer controls", async () => {
+  const response = await request(
+    "/blog/eu-mdr-legacy-device-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /CE قدیمی هنوز معتبر است؟/);
+  assert.match(html, /۱۲ مدرک قبل از سفارش/);
+  assert.match(html, /۳۱ دسامبر ۲۰۲۷/);
+  assert.match(html, /۳۱ دسامبر ۲۰۲۸/);
+  assert.match(html, /۲۶ سپتامبر ۲۰۲۴/);
+  assert.match(html, /تغییر مهم/);
+  assert.match(html, /ماده 10a/);
+  assert.match(html, /eur-lex\.europa\.eu\/eli\/reg\/2023\/607/);
+  assert.match(html, /mdcg_2020-3_en_1\.pdf/);
+  assert.match(html, /md_mdcg_2021_25_en\.pdf/);
+  assert.match(html, /mdr_qna-article10a_mdr-ivdr_en\.pdf/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /eu-mdr-legacy-device-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-23T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ مقررات اروپا و انطباق خرید"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="تجهیزات پزشکی Legacy اروپا,MDR 2027 2028,اعتبار گواهی CE تجهیزات پزشکی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/eu-mdr-legacy-device-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -852,7 +889,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 39);
+  assert.equal(blogUrls.length, 40);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -873,6 +910,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-used-refurbished-medical-device-procurement/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/eu-mdr-legacy-device-procurement-2026/,
   );
   assert.match(
     sitemap,
