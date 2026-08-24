@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 40);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 41);
+  assert.match(html, /اول اتاق، بعد دستگاه؛ ۱۲ کنترل خرید CT و رادیولوژی در ایران/);
   assert.match(html, /استوک، دست‌دوم یا Refurbished؟ ۱۲ کنترل/);
   assert.match(html, /تجهیز بیمارستانی را به خانه نبرید؛ ۱۲ کنترل خرید/);
   assert.match(html, /HL7\/FHIR روی بروشور کافی نیست؛ ۱۲ آزمون اتصال/);
@@ -789,6 +790,41 @@ test("daily EU MDR legacy-device article includes SSR, current primary sources, 
   );
 });
 
+test("daily Iran CT and X-ray procurement article includes SSR, legal sources, Tehran metadata and site-readiness controls", async () => {
+  const response = await request(
+    "/blog/iran-ct-xray-site-readiness-procurement",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /اول اتاق، بعد دستگاه/);
+  assert.match(html, /۱۲ کنترل پیش از امضای سفارش/);
+  assert.match(html, /ضخامت ثابت سرب/);
+  assert.match(html, /Acceptance، Commissioning و Baseline QC/);
+  assert.match(html, /هشت علامت توقف فوری/);
+  assert.match(html, /nezamat\.ir\/post-16541/);
+  assert.match(html, /nezamat\.ir\/post-16542/);
+  assert.match(html, /iaea\.org\/publications\/11102/);
+  assert.match(html, /WHO-IAEA-COVID19-tech-specs-for-imaging/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-ct-xray-site-readiness-procurement\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-24T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ تصویربرداری، ایمنی پرتوی و خرید"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه CT در ایران,خرید دستگاه رادیولوژی,آمادگی سایت سی تی اسکن/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-ct-xray-site-readiness-procurement"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -889,7 +925,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 40);
+  assert.equal(blogUrls.length, 41);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -914,6 +950,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/eu-mdr-legacy-device-procurement-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-ct-xray-site-readiness-procurement/,
   );
   assert.match(
     sitemap,
