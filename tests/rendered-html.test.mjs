@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 41);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 42);
+  assert.match(html, /AI Act عقب افتاد، ریسک خرید نه؛ ۱۲ مدرک/);
   assert.match(html, /اول اتاق، بعد دستگاه؛ ۱۲ کنترل خرید CT و رادیولوژی در ایران/);
   assert.match(html, /استوک، دست‌دوم یا Refurbished؟ ۱۲ کنترل/);
   assert.match(html, /تجهیز بیمارستانی را به خانه نبرید؛ ۱۲ کنترل خرید/);
@@ -825,6 +826,43 @@ test("daily Iran CT and X-ray procurement article includes SSR, legal sources, T
   );
 });
 
+test("daily EU AI Act medical-device procurement article includes SSR, current Omnibus timeline and buyer controls", async () => {
+  const response = await request(
+    "/blog/eu-ai-act-medical-device-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /AI Act عقب افتاد، ریسک خرید نه/);
+  assert.match(html, /۲ اوت ۲۰۲۸/);
+  assert.match(html, /۲۷ ژوئیه ۲۰۲۶/);
+  assert.match(html, /۱۲ مدرک پیش از سفارش و Go-Live/);
+  assert.match(html, /هشت علامت توقف فوری/);
+  assert.match(html, /AI Omnibus enters into force/);
+  assert.match(html, /02024R1689-20260727/);
+  assert.match(html, /b78a17d7-e3cd-4943-851d-e02a2f22bbb4_en/);
+  assert.match(html, /ai-literacy-questions-answers/);
+  assert.match(html, /ai-act\/article-26/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /href="\/blog\/ai-medical-imaging-procurement-checklist"/);
+  assert.match(html, /eu-ai-act-medical-device-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-25T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ هوش مصنوعی، مقررات اروپا و خرید"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="AI Act تجهیزات پزشکی,خرید تجهیزات پزشکی هوشمند,تجهیزات پزشکی AI اروپا/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/eu-ai-act-medical-device-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -925,7 +963,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 41);
+  assert.equal(blogUrls.length, 42);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -954,6 +992,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-ct-xray-site-readiness-procurement/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/eu-ai-act-medical-device-procurement-2026/,
   );
   assert.match(
     sitemap,
