@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 43);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 44);
+  assert.match(html, /دستگاه رایگان نیست؛ ۱۲ بند قرارداد Reagent Rental برای آزمایشگاه/);
   assert.match(html, /فقط اتوکلاو نخرید؛ ۱۲ کنترل خرید استریلایزر بخار و CSSD در ایران/);
   assert.match(html, /AI Act عقب افتاد، ریسک خرید نه؛ ۱۲ مدرک/);
   assert.match(html, /اول اتاق، بعد دستگاه؛ ۱۲ کنترل خرید CT و رادیولوژی در ایران/);
@@ -901,6 +902,40 @@ test("daily Iran CSSD steam-sterilizer procurement article includes SSR, primary
   );
 });
 
+test("daily global laboratory reagent-rental article includes SSR, authoritative sources, Tehran metadata and contract controls", async () => {
+  const response = await request(
+    "/blog/laboratory-reagent-rental-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /دستگاه رایگان نیست/);
+  assert.match(html, /۱۲ بند پیش از امضای قرارداد/);
+  assert.match(html, /هزینه هر نتیجه قابل‌گزارش/);
+  assert.match(html, /هشت علامت توقف فوری/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789241512558/);
+  assert.match(html, /finddx\.org\/20250516_cfp_poc_reader_pvserordt_fv_en/);
+  assert.match(html, /fda\.gov\/medical-devices\/device-labeling\/quality-system-regulation-labeling-requirements/);
+  assert.match(html, /href="\/blog\/lab-analyzer-acceptance"/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /laboratory-reagent-rental-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-27T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ آزمایشگاه، IVD و قرارداد خرید"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="قرارداد Reagent Rental,خرید آنالایزر آزمایشگاهی,هزینه هر تست آزمایشگاهی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/laboratory-reagent-rental-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1001,7 +1036,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 43);
+  assert.equal(blogUrls.length, 44);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1038,6 +1073,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-cssd-steam-sterilizer-procurement/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/laboratory-reagent-rental-procurement-2026/,
   );
   assert.match(
     sitemap,
