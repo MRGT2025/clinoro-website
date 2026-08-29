@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 45);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 46);
+  assert.match(html, /ربات جراحی خودش جراحی نمی‌کند؛ ۱۲ کنترل خرید پیش از اولین عمل/);
   assert.match(html, /آبِ خوب، آپشن نیست؛ ۱۲ کنترل خرید دستگاه دیالیز و RO در ایران/);
   assert.match(html, /دستگاه رایگان نیست؛ ۱۲ بند قرارداد Reagent Rental برای آزمایشگاه/);
   assert.match(html, /فقط اتوکلاو نخرید؛ ۱۲ کنترل خرید استریلایزر بخار و CSSD در ایران/);
@@ -973,6 +974,41 @@ test("daily Iran hemodialysis and RO article includes SSR, primary sources, Tehr
   );
 });
 
+test("daily global robot-assisted surgery article includes SSR, current primary sources, Tehran metadata and procurement controls", async () => {
+  const response = await request(
+    "/blog/robot-assisted-surgery-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /ربات جراحی خودش جراحی نمی‌کند/);
+  assert.match(html, /۱۲ کنترل پیش از قرارداد/);
+  assert.match(html, /هشت علامت توقف/);
+  assert.match(html, /هزینه هر کیس را محاسبه کنید/);
+  assert.match(html, /fda\.gov\/medical-devices\/surgery-devices\/computer-assisted-surgical-systems/);
+  assert.match(html, /nice\.org\.uk\/guidance\/htg742\/chapter\/1-Recommendations/);
+  assert.match(html, /england\.nhs\.uk\/long-read\/board-committee-updates/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789240110878/);
+  assert.match(html, /surgical-stapler-reload-recall/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /robot-assisted-surgery-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-29T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ جراحی رباتیک و خرید فناوری"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید ربات جراحی,جراحی رباتیک,Robot-assisted surgery/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/robot-assisted-surgery-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1073,7 +1109,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 45);
+  assert.equal(blogUrls.length, 46);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1118,6 +1154,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-hemodialysis-ro-water-procurement/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/robot-assisted-surgery-procurement-2026/,
   );
   assert.match(
     sitemap,
