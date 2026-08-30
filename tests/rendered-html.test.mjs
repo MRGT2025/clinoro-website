@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 46);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 47);
+  assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /ربات جراحی خودش جراحی نمی‌کند؛ ۱۲ کنترل خرید پیش از اولین عمل/);
   assert.match(html, /آبِ خوب، آپشن نیست؛ ۱۲ کنترل خرید دستگاه دیالیز و RO در ایران/);
   assert.match(html, /دستگاه رایگان نیست؛ ۱۲ بند قرارداد Reagent Rental برای آزمایشگاه/);
@@ -1009,6 +1010,42 @@ test("daily global robot-assisted surgery article includes SSR, current primary 
   );
 });
 
+test("daily Iran ICU ventilator article includes SSR, primary sources, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-icu-ventilator-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست/);
+  assert.match(html, /۱۲ آزمون پیش از سفارش و Go-Live/);
+  assert.match(html, /هشت علامت توقف خرید/);
+  assert.match(html, /هزینه هر روز ونتیلاتور آماده/);
+  assert.match(html, /iso\.org\/standard\/82707\.html/);
+  assert.match(html, /iso\.org\/standard\/87151\.html/);
+  assert.match(html, /tech-specs-ventilators-v2-11august20\.docx/);
+  assert.match(html, /care-cleaning-and-disinfection-of-respiratory-equipment/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/31124/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-icu-ventilator-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-30T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ونتیلاتور ICU و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید ونتیلاتور ICU,ونتیلاتور بیمارستانی ایران,آزمون پذیرش ونتیلاتور/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-icu-ventilator-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1109,7 +1146,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 46);
+  assert.equal(blogUrls.length, 47);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1158,6 +1195,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/robot-assisted-surgery-procurement-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-icu-ventilator-procurement-acceptance/,
   );
   assert.match(
     sitemap,
