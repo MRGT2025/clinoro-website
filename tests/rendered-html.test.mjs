@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 47);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 48);
+  assert.match(html, /قیمت مگنت، قیمت پروژه نیست؛ ۱۲ کنترل خرید MRI پیش از اولین اسکن/);
   assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /ربات جراحی خودش جراحی نمی‌کند؛ ۱۲ کنترل خرید پیش از اولین عمل/);
   assert.match(html, /آبِ خوب، آپشن نیست؛ ۱۲ کنترل خرید دستگاه دیالیز و RO در ایران/);
@@ -1046,6 +1047,42 @@ test("daily Iran ICU ventilator article includes SSR, primary sources, Tehran me
   );
 });
 
+test("daily global MRI procurement article includes SSR, current primary guidance, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/mri-system-procurement-acceptance-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /قیمت مگنت، قیمت پروژه نیست/);
+  assert.match(html, /۱۲ کنترل پیش از قرارداد و Go-Live/);
+  assert.match(html, /هشت علامت توقف خرید/);
+  assert.match(html, /هزینه هر اسکن قابل گزارش/);
+  assert.match(html, /MHRA_MRI_Guidance_v5-0-02\.pdf/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67211/);
+  assert.match(html, /acr\.org\/Clinical-Resources\/Clinical-Tools-and-Reference\/radiology-safety\/mr-safety/);
+  assert.match(html, /Changes-to-ACR-Manual-on-MR-Safety\.pdf/);
+  assert.match(html, /fda\.gov\/radiation-emitting-products\/mri-magnetic-resonance-imaging\/benefits-and-risks/);
+  assert.match(html, /technical-guidelines-for-mri-for-the-surveillance/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /mri-system-procurement-acceptance-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-08-31T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ MRI، ایمنی و خرید تجهیزات تصویربرداری"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه MRI,آزمون پذیرش MRI,هزینه پروژه MRI/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/mri-system-procurement-acceptance-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1146,7 +1183,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 47);
+  assert.equal(blogUrls.length, 48);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1199,6 +1236,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-icu-ventilator-procurement-acceptance/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/mri-system-procurement-acceptance-2026/,
   );
   assert.match(
     sitemap,
