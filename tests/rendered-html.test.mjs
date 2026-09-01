@@ -228,7 +228,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 48);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 49);
   assert.match(html, /قیمت مگنت، قیمت پروژه نیست؛ ۱۲ کنترل خرید MRI پیش از اولین اسکن/);
   assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /ربات جراحی خودش جراحی نمی‌کند؛ ۱۲ کنترل خرید پیش از اولین عمل/);
@@ -1083,6 +1083,42 @@ test("daily global MRI procurement article includes SSR, current primary guidanc
   );
 });
 
+test("daily Iran infusion pump procurement article includes SSR, primary sources, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-infusion-syringe-pump-procurement",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /پمپ روشن شد، یعنی دقیق نیست/);
+  assert.match(html, /۱۲ آزمون پیش از سفارش و Go-Live/);
+  assert.match(html, /هشت علامت توقف خرید/);
+  assert.match(html, /هزینه هر تزریق آماده و قابل‌اعتماد/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2635/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /treatment\.sbmu\.ac\.ir\/Accreditation-guidelines/);
+  assert.match(html, /trs-1067---annex-8\.pdf/);
+  assert.match(html, /infusion-pumps-correction-baxter/);
+  assert.match(html, /examples-reported-infusion-pump-problems/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-infusion-syringe-pump-procurement\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-01T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ پمپ‌های تزریق و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید پمپ سرنگ,خرید پمپ انفیوژن,آزمون پذیرش پمپ تزریق/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-infusion-syringe-pump-procurement"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1183,7 +1219,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 48);
+  assert.equal(blogUrls.length, 49);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1240,6 +1276,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/mri-system-procurement-acceptance-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-infusion-syringe-pump-procurement/,
   );
   assert.match(
     sitemap,
