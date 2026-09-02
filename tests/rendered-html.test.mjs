@@ -228,7 +228,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 49);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 50);
   assert.match(html, /قیمت مگنت، قیمت پروژه نیست؛ ۱۲ کنترل خرید MRI پیش از اولین اسکن/);
   assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /ربات جراحی خودش جراحی نمی‌کند؛ ۱۲ کنترل خرید پیش از اولین عمل/);
@@ -1119,6 +1119,44 @@ test("daily Iran infusion pump procurement article includes SSR, primary sources
   );
 });
 
+test("daily global spectral CT procurement article includes SSR, current primary sources, Tehran metadata and task-specific controls", async () => {
+  const response = await request(
+    "/blog/spectral-photon-counting-ct-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /برچسب Spectral کافی نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد و اولین گزارش بالینی/);
+  assert.match(html, /هشت علامت توقف خرید/);
+  assert.match(html, /هزینه هر مطالعه طیفی قابل‌گزارش/);
+  assert.match(html, /aapm\.org\/pubs\/reports\/detail\.asp\?docid=288/);
+  assert.match(html, /aapm\.org\/pubs\/reports\/detail\.asp\?docid=201/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2661/);
+  assert.match(html, /standard__identification_no=40109/);
+  assert.match(html, /cdrh-rst\.fda\.gov\/method-and-phantom-design/);
+  assert.match(html, /cdrh_docs\/pdf25\/K252249\.pdf/);
+  assert.match(html, /iaea-led-study-finds-5-star-rating-system/);
+  assert.match(html, /new-iaea-video-tutorials-on-computed-tomography/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /spectral-photon-counting-ct-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-02T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ CT طیفی، Photon‑Counting و خرید تصویربرداری"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید CT طیفی,Photon Counting CT,Dual Energy CT/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/spectral-photon-counting-ct-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1219,7 +1257,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 49);
+  assert.equal(blogUrls.length, 50);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1280,6 +1318,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-infusion-syringe-pump-procurement/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/spectral-photon-counting-ct-procurement-2026/,
   );
   assert.match(
     sitemap,
