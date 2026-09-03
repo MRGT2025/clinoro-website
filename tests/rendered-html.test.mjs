@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 50);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 51);
+  assert.match(html, /مانیتور ICU را با تعداد پارامتر نخرید؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /قیمت مگنت، قیمت پروژه نیست؛ ۱۲ کنترل خرید MRI پیش از اولین اسکن/);
   assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /ربات جراحی خودش جراحی نمی‌کند؛ ۱۲ کنترل خرید پیش از اولین عمل/);
@@ -1157,6 +1158,46 @@ test("daily global spectral CT procurement article includes SSR, current primary
   );
 });
 
+test("daily Iran patient-monitor procurement article includes SSR, current standards, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-patient-monitor-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /مانیتور ICU را با تعداد پارامتر نخرید/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد و تحویل نهایی/);
+  assert.match(html, /پرونده‌ای که پیش از اولین بیمار باید کامل باشد/);
+  assert.match(html, /هزینه سالانه هر تخت قابل پایش/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText\/\?IDS=9198362936967421494/);
+  assert.match(html, /treatment\.sbmu\.ac\.ir\/Accreditation-guidelines/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/100456/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2638/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/29812/);
+  assert.match(html, /iso\.org\/standard\/84595\.html/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789240002654/);
+  assert.match(html, /pulse-oximeters-medical-purposes-non-clinical/);
+  assert.match(html, /cfres\/res\.cfm\?id=220241/);
+  assert.match(html, /cfres\/res\.cfm\?id=217179/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-patient-monitor-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-03T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ مانیتور علائم حیاتی، پذیرش فنی و ICU"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید مانیتور علائم حیاتی,مانیتور بیمار ICU,آزمون پذیرش مانیتور بیمار/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-patient-monitor-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1257,7 +1298,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 50);
+  assert.equal(blogUrls.length, 51);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -1322,6 +1363,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/spectral-photon-counting-ct-procurement-2026/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-patient-monitor-procurement-acceptance/,
   );
   assert.match(
     sitemap,
