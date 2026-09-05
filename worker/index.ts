@@ -20,6 +20,12 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
+const PRIMARY_HOSTNAME = "clinoromedical.com";
+const REDIRECT_HOSTNAMES = new Set([
+  "clinoromedical.ir",
+  "www.clinoromedical.ir",
+]);
+
 // Image security config. SVG sources with .svg extension auto-skip the
 // optimization endpoint on the client side (served directly, no proxy).
 // To route SVGs through the optimizer (with security headers), set
@@ -30,6 +36,19 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     globalThis.__CLINORO_RUNTIME_ENV = env;
     const url = new URL(request.url);
+
+    if (REDIRECT_HOSTNAMES.has(url.hostname.toLowerCase())) {
+      url.protocol = "https:";
+      url.hostname = PRIMARY_HOSTNAME;
+      url.port = "";
+      return new Response(null, {
+        status: 308,
+        headers: {
+          Location: url.toString(),
+          "Cache-Control": "public, max-age=3600",
+        },
+      });
+    }
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

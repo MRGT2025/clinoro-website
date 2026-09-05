@@ -18,6 +18,23 @@ const request = (path) =>
     context,
   );
 
+test("Iranian domain permanently redirects to the canonical host", async () => {
+  for (const hostname of ["clinoromedical.ir", "www.clinoromedical.ir"]) {
+    const response = await worker.fetch(
+      new Request(
+        `https://${hostname}/blog/iran-patient-monitor-procurement-acceptance?ref=ir`,
+      ),
+      env,
+      context,
+    );
+    assert.equal(response.status, 308);
+    assert.equal(
+      response.headers.get("location"),
+      "https://clinoromedical.com/blog/iran-patient-monitor-procurement-acceptance?ref=ir",
+    );
+  }
+});
+
 test("RFQ endpoint validates and stores a real submission", async () => {
   const inserts = [];
   const db = {
