@@ -228,7 +228,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 51);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 52);
+  assert.match(html, /فقط دستگاه بیهوشی نخرید؛ ۱۲ آزمون ورک‌استیشن پیش از اولین عمل در ایران/);
   assert.match(html, /مانیتور ICU را با تعداد پارامتر نخرید؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /قیمت مگنت، قیمت پروژه نیست؛ ۱۲ کنترل خرید MRI پیش از اولین اسکن/);
   assert.match(html, /مود بیشتر، ونتیلاتور بهتر نیست؛ ۱۲ آزمون خرید و تحویل در ایران/);
@@ -1198,6 +1199,50 @@ test("daily Iran patient-monitor procurement article includes SSR, current stand
   );
 });
 
+test("daily Iran anaesthesia-workstation article includes SSR, current amendment, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-anaesthesia-workstation-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /فقط دستگاه بیهوشی نخرید/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد و اولین عمل/);
+  assert.match(html, /اصلاحیه اوت ۲۰۲۶/);
+  assert.match(html, /هزینه هر ساعت بیهوشی آماده‌به‌کار/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText\/\?IDS=9198362936967421494/);
+  assert.match(html, /iso\.org\/standard\/76679\.html/);
+  assert.match(html, /iso\.org\/standard\/89177\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/63857/);
+  assert.match(html, /iso\.org\/standard\/67241\.html/);
+  assert.match(html, /standard__identification_no=44735/);
+  assert.match(html, /9789241598590-eng-checklist\.pdf/);
+  assert.match(html, /anesthesia-machine-correction-draeger/);
+  assert.match(html, /anesthesia-delivery-systems-recall-ge-healthcare/);
+  assert.match(html, /anesthetic-vaporizer-recall-draeger/);
+  assert.match(html, /anesthesia-kit-recall-medline/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(
+    html,
+    /iran-anaesthesia-workstation-procurement-acceptance\.webp/,
+  );
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-05T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ورک‌استیشن بیهوشی، اتاق عمل و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه بیهوشی,ورک استیشن بیهوشی,آزمون پذیرش دستگاه بیهوشی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-anaesthesia-workstation-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1298,7 +1343,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 51);
+  assert.equal(blogUrls.length, 52);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
