@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 52);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 53);
+  assert.match(html, /قابلیتی نخرید که فردا خاموش شود؛ ۱۲ بند لایسنس و خروج تجهیزات پزشکی/);
   assert.match(html, /فقط دستگاه بیهوشی نخرید؛ ۱۲ آزمون ورک‌استیشن پیش از اولین عمل در ایران/);
   assert.match(html, /مانیتور ICU را با تعداد پارامتر نخرید؛ ۱۲ آزمون خرید و تحویل در ایران/);
   assert.match(html, /قیمت مگنت، قیمت پروژه نیست؛ ۱۲ کنترل خرید MRI پیش از اولین اسکن/);
@@ -1260,6 +1261,43 @@ test("daily Iran anaesthesia-workstation article includes SSR, current amendment
   );
 });
 
+test("daily global software-license article includes SSR, 2026 FDA guidance, buyer exit terms and Tehran metadata", async () => {
+  const response = await request(
+    "/blog/medical-device-software-license-vendor-lock-in-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /قابلیتی نخرید که فردا خاموش شود/);
+  assert.match(html, /۱۲ بند قراردادی پیش از سفارش/);
+  assert.match(html, /۳ فوریه ۲۰۲۶/);
+  assert.match(html, /TCO نرم‌افزار/);
+  assert.match(html, /media\/119933\/download/);
+  assert.match(html, /imdrf\.org\/sites\/default\/files\/2023-04/);
+  assert.match(html, /principles-and-practices-cybersecurity-legacy-medical-devices/);
+  assert.match(html, /b23b362f-8a56-434c-922a-5b3ca4d0a7a1_en/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(
+    html,
+    /medical-device-software-license-vendor-lock-in-2026\.webp/,
+  );
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-06T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ نرم‌افزار تجهیزات پزشکی، لایسنس و تداوم خدمت"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="لایسنس تجهیزات پزشکی,نرم افزار تجهیزات پزشکی,خروج از قفل فروشنده/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-software-license-vendor-lock-in-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1360,8 +1398,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 52);
+  assert.equal(blogUrls.length, 53);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/medical-device-software-license-vendor-lock-in-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/eu-medical-device-eifu-procurement-2026/,
