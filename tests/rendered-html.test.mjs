@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 54);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 55);
+  assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست؛ ۱۲ آزمون سونوگرافی پیش از تحویل/);
   assert.match(html, /عدد ژول کافی نیست؛ ۱۲ آزمون خرید دفیبریلاتور و AED در ایران/);
   assert.match(html, /قابلیتی نخرید که فردا خاموش شود؛ ۱۲ بند لایسنس و خروج تجهیزات پزشکی/);
   assert.match(html, /فقط دستگاه بیهوشی نخرید؛ ۱۲ آزمون ورک‌استیشن پیش از اولین عمل در ایران/);
@@ -1335,6 +1336,42 @@ test("daily Iran defibrillator article includes SSR, current recalls, acceptance
   );
 });
 
+test("daily global ultrasound probe article includes lifecycle acceptance, current standards and Tehran metadata", async () => {
+  const response = await request(
+    "/blog/ultrasound-probe-lifecycle-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /هزینه هر ساعت پروب قابل‌استفاده/);
+  assert.match(html, /marketing-clearance-diagnostic-ultrasound-systems-and-transducers/);
+  assert.match(html, /standard__identification_no=46148/);
+  assert.match(html, /ultrasound-imaging/);
+  assert.match(html, /guidelines-for-cleaning-and-preparing-external--and-internal-use/);
+  assert.match(html, /disinfection-sterilization\/healthcare-equipment/);
+  assert.match(html, /Guidelines-for-Reprocessing-Ultrasound-Transducers-2026\.pdf/);
+  assert.match(html, /dicomstandard\.org\/about/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /ultrasound-probe-lifecycle-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-08T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ سونوگرافی، پروب و چرخه‌عمر"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه سونوگرافی,خرید پروب سونوگرافی,آزمون پذیرش سونوگرافی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/ultrasound-probe-lifecycle-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1435,8 +1472,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 54);
+  assert.equal(blogUrls.length, 55);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/ultrasound-probe-lifecycle-procurement-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-defibrillator-aed-procurement-acceptance/,
