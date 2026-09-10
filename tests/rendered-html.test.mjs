@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 56);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 57);
+  assert.match(html, /توموسنتز روی بروشور کافی نیست/);
   assert.match(html, /وات روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید الکتروکوتر در ایران/);
   assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست؛ ۱۲ آزمون سونوگرافی پیش از تحویل/);
   assert.match(html, /عدد ژول کافی نیست؛ ۱۲ آزمون خرید دفیبریلاتور و AED در ایران/);
@@ -1410,6 +1411,42 @@ test("daily Iran electrosurgical-unit article includes output, return-electrode,
   );
 });
 
+test("daily global digital mammography article includes phantom, dose, DBT, records and Tehran acceptance controls", async () => {
+  const response = await request(
+    "/blog/digital-mammography-tomosynthesis-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /توموسنتز روی بروشور کافی نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /کیفیت تصویر را با فانتوم/);
+  assert.match(html, /AEC و دز را در ضخامت‌ها/);
+  assert.match(html, /DBT و Synthetic 2D را مستقل/);
+  assert.match(html, /هزینه هر مطالعه پذیرفته‌شده/);
+  assert.match(html, /mammography-quality-standards-act-mqsa-and-mqsa-program/);
+  assert.match(html, /mammography-problems-mammography-center-monterey/);
+  assert.match(html, /2023-04550\/mammography-quality-standards-act/);
+  assert.match(html, /publications\/8560\/quality-assurance-programme-for-digital-mammography/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /digital-mammography-tomosynthesis-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-10T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ ماموگرافی، توموسنتز و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه ماموگرافی دیجیتال,خرید توموسنتز پستان,آزمون پذیرش ماموگرافی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/digital-mammography-tomosynthesis-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1510,8 +1547,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 56);
+  assert.equal(blogUrls.length, 57);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/digital-mammography-tomosynthesis-procurement-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-electrosurgical-unit-procurement-acceptance/,
