@@ -245,7 +245,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 57);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 58);
   assert.match(html, /توموسنتز روی بروشور کافی نیست/);
   assert.match(html, /وات روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید الکتروکوتر در ایران/);
   assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست؛ ۱۲ آزمون سونوگرافی پیش از تحویل/);
@@ -1447,6 +1447,43 @@ test("daily global digital mammography article includes phantom, dose, DBT, reco
   );
 });
 
+test("daily Iran neonatal incubator and radiant-warmer article includes thermal, servo, recall and Tehran acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-neonatal-incubator-radiant-warmer-procurement",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد دما کافی نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /دمای هوا را در چند نقطه/);
+  assert.match(html, /کنترل پوستی و خرابی پروب/);
+  assert.match(html, /هزینه هر ساعت تختِ آماده کنترل حرارتی/);
+  assert.match(html, /section-880\.5400/);
+  assert.match(html, /section-880\.5130/);
+  assert.match(html, /cfRES\/res\.cfm\?id=220362/);
+  assert.match(html, /update-evaluation-airborne-chemicals-neonatal-incubators/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789240058262/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-neonatal-incubator-radiant-warmer-procurement\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-11T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ انکوباتور نوزاد، رادیانت‌وارمر و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید انکوباتور نوزاد در ایران,خرید رادیانت وارمر,آزمون پذیرش انکوباتور نوزاد/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-neonatal-incubator-radiant-warmer-procurement"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1547,8 +1584,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 57);
+  assert.equal(blogUrls.length, 58);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-neonatal-incubator-radiant-warmer-procurement/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/digital-mammography-tomosynthesis-procurement-2026/,
