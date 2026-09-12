@@ -245,7 +245,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 58);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 59);
   assert.match(html, /توموسنتز روی بروشور کافی نیست/);
   assert.match(html, /وات روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید الکتروکوتر در ایران/);
   assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست؛ ۱۲ آزمون سونوگرافی پیش از تحویل/);
@@ -1484,6 +1484,44 @@ test("daily Iran neonatal incubator and radiant-warmer article includes thermal,
   );
 });
 
+test("daily global adult medical-bed article includes the 2026 standard, entrapment, recall and Tehran acceptance controls", async () => {
+  const response = await request(
+    "/blog/adult-medical-bed-procurement-iec-80601-2-52-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /چهار موتور، تخت بهتر نمی‌سازد/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /فاصله‌های گیر‌افتادگی را در بدترین وضعیت/);
+  assert.match(html, /Safe working load را از وزن بیمار جدا کنید/);
+  assert.match(html, /هزینه هر ساعت تختِ آماده/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/66296/);
+  assert.match(html, /iso\.org\/standard\/78472\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/114341/);
+  assert.match(html, /cfres\/res\.cfm\?id=217825/i);
+  assert.match(html, /hbswfda-frequently-asked-questions-faq-entrapment-issues/);
+  assert.match(html, /bed-rails-management-and-safe-use/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789241501378/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /adult-medical-bed-procurement-iec-80601-2-52-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-12T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ تخت پزشکی، ایمنی بیمار و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید تخت بیمارستانی,خرید تخت ICU,آزمون پذیرش تخت بیمارستانی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/adult-medical-bed-procurement-iec-80601-2-52-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1584,8 +1622,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 58);
+  assert.equal(blogUrls.length, 59);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/adult-medical-bed-procurement-iec-80601-2-52-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-neonatal-incubator-radiant-warmer-procurement/,
