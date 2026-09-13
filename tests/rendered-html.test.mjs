@@ -245,7 +245,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 59);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 60);
   assert.match(html, /توموسنتز روی بروشور کافی نیست/);
   assert.match(html, /وات روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید الکتروکوتر در ایران/);
   assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست؛ ۱۲ آزمون سونوگرافی پیش از تحویل/);
@@ -1522,6 +1522,44 @@ test("daily global adult medical-bed article includes the 2026 standard, entrapm
   );
 });
 
+test("daily Iran medical-suction article includes water-ingress amendment, system tests and Tehran procurement controls", async () => {
+  const response = await request(
+    "/blog/iran-medical-suction-pump-procurement-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /فقط خلأ نخرید/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /اصلاحیه نفوذ آب را به آزمون تمیزکاری وصل کنید/);
+  assert.match(html, /خلأ و دبی را با یک نمودار کاری تحویل بگیرید/);
+  assert.match(html, /هزینه هر ساعت ساکشن آماده/);
+  assert.match(html, /evs-en-iso-10079-1-2022-a1-2026/);
+  assert.match(html, /evs-en-iso-10079-4-2021/);
+  assert.match(html, /evs-en-iso-10079-2-2022/);
+  assert.match(html, /evs-en-iso-10079-3-2022/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /fdo\.sbmu\.ac\.ir\/uploads/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789241501378/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-medical-suction-pump-procurement-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-13T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ساکشن پزشکی، ایمنی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید ساکشن پزشکی در ایران,خرید دستگاه ساکشن بیمارستانی,آزمون پذیرش ساکشن پزشکی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-suction-pump-procurement-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1622,8 +1660,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 59);
+  assert.equal(blogUrls.length, 60);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-medical-suction-pump-procurement-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/adult-medical-bed-procurement-iec-80601-2-52-2026/,
