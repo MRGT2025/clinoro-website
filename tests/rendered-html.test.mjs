@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 60);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 61);
+  assert.match(html, /فقط وات و طول موج نخرید؛ ۱۲ آزمون خرید لیزر پزشکی/);
   assert.match(html, /توموسنتز روی بروشور کافی نیست/);
   assert.match(html, /وات روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید الکتروکوتر در ایران/);
   assert.match(html, /تعداد پروب بیشتر یعنی خرید بهتر نیست؛ ۱۲ آزمون سونوگرافی پیش از تحویل/);
@@ -1560,6 +1561,43 @@ test("daily Iran medical-suction article includes water-ingress amendment, syste
   );
 });
 
+test("daily global medical-laser article includes the 2026 IEC amendment, safety chain and procurement controls", async () => {
+  const response = await request(
+    "/blog/medical-laser-procurement-iec-60601-2-22-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /فقط وات و طول موج نخرید/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /خروجی واقعی را در چند نقطه کاری اندازه بگیرید/);
+  assert.match(html, /اینترلاک اتاق و کنترل دسترسی/);
+  assert.match(html, /دود لیزر را بخشی از خرید بدانید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/113384/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/106555/);
+  assert.match(html, /getting-radiation-emitting-product-market-frequently-asked-questions/);
+  assert.match(html, /part-1040\/section-1040\.11/);
+  assert.match(html, /cdc\.gov\/niosh\/engcontrols\/ecd\/detail193/);
+  assert.match(html, /osha\.gov\/etools\/hospitals\/surgical-suite\/laser-hazards/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /medical-laser-procurement-iec-60601-2-22-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-14T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ لیزر پزشکی، ایمنی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید لیزر پزشکی,خرید لیزر جراحی,آزمون پذیرش لیزر پزشکی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-laser-procurement-iec-60601-2-22-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1660,8 +1698,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 60);
+  assert.equal(blogUrls.length, 61);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/medical-laser-procurement-iec-60601-2-22-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-medical-suction-pump-procurement-2026/,
