@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 63);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 64);
+  assert.match(html, /فقط تصویر 4K نخرید؛ ۱۲ آزمون خرید برج آندوسکوپی/);
   assert.match(html, /عدد ۹۹٪ روی نمایشگر مدرک نیست/);
   assert.match(html, /RPM بالاتر، سانتریفیوژ بهتر نیست/);
   assert.match(html, /فقط وات و طول موج نخرید؛ ۱۲ آزمون خرید لیزر پزشکی/);
@@ -1681,6 +1682,42 @@ test("daily global pulse-oximeter article includes the 2026 ISO edition, skin-to
   );
 });
 
+test("daily Iran endoscopy article covers the complete tower and validated reprocessing chain", async () => {
+  const response = await request(
+    "/blog/iran-endoscopy-tower-reprocessing-procurement",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /فقط تصویر 4K نخرید/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /اسکوپ و AER را یک Compatibility claim مشترک ببینید/);
+  assert.match(html, /IQ\/OQ\/PQ و کنترل روتین را تحویل قراردادی کنید/);
+  assert.match(html, /ISO\/DIS 15883-4/);
+  assert.match(html, /iso\.org\/standard\/63696/);
+  assert.match(html, /iso\.org\/standard\/90090/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2621/);
+  assert.match(html, /infections-associated-reprocessed-duodenoscopes/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-endoscopy-tower-reprocessing-procurement\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-17T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ آندوسکوپی، بازفرآوری و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید برج آندوسکوپی در ایران,آزمون پذیرش آندوسکوپی,بازفرآوری آندوسکوپ/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-endoscopy-tower-reprocessing-procurement"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1781,8 +1818,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 63);
+  assert.equal(blogUrls.length, 64);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-endoscopy-tower-reprocessing-procurement/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/pulse-oximeter-procurement-iso-80601-2-61-2026/,
