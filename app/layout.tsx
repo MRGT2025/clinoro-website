@@ -124,9 +124,25 @@ export default async function RootLayout({
   const clientContent = {
     ...content,
     blogPosts: content.blogPosts.map((post) => ({
-      ...post,
+      id: post.id,
+      slug: post.slug,
+      title: post.title,
+      excerpt: "",
       content: "",
+      image: "",
+      category: "",
+      author: "",
+      publishedAt: post.publishedAt,
+      publishedTime: post.publishedTime,
+      published: post.published,
+      seoTitle: "",
+      seoDescription: "",
       sources: [],
+      imageCredit: "",
+      imageSource: "",
+      imageAlt: "",
+      imageLicense: "",
+      keywords: [],
     })),
   };
   const organization = {

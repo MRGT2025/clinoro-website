@@ -293,6 +293,18 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   assert.doesNotMatch(html, /هنوز مطلبی منتشر نشده است/);
 });
 
+test("shared client search index excludes full blog payload while retaining published titles", async () => {
+  const response = await request("/services");
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /فقط تصویر 4K نخرید؛ ۱۲ آزمون خرید برج آندوسکوپی/);
+  assert.doesNotMatch(
+    html,
+    /برج آندوسکوپی بدون اسکوپ سازگار، شست‌وشوی اعتبارسنجی‌شده/,
+  );
+  assert.doesNotMatch(html, /ISO\/DIS 15883-4/);
+});
+
 test("all reveal content stays visible without JavaScript or an observer", async () => {
   const css = await readFile(
     new URL("../app/globals.css", import.meta.url),
