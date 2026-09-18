@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 64);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 65);
+  assert.match(html, /دمای نمایشگر کافی نیست؛ ۱۲ آزمون خرید یخچال و فریزر پزشکی/);
   assert.match(html, /فقط تصویر 4K نخرید؛ ۱۲ آزمون خرید برج آندوسکوپی/);
   assert.match(html, /عدد ۹۹٪ روی نمایشگر مدرک نیست/);
   assert.match(html, /RPM بالاتر، سانتریفیوژ بهتر نیست/);
@@ -1730,6 +1731,41 @@ test("daily Iran endoscopy article covers the complete tower and validated repro
   );
 });
 
+test("daily global medical refrigeration article validates the complete cold chain", async () => {
+  const response = await request(
+    "/blog/medical-refrigerator-freezer-cold-chain-procurement",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /دمای نمایشگر کافی نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /یکنواختی و نقاط گرم و سرد را نقشه‌برداری کنید/);
+  assert.match(html, /Holdover و قطع برق را از شعار به منحنی تبدیل کنید/);
+  assert.match(html, /IQ\/OQ\/PQ و پرونده Excursion را قبل از Go-live ببندید/);
+  assert.match(html, /prequal\/immunization-devices\/e003-refrigerators-and-freezers/);
+  assert.match(html, /storage-handling-toolkit\.pdf/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/62079/);
+  assert.match(html, /unicef\.org\/supply\/documents\/e003-solar-direct-drive/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /medical-refrigerator-freezer-cold-chain-procurement\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-18T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ زنجیره سرد، نگهداری و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید یخچال پزشکی,خرید فریزر آزمایشگاهی,یخچال واکسن/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-refrigerator-freezer-cold-chain-procurement"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1830,8 +1866,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 64);
+  assert.equal(blogUrls.length, 65);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/medical-refrigerator-freezer-cold-chain-procurement/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-endoscopy-tower-reprocessing-procurement/,
