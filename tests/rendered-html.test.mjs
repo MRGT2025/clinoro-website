@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 66);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 67);
+  assert.match(html, /لوکس بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید چراغ جراحی/);
   assert.match(html, /تحمل وزن روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید تخت جراحی در ایران/);
   assert.match(html, /دمای نمایشگر کافی نیست؛ ۱۲ آزمون خرید یخچال و فریزر پزشکی/);
   assert.match(html, /فقط تصویر 4K نخرید؛ ۱۲ آزمون خرید برج آندوسکوپی/);
@@ -1804,6 +1805,42 @@ test("daily Iran operating-table article validates configurations, safety and li
   );
 });
 
+test("daily global surgical-light article validates optical, mechanical and lifecycle performance", async () => {
+  const response = await request(
+    "/blog/surgical-light-procurement-iec-60601-2-41",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /لوکس بیشتر، دید بهتر نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /روشنایی مرکزی را در فاصله مرجع واقعی اندازه بگیرید/);
+  assert.match(html, /Shadow dilution را با انسداد واقعی بسنجید/);
+  assert.match(html, /گرما، Irradiance و خطر فوتوبیولوژیک را جدا کنید/);
+  assert.match(html, /نصب، SAT، سرویس و TCO را یک قرارداد کنید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/62677/);
+  assert.match(html, /ecfr\.gov\/current\/title-21/);
+  assert.match(html, /accessdata\.fda\.gov\/scripts\/cdrh\/cfdocs\/cfpcd/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789241501378/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /surgical-light-procurement-iec-60601-2-41\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-20T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ چراغ جراحی، نور و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید چراغ جراحی,آزمون پذیرش چراغ جراحی,IEC 60601-2-41:2021/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/surgical-light-procurement-iec-60601-2-41"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1904,8 +1941,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 66);
+  assert.equal(blogUrls.length, 67);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/surgical-light-procurement-iec-60601-2-41/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-operating-table-procurement-acceptance/,
