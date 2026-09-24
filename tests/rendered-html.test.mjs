@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 68);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 69);
+  assert.match(html, /عدد SUV روی بروشور کافی نیست؛ ۱۲ آزمون خرید و پذیرش PET\/CT/);
   assert.match(html, /لوکس بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید چراغ جراحی/);
   assert.match(html, /تحمل وزن روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید تخت جراحی در ایران/);
   assert.match(html, /دمای نمایشگر کافی نیست؛ ۱۲ آزمون خرید یخچال و فریزر پزشکی/);
@@ -1877,6 +1878,42 @@ test("daily Iran medical-gas pipeline article validates identity, continuity and
   );
 });
 
+test("daily global PET-CT article validates quantitative performance, integration and lifecycle", async () => {
+  const response = await request(
+    "/blog/pet-ct-procurement-acceptance-iec-61675-1",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد SUV روی بروشور کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و پذیرش PET\/CT/);
+  assert.match(html, /تفکیک مکانی را با روش و هندسه یکسان بسنجید/);
+  assert.match(html, /زنجیره SUV و کالیبراسیون متقابل را تحویل بگیرید/);
+  assert.match(html, /DICOM و جریان داده را با نمونه واقعی آزمون کنید/);
+  assert.match(html, /Baseline، QC و معیار اقدام را قبل از Go-live بسازید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67292/);
+  assert.match(html, /iaea\.org\/publications\/8002/);
+  assert.match(html, /aapm\.org\/pubs\/reports\/detail\.asp\?docid=193/);
+  assert.match(html, /dicom\.nema\.org/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /pet-ct-procurement-acceptance-iec-61675-1\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-24T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ PET\/CT، پزشکی هسته‌ای و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید PET\/CT,آزمون پذیرش PET\/CT,IEC 61675-1:2022/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/pet-ct-procurement-acceptance-iec-61675-1"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -1977,8 +2014,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 68);
+  assert.equal(blogUrls.length, 69);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/pet-ct-procurement-acceptance-iec-61675-1/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-medical-gas-pipeline-commissioning-2026/,
