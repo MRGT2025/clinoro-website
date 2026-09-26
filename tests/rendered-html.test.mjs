@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 70);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 71);
+  assert.match(html, /یک عدد EtCO₂ کافی نیست؛ ۱۲ آزمون خرید و پذیرش کاپنوگراف/);
   assert.match(html, /عدد میکرووات کافی نیست؛ ۱۲ آزمون خرید فتوتراپی نوزاد در ایران/);
   assert.match(html, /عدد SUV روی بروشور کافی نیست؛ ۱۲ آزمون خرید و پذیرش PET\/CT/);
   assert.match(html, /لوکس بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید چراغ جراحی/);
@@ -1950,6 +1951,42 @@ test("daily Iran neonatal phototherapy article includes SSR, current standards, 
   );
 });
 
+test("daily global capnography article includes SSR, current standards, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/capnography-etco2-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /یک عدد EtCO₂ کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و پذیرش کاپنوگراف/);
+  assert.match(html, /Mainstream یا Sidestream/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /iso\.org\/standard\/67241\.html/);
+  assert.match(html, /iso\.org\/standard\/83477\.html/);
+  assert.match(html, /standard__identification_no=45633/);
+  assert.match(html, /classification\.cfm\?ID=CCK/);
+  assert.match(html, /section-868\.1400/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67388/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /capnography-etco2-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-26T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ کاپنوگرافی، پایش تنفسی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید کاپنوگراف,آزمون پذیرش کاپنوگراف,مانیتور EtCO2/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/capnography-etco2-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2050,8 +2087,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 70);
+  assert.equal(blogUrls.length, 71);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/capnography-etco2-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-neonatal-phototherapy-procurement-acceptance/,
