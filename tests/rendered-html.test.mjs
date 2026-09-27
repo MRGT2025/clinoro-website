@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 71);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 72);
+  assert.match(html, /تعداد لید کافی نیست؛ ۱۲ آزمون خرید دستگاه ECG دوازده‌لید در ایران/);
   assert.match(html, /یک عدد EtCO₂ کافی نیست؛ ۱۲ آزمون خرید و پذیرش کاپنوگراف/);
   assert.match(html, /عدد میکرووات کافی نیست؛ ۱۲ آزمون خرید فتوتراپی نوزاد در ایران/);
   assert.match(html, /عدد SUV روی بروشور کافی نیست؛ ۱۲ آزمون خرید و پذیرش PET\/CT/);
@@ -1987,6 +1988,43 @@ test("daily global capnography article includes SSR, current standards, Tehran m
   );
 });
 
+test("daily Iran 12-lead ECG article includes SSR, primary standards, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-12-lead-ecg-electrocardiograph-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تعداد لید کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید دستگاه ECG دوازده‌لید در ایران/);
+  assert.match(html, /زنجیره ده الکترود و کابل بیمار/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2636/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67346/);
+  assert.match(html, /standard__identification_no=44849/);
+  assert.match(html, /section-870\.2340/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2638/);
+  assert.match(html, /dicom\.nema\.org\/medical\/dicom\/current\/output\/chtml\/part04\/sect_b\.5\.html/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-12-lead-ecg-electrocardiograph-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-27T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ECG دوازده‌لید، تشخیص قلب و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه ECG در ایران,خرید الکتروکاردیوگراف دوازده لید,آزمون پذیرش ECG/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-12-lead-ecg-electrocardiograph-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2087,8 +2125,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 71);
+  assert.equal(blogUrls.length, 72);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-12-lead-ecg-electrocardiograph-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/capnography-etco2-procurement-acceptance/,
