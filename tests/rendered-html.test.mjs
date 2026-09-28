@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 72);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 73);
+  assert.match(html, /کارتریج ارزان، نتیجه ارزان نیست؛ ۱۲ آزمون خرید آنالایزر گاز خون/);
   assert.match(html, /تعداد لید کافی نیست؛ ۱۲ آزمون خرید دستگاه ECG دوازده‌لید در ایران/);
   assert.match(html, /یک عدد EtCO₂ کافی نیست؛ ۱۲ آزمون خرید و پذیرش کاپنوگراف/);
   assert.match(html, /عدد میکرووات کافی نیست؛ ۱۲ آزمون خرید فتوتراپی نوزاد در ایران/);
@@ -2025,6 +2026,43 @@ test("daily Iran 12-lead ECG article includes SSR, primary standards, Tehran met
   );
 });
 
+test("daily global point-of-care blood gas article includes current standards, end-to-end controls and Tehran metadata", async () => {
+  const response = await request(
+    "/blog/point-of-care-blood-gas-analyzer-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /کارتریج ارزان، نتیجه ارزان نیست/);
+  assert.match(html, /۱۲ آزمون خرید آنالایزر گاز خون/);
+  assert.match(html, /زنجیره نمونه را پیش از روشن‌کردن دستگاه/);
+  assert.match(html, /هزینه هر نتیجه قابل‌گزارش/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /iso\.org\/standard\/76677\.html/);
+  assert.match(html, /iso\.org\/standard\/71119\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/60197/);
+  assert.match(html, /section-862\.1120/);
+  assert.match(html, /classification\.cfm\?ID=CHL/);
+  assert.match(html, /K223857\.pdf/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /point-of-care-blood-gas-analyzer-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-28T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ گاز خون، آزمایش در محل و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید آنالایزر گاز خون,آزمون پذیرش گاز خون,Point of Care blood gas analyzer/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/point-of-care-blood-gas-analyzer-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2125,8 +2163,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 72);
+  assert.equal(blogUrls.length, 73);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/point-of-care-blood-gas-analyzer-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-12-lead-ecg-electrocardiograph-procurement-acceptance/,
