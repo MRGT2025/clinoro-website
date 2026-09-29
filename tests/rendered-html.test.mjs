@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 73);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 74);
+  assert.match(html, /تعداد کانال بیشتر، EEG بهتر نیست؛ ۱۲ آزمون خرید الکتروانسفالوگراف در ایران/);
   assert.match(html, /کارتریج ارزان، نتیجه ارزان نیست؛ ۱۲ آزمون خرید آنالایزر گاز خون/);
   assert.match(html, /تعداد لید کافی نیست؛ ۱۲ آزمون خرید دستگاه ECG دوازده‌لید در ایران/);
   assert.match(html, /یک عدد EtCO₂ کافی نیست؛ ۱۲ آزمون خرید و پذیرش کاپنوگراف/);
@@ -2063,6 +2064,43 @@ test("daily global point-of-care blood gas article includes current standards, e
   );
 });
 
+test("daily Iran EEG article includes current amendment, signal-chain acceptance and Tehran metadata", async () => {
+  const response = await request(
+    "/blog/iran-eeg-electroencephalograph-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تعداد کانال بیشتر، EEG بهتر نیست/);
+  assert.match(html, /۱۲ آزمون خرید الکتروانسفالوگراف در ایران/);
+  assert.match(html, /ورودی و کالیبراسیون را با شبیه‌ساز قابل‌ردیابی/);
+  assert.match(html, /ویدئو، صدا و Event marker/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/26376/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68608/);
+  assert.match(html, /section-882\.1400/);
+  assert.match(html, /regulationnumber=882\.1400/);
+  assert.match(html, /dicom\.nema\.org\/medical\/dicom\/current/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-eeg-electroencephalograph-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-29T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ EEG، نوروفیزیولوژی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه EEG در ایران,خرید الکتروانسفالوگراف,آزمون پذیرش EEG/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-eeg-electroencephalograph-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2163,8 +2201,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 73);
+  assert.equal(blogUrls.length, 74);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-eeg-electroencephalograph-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/point-of-care-blood-gas-analyzer-procurement-acceptance/,
