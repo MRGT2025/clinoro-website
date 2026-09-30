@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 74);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 75);
+  assert.match(html, /چرخه کامل، ابزار تمیز نیست؛ ۱۲ آزمون خرید واشر-دیس‌اینفکتور CSSD/);
   assert.match(html, /تعداد کانال بیشتر، EEG بهتر نیست؛ ۱۲ آزمون خرید الکتروانسفالوگراف در ایران/);
   assert.match(html, /کارتریج ارزان، نتیجه ارزان نیست؛ ۱۲ آزمون خرید آنالایزر گاز خون/);
   assert.match(html, /تعداد لید کافی نیست؛ ۱۲ آزمون خرید دستگاه ECG دوازده‌لید در ایران/);
@@ -2101,6 +2102,42 @@ test("daily Iran EEG article includes current amendment, signal-chain acceptance
   );
 });
 
+test("daily global CSSD washer-disinfector article separates cleaning from disinfection and includes current ISO metadata", async () => {
+  const response = await request(
+    "/blog/cssd-washer-disinfector-procurement-iso-15883-2024",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /چرخه کامل، ابزار تمیز نیست/);
+  assert.match(html, /۱۲ آزمون خرید واشر-دیس‌اینفکتور CSSD/);
+  assert.match(html, /Cleaning efficacy را مستقل از دما اثبات کنید/);
+  assert.match(html, /A0 یک شاخص مواجهه حرارتی/);
+  assert.match(html, /IQ\/OQ\/PQ، Baseline، SLA و پرداخت/);
+  assert.match(html, /iso\.org\/standard\/81249\.html/);
+  assert.match(html, /iso\.org\/standard\/84377\.html/);
+  assert.match(html, /iso\.org\/standard\/68297\.html/);
+  assert.match(html, /medical-washers-and-medical-washer-disinfectors/);
+  assert.match(html, /cdc\.gov\/infection-control\/hcp\/disinfection-sterilization\/cleaning\.html/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /cssd-washer-disinfector-procurement-iso-15883-2024\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-30T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ CSSD، شست‌وشو و ضدعفونی ابزار"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید واشر دیس اینفکتور CSSD,آزمون پذیرش washer disinfector,ISO 15883-1:2024/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/cssd-washer-disinfector-procurement-iso-15883-2024"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2201,8 +2238,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 74);
+  assert.equal(blogUrls.length, 75);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/cssd-washer-disinfector-procurement-iso-15883-2024/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-eeg-electroencephalograph-procurement-acceptance/,
