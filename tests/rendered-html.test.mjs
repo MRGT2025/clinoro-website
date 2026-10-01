@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 75);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 76);
+  assert.match(html, /عدد سرعت هوا کافی نیست؛ ۱۲ آزمون خرید کابینت ایمنی زیستی Class II در ایران/);
   assert.match(html, /چرخه کامل، ابزار تمیز نیست؛ ۱۲ آزمون خرید واشر-دیس‌اینفکتور CSSD/);
   assert.match(html, /تعداد کانال بیشتر، EEG بهتر نیست؛ ۱۲ آزمون خرید الکتروانسفالوگراف در ایران/);
   assert.match(html, /کارتریج ارزان، نتیجه ارزان نیست؛ ۱۲ آزمون خرید آنالایزر گاز خون/);
@@ -2138,6 +2139,43 @@ test("daily global CSSD washer-disinfector article separates cleaning from disin
   );
 });
 
+test("daily Iran Class II biosafety-cabinet article proves installed containment and includes NSF 49:2026 metadata", async () => {
+  const response = await request(
+    "/blog/iran-class-ii-biological-safety-cabinet-procurement-certification",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد سرعت هوا کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید کابینت ایمنی زیستی Class II در ایران/);
+  assert.match(html, /Biological safety cabinet، Clean bench و Chemical fume hood یک چیز نیستند/);
+  assert.match(html, /Inflow و Downflow را با ابزار کالیبره اندازه بگیرید/);
+  assert.match(html, /چهار الگوی Smoke را ببینید/);
+  assert.match(html, /نشتی HEPA را روی Media، Gasket و Penetration اسکن کنید/);
+  assert.match(html, /Field certification، Baseline، آموزش و پرداخت/);
+  assert.match(html, /standards\.nsf\.org\/discussion\/nsfansi-49-2026/);
+  assert.match(html, /nsf\.org\/knowledge-library\/improving-lab-safety/);
+  assert.match(html, /iris\.who\.int\/bitstream\/handle\/10665\/337957/);
+  assert.match(html, /biosafety-in-microbiological-and-biomedical-laboratories\.PDF/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-class-ii-biological-safety-cabinet-procurement-certification\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-01T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ایمنی زیستی، آزمایشگاه و گواهی میدانی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید کابینت ایمنی زیستی در ایران,کابینت ایمنی زیستی Class II,NSF ANSI 49-2026/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-class-ii-biological-safety-cabinet-procurement-certification"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2238,8 +2276,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 75);
+  assert.equal(blogUrls.length, 76);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-class-ii-biological-safety-cabinet-procurement-certification/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/cssd-washer-disinfector-procurement-iso-15883-2024/,
