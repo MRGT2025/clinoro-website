@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 76);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 77);
+  assert.match(html, /مدت ثبت، مدت دادهٔ قابل‌تفسیر نیست؛ ۱۲ آزمون خرید هولتر ECG و Patch/);
   assert.match(html, /عدد سرعت هوا کافی نیست؛ ۱۲ آزمون خرید کابینت ایمنی زیستی Class II در ایران/);
   assert.match(html, /چرخه کامل، ابزار تمیز نیست؛ ۱۲ آزمون خرید واشر-دیس‌اینفکتور CSSD/);
   assert.match(html, /تعداد کانال بیشتر، EEG بهتر نیست؛ ۱۲ آزمون خرید الکتروانسفالوگراف در ایران/);
@@ -2176,6 +2177,45 @@ test("daily Iran Class II biosafety-cabinet article proves installed containment
   );
 });
 
+test("daily global Holter ECG article validates signal, analysis and lifecycle with current primary sources", async () => {
+  const response = await request(
+    "/blog/ambulatory-holter-ecg-patch-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /مدت ثبت، مدت دادهٔ قابل‌تفسیر نیست/);
+  assert.match(html, /۱۲ آزمون خرید هولتر ECG و Patch/);
+  assert.match(html, /Holter کلاسیک، Patch recorder، Event recorder، Mobile cardiac telemetry/);
+  assert.match(html, /زنجیره سیگنال را با Simulator کالیبره بسنجید/);
+  assert.match(html, /Artifact و Motion را از «روز قابل‌تفسیر» جدا نکنید/);
+  assert.match(html, /الگوریتم را با Intended use و Raw data قابل‌بازبینی بخرید/);
+  assert.match(html, /Pilot، Baseline، SLA و پرداخت/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2666/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67471/);
+  assert.match(html, /K253562\.pdf/);
+  assert.match(html, /K261569\.pdf/);
+  assert.match(html, /K252859\.pdf/);
+  assert.match(html, /iso\.org\/standard\/84664\.html/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /ambulatory-holter-ecg-patch-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-02T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ هولتر ECG، پوشیدنی و پایش قلب"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید هولتر ECG,هولتر قلب و ECG Patch,آزمون پذیرش هولتر,IEC 60601-2-47:2012/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/ambulatory-holter-ecg-patch-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2276,8 +2316,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 76);
+  assert.equal(blogUrls.length, 77);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/ambulatory-holter-ecg-patch-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-class-ii-biological-safety-cabinet-procurement-certification/,
