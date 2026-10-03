@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 77);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 78);
+  assert.match(html, /موج تمیز در دمو کافی نیست؛ ۱۲ آزمون خرید EMG\/NCS در ایران/);
   assert.match(html, /مدت ثبت، مدت دادهٔ قابل‌تفسیر نیست؛ ۱۲ آزمون خرید هولتر ECG و Patch/);
   assert.match(html, /عدد سرعت هوا کافی نیست؛ ۱۲ آزمون خرید کابینت ایمنی زیستی Class II در ایران/);
   assert.match(html, /چرخه کامل، ابزار تمیز نیست؛ ۱۲ آزمون خرید واشر-دیس‌اینفکتور CSSD/);
@@ -2216,6 +2217,44 @@ test("daily global Holter ECG article validates signal, analysis and lifecycle w
   );
 });
 
+test("daily Iran EMG NCS article validates signal, stimulation and lifecycle with current primary sources", async () => {
+  const response = await request(
+    "/blog/iran-emg-ncs-electromyograph-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /موج تمیز در دمو کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید EMG\/NCS در ایران/);
+  assert.match(html, /کف نویز و حذف Common-mode را در اتاق واقعی بسنجید/);
+  assert.match(html, /Stimulator را روی Load، نه روی بدن، آزمون کنید/);
+  assert.match(html, /Temperature را اندازه بگیرید و همراه مطالعه نگه دارید/);
+  assert.match(html, /ایمنی بیمار دارای Implant را وارد Workflow کنید/);
+  assert.match(html, /Pilot، SAT، SLA و پرداخت/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68373/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/107546/);
+  assert.match(html, /classification\.cfm\?id=IKN/);
+  assert.match(html, /classification\.cfm\?id=IKT/);
+  assert.match(html, /patient-safety--considerations-when-performing-an-emg-ncs/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-emg-ncs-electromyograph-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-03T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ EMG\/NCS، الکترودیاگنوز و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه EMG در ایران,خرید EMG NCS,آزمون پذیرش الکترومیوگراف,IEC 60601-2-40:2024/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-emg-ncs-electromyograph-procurement-acceptance"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2316,8 +2355,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 77);
+  assert.equal(blogUrls.length, 78);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-emg-ncs-electromyograph-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/ambulatory-holter-ecg-patch-procurement-acceptance/,
