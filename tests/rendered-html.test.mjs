@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 78);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 79);
+  assert.match(html, /عدد لیتر‌بر‌دقیقه کافی نیست؛ ۱۲ آزمون خرید اکسیژن‌ساز پس از استاندارد ۲۰۲۶/);
   assert.match(html, /موج تمیز در دمو کافی نیست؛ ۱۲ آزمون خرید EMG\/NCS در ایران/);
   assert.match(html, /مدت ثبت، مدت دادهٔ قابل‌تفسیر نیست؛ ۱۲ آزمون خرید هولتر ECG و Patch/);
   assert.match(html, /عدد سرعت هوا کافی نیست؛ ۱۲ آزمون خرید کابینت ایمنی زیستی Class II در ایران/);
@@ -2255,6 +2256,45 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily global oxygen concentrator article validates output, alarms and lifecycle against the 2026 standard", async () => {
+  const response = await request(
+    "/blog/medical-oxygen-concentrator-procurement-iso-80601-2-69-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد لیتر‌بر‌دقیقه کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید اکسیژن‌ساز پس از استاندارد ۲۰۲۶/);
+  assert.match(html, /خلوص را در تمام دبی‌ها اندازه بگیرید/);
+  assert.match(html, /Flow، Pressure و Overdraw را جدا آزمایش کنید/);
+  assert.match(html, /Alarm و Oxygen sensor را با Fault واقعی تحریک کنید/);
+  assert.match(html, /Filter، Compressor و Sieve bed را از پشت پنل ببینید/);
+  assert.match(html, /Pilot، SAT، Backup و SLA/);
+  assert.match(html, /iso\.org\/standard\/87164\.html/);
+  assert.match(html, /cfStandards\/results\.cfm/);
+  assert.match(html, /section-868\.5440/);
+  assert.match(html, /9789241516914/);
+  assert.match(html, /TPP-for-Oxygen-Concentrator-April-2022\.pdf/);
+  assert.match(html, /9789240101616/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /medical-oxygen-concentrator-procurement-iso-80601-2-69-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-04T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ اکسیژن‌درمانی، استاندارد ۲۰۲۶ و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید اکسیژن ساز پزشکی,آزمون پذیرش اکسیژن ساز,ISO 80601-2-69:2026/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-oxygen-concentrator-procurement-iso-80601-2-69-2026"/,
+  );
+});
+
 test("daily alarm-management article includes complete SSR content, international primary sources and licensed local image", async () => {
   const response = await request("/blog/medical-device-alarm-management");
   const html = await response.text();
@@ -2355,8 +2395,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 78);
+  assert.equal(blogUrls.length, 79);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/medical-oxygen-concentrator-procurement-iso-80601-2-69-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-emg-ncs-electromyograph-procurement-acceptance/,
