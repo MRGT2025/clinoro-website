@@ -1,4 +1,5 @@
 import { ensureDatabase, getD1 } from "../db";
+import { dailyBlogPosts20261005 } from "./daily-blog-posts-2026-10-05";
 import { dailyBlogPosts20261004 } from "./daily-blog-posts-2026-10-04";
 import { dailyBlogPosts20261003 } from "./daily-blog-posts-2026-10-03";
 import { dailyBlogPosts20261002 } from "./daily-blog-posts-2026-10-02";
@@ -1286,6 +1287,7 @@ export const defaultSiteContent: SiteContent = {
     ],
   },
   blogPosts: [
+    ...dailyBlogPosts20261005,
     ...dailyBlogPosts20261004,
     ...dailyBlogPosts20261003,
     ...dailyBlogPosts20261002,

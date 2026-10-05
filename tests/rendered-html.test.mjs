@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 79);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 80);
+  assert.match(html, /عدد پیکسل کافی نیست؛ ۱۲ آزمون خرید C‑arm سیار در ایران/);
   assert.match(html, /عدد لیتر‌بر‌دقیقه کافی نیست؛ ۱۲ آزمون خرید اکسیژن‌ساز پس از استاندارد ۲۰۲۶/);
   assert.match(html, /موج تمیز در دمو کافی نیست؛ ۱۲ آزمون خرید EMG\/NCS در ایران/);
   assert.match(html, /مدت ثبت، مدت دادهٔ قابل‌تفسیر نیست؛ ۱۲ آزمون خرید هولتر ECG و Patch/);
@@ -2256,6 +2257,57 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily Iran mobile C-arm article validates image quality, dose, integration and lifecycle", async () => {
+  const response = await request(
+    "/blog/iran-mobile-c-arm-fluoroscopy-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد پیکسل کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید C‑arm سیار در ایران/);
+  assert.match(html, /کیفیت تصویر را با Phantom و در همه Modeهای قراردادی اندازه بگیرید/);
+  assert.match(html, /کیفیت تصویر و دز را هم‌زمان روی منحنی مقایسه کنید/);
+  assert.match(html, /Pulse، Last Image Hold، Timer و هشدارهای دز/);
+  assert.match(html, /DICOM، PACS و RDSR را انتها‌به‌انتها آزمایش کنید/);
+  assert.match(html, /Pilot، SAT، Baseline، SLA و TCO/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/69988/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/64680/);
+  assert.match(html, /section-1020\.32/);
+  assert.match(html, /publications\/14890\/handbook-of-basic-quality-control-tests/);
+  assert.match(html, /sect_UUUU\.4\.html/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-mobile-c-arm-fluoroscopy-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /دستگاه C-arm سیار کنار تخت رادیولوسنت همراه فانتوم کیفیت تصویر و دزیمتر برای آزمون پذیرش فنی/,
+  );
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-05T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ C‑arm سیار، فلوروسکوپی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه C-arm در ایران,سی آرم اتاق عمل,تست پذیرش C-arm,کنترل کیفیت فلوروسکوپی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-mobile-c-arm-fluoroscopy-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/iran-mobile-c-arm-fluoroscopy-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/iran-mobile-c-arm-fluoroscopy-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily global oxygen concentrator article validates output, alarms and lifecycle against the 2026 standard", async () => {
   const response = await request(
     "/blog/medical-oxygen-concentrator-procurement-iso-80601-2-69-2026",
@@ -2395,8 +2447,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 79);
+  assert.equal(blogUrls.length, 80);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-mobile-c-arm-fluoroscopy-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/medical-oxygen-concentrator-procurement-iso-80601-2-69-2026/,
