@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 80);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 81);
+  assert.match(html, /عدد T‑score کافی نیست؛ ۱۲ آزمون خرید و پذیرش دستگاه DXA/);
   assert.match(html, /عدد پیکسل کافی نیست؛ ۱۲ آزمون خرید C‑arm سیار در ایران/);
   assert.match(html, /عدد لیتر‌بر‌دقیقه کافی نیست؛ ۱۲ آزمون خرید اکسیژن‌ساز پس از استاندارد ۲۰۲۶/);
   assert.match(html, /موج تمیز در دمو کافی نیست؛ ۱۲ آزمون خرید EMG\/NCS در ایران/);
@@ -2257,6 +2258,57 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily global DXA article validates calibration, cross-calibration, data and lifecycle", async () => {
+  const response = await request(
+    "/blog/dxa-bone-densitometer-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد T‑score کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و پذیرش دستگاه DXA/);
+  assert.match(html, /کالیبراسیون و Baseline فانتوم را از روز اول بسازید/);
+  assert.match(html, /Precision، Repeatability و LSC را با هم اشتباه نگیرید/);
+  assert.match(html, /Accuracy، پایداری و Cross-calibration/);
+  assert.match(html, /DICOM، Export، Backup و Reanalysis را واقعی آزمایش کنید/);
+  assert.match(html, /Pilot، SAT، Baseline، SLA و TCO/);
+  assert.match(html, /section-892\.1170/);
+  assert.match(html, /classification\.cfm\?id=KGI/);
+  assert.match(html, /iscd\.org\/official-positions-2023/);
+  assert.match(html, /Publications\/PDF\/Pub1479_web\.pdf/);
+  assert.match(html, /GetDocumentView\?docId=48/);
+  assert.match(html, /dicom\.nema\.org/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /dxa-bone-densitometer-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /دستگاه DXA سنجش تراکم استخوان همراه فانتوم ستون فقرات و ابزار کنترل کیفیت برای آزمون پذیرش/,
+  );
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-06T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ DXA، سنجش تراکم استخوان و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه DXA,دستگاه سنجش تراکم استخوان,آزمون پذیرش DXA,کنترل کیفیت DXA/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/dxa-bone-densitometer-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/dxa-bone-densitometer-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/dxa-bone-densitometer-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily Iran mobile C-arm article validates image quality, dose, integration and lifecycle", async () => {
   const response = await request(
     "/blog/iran-mobile-c-arm-fluoroscopy-procurement-acceptance",
@@ -2447,8 +2499,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 80);
+  assert.equal(blogUrls.length, 81);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/dxa-bone-densitometer-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-mobile-c-arm-fluoroscopy-procurement-acceptance/,
