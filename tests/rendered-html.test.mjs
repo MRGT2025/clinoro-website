@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 81);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 82);
+  assert.match(html, /وُکسل کوچک، تصویر بهتر نیست؛ ۱۲ آزمون خرید CBCT دندان‌پزشکی در ایران/);
   assert.match(html, /عدد T‑score کافی نیست؛ ۱۲ آزمون خرید و پذیرش دستگاه DXA/);
   assert.match(html, /عدد پیکسل کافی نیست؛ ۱۲ آزمون خرید C‑arm سیار در ایران/);
   assert.match(html, /عدد لیتر‌بر‌دقیقه کافی نیست؛ ۱۲ آزمون خرید اکسیژن‌ساز پس از استاندارد ۲۰۲۶/);
@@ -2258,6 +2259,59 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily Iran dental CBCT article validates FOV, dose, image quality, DICOM and lifecycle", async () => {
+  const response = await request(
+    "/blog/iran-dental-cbct-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /وُکسل کوچک، تصویر بهتر نیست/);
+  assert.match(html, /۱۲ آزمون خرید CBCT دندان‌پزشکی در ایران/);
+  assert.match(html, /سؤال بالینی را به FOV تبدیل کنید/);
+  assert.match(html, /Positioning، Alignment و Collimation/);
+  assert.match(html, /کیفیت تصویر را با فانتوم و داده عددی Baseline کنید/);
+  assert.match(html, /وُکسل، Resolution و آرتیفکت را جداگانه بسنجید/);
+  assert.match(html, /DICOM، PACS، Worklist و گزارش دز/);
+  assert.match(html, /SAT، QC، آموزش، SLA و TCO/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68977/);
+  assert.match(html, /standard__identification_no=43271/);
+  assert.match(html, /aapm\.org\/pubs\/reports\/detail\.asp\?docid=279/);
+  assert.match(html, /dental-cone-beam-computed-tomography/);
+  assert.match(html, /section-892\.1750/);
+  assert.match(html, /sect_uuuu\.3\.2\.6\.5\.html/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-dental-cbct-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /دستگاه CBCT دندان‌پزشکی همراه فانتوم سر و دزیمتر برای آزمون پذیرش و کنترل کیفیت در اتاق تصویربرداری/,
+  );
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-10-07T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ CBCT دندان‌پزشکی، حفاظت پرتویی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید CBCT دندانپزشکی در ایران,آزمون پذیرش CBCT,کنترل کیفیت CBCT دندانپزشکی,فانتوم CBCT/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-dental-cbct-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/iran-dental-cbct-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/iran-dental-cbct-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily global DXA article validates calibration, cross-calibration, data and lifecycle", async () => {
   const response = await request(
     "/blog/dxa-bone-densitometer-procurement-acceptance",
@@ -2499,8 +2553,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 81);
+  assert.equal(blogUrls.length, 82);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-dental-cbct-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/dxa-bone-densitometer-procurement-acceptance/,
