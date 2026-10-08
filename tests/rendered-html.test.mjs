@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 82);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 83);
+  assert.match(html, /مگاولتاژ بیشتر، درمان بهتر نیست؛ ۱۲ آزمون خرید Linac و IGRT/);
   assert.match(html, /وُکسل کوچک، تصویر بهتر نیست؛ ۱۲ آزمون خرید CBCT دندان‌پزشکی در ایران/);
   assert.match(html, /عدد T‑score کافی نیست؛ ۱۲ آزمون خرید و پذیرش دستگاه DXA/);
   assert.match(html, /عدد پیکسل کافی نیست؛ ۱۲ آزمون خرید C‑arm سیار در ایران/);
@@ -2259,6 +2260,57 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily global radiotherapy Linac article validates beam, IGRT, commissioning and lifecycle", async () => {
+  const response = await request(
+    "/blog/radiotherapy-linac-igrt-procurement-acceptance-2026",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /۱۲ آزمون خرید Linac و IGRT/);
+  assert.match(html, /Clinical scope و ظرفیت/);
+  assert.match(html, /Bunker و زیرساخت/);
+  assert.match(html, /Beam data و دزیمتری/);
+  assert.match(html, /MLC، میدان کوچک/);
+  assert.match(html, /IGRT را به‌عنوان حلقه هندسی کامل/);
+  assert.match(html, /TPS و Commissioning/);
+  assert.match(html, /OIS، Record &amp; Verify و DICOM‑RT/);
+  assert.match(html, /هزینه هر فراکشن/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/31388/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67429/);
+  assert.match(html, /standard__identification_no=46150/);
+  assert.match(html, /publications\/15048\/absorbed-dose-determination/);
+  assert.match(html, /TRS430_web\.pdf/);
+  assert.match(html, /sect_7\.14\.5\.html/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /radiotherapy-linac-igrt-procurement-acceptance-2026\.webp/);
+  assert.match(
+    html,
+    /شتاب‌دهنده خطی رادیوتراپی همراه فانتوم آب و تجهیزات دزیمتری برای آزمون پذیرش و Commissioning در اتاق درمان/,
+  );
+  assert.match(html, /2026-10-08T08:00:00\+03:30/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ رادیوتراپی، Linac، IGRT و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید شتاب‌دهنده خطی رادیوتراپی,آزمون پذیرش Linac,خرید IGRT,Commissioning شتاب‌دهنده خطی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/radiotherapy-linac-igrt-procurement-acceptance-2026"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/radiotherapy-linac-igrt-procurement-acceptance-2026"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/radiotherapy-linac-igrt-procurement-acceptance-2026\.webp"/,
+  );
+});
+
 test("daily Iran dental CBCT article validates FOV, dose, image quality, DICOM and lifecycle", async () => {
   const response = await request(
     "/blog/iran-dental-cbct-procurement-acceptance",
@@ -2553,8 +2605,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 82);
+  assert.equal(blogUrls.length, 83);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/radiotherapy-linac-igrt-procurement-acceptance-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-dental-cbct-procurement-acceptance/,
