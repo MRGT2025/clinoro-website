@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 83);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 84);
+  assert.match(html, /فقط نرخ خلأ نخرید؛ ۱۲ آزمون خرید دستگاه فیکو و ویترکتومی در ایران/);
   assert.match(html, /مگاولتاژ بیشتر، درمان بهتر نیست؛ ۱۲ آزمون خرید Linac و IGRT/);
   assert.match(html, /وُکسل کوچک، تصویر بهتر نیست؛ ۱۲ آزمون خرید CBCT دندان‌پزشکی در ایران/);
   assert.match(html, /عدد T‑score کافی نیست؛ ۱۲ آزمون خرید و پذیرش دستگاه DXA/);
@@ -2260,6 +2261,61 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily Iran phaco vitrectomy article validates fluidics, reprocessing and lifecycle", async () => {
+  const response = await request(
+    "/blog/iran-phacoemulsification-vitrectomy-system-procurement-acceptance",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /فقط نرخ خلأ نخرید/);
+  assert.match(html, /۱۲ آزمون خرید دستگاه فیکو و ویترکتومی در ایران/);
+  assert.match(html, /Fluidics را با Occlusion و شکست Occlusion بسنجید/);
+  assert.match(html, /خروجی فیکو، Tuning و هندپیس/);
+  assert.match(html, /ویترکتور را با Gauge و بار واقعی/);
+  assert.match(html, /ذرات، بسته‌بندی، محلول و مصرفی/);
+  assert.match(html, /بازفرآوری هندپیس و Tray/);
+  assert.match(html, /Cost per completed case/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68607/);
+  assert.match(html, /standard__identification_no=45449/);
+  assert.match(html, /classification\.cfm\?ID=MUS/);
+  assert.match(html, /standard\/83634\.html/);
+  assert.match(html, /endotoxin-testing-recommendations/);
+  assert.match(html, /reprocessing-reusable-medical-devices/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(
+    html,
+    /iran-phacoemulsification-vitrectomy-system-procurement-acceptance\.webp/,
+  );
+  assert.match(
+    html,
+    /دستگاه فیکو و ویترکتومی چشم‌پزشکی همراه هندپیس، پدال و تجهیزات آزمون فشار و جریان برای پذیرش فنی/,
+  );
+  assert.match(html, /2026-10-09T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ فیکو، ویترکتومی و پذیرش فنی تجهیزات چشم‌پزشکی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه فیکو در ایران,خرید دستگاه ویترکتومی,آزمون پذیرش فیکو,IEC 80601-2-58:2024/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-phacoemulsification-vitrectomy-system-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/iran-phacoemulsification-vitrectomy-system-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/iran-phacoemulsification-vitrectomy-system-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily global radiotherapy Linac article validates beam, IGRT, commissioning and lifecycle", async () => {
   const response = await request(
     "/blog/radiotherapy-linac-igrt-procurement-acceptance-2026",
@@ -2605,8 +2661,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 83);
+  assert.equal(blogUrls.length, 84);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-phacoemulsification-vitrectomy-system-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/radiotherapy-linac-igrt-procurement-acceptance-2026/,
