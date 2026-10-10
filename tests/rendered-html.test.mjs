@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 84);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 85);
+  assert.match(html, /بزرگ‌نمایی بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید میکروسکوپ جراحی/);
   assert.match(html, /فقط نرخ خلأ نخرید؛ ۱۲ آزمون خرید دستگاه فیکو و ویترکتومی در ایران/);
   assert.match(html, /مگاولتاژ بیشتر، درمان بهتر نیست؛ ۱۲ آزمون خرید Linac و IGRT/);
   assert.match(html, /وُکسل کوچک، تصویر بهتر نیست؛ ۱۲ آزمون خرید CBCT دندان‌پزشکی در ایران/);
@@ -2261,6 +2262,60 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily global surgical microscope article validates optics, light, motion and lifecycle", async () => {
+  const response = await request(
+    "/blog/surgical-operation-microscope-procurement-acceptance",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /بزرگ‌نمایی بیشتر، دید بهتر نیست/);
+  assert.match(html, /۱۲ آزمون خرید میکروسکوپ جراحی/);
+  assert.match(html, /کیفیت اپتیک را در چند بزرگ‌نمایی و فاصله کاری بسنجید/);
+  assert.match(html, /روشنایی، یکنواختی و خطر نوری را از هم جدا کنید/);
+  assert.match(html, /تعادل، حرکت، ترمز و Drift را با پیکربندی کامل/);
+  assert.match(html, /ویدئو، 3D و ضبط را با Latency و داده واقعی/);
+  assert.match(html, /Fluorescence، Navigation و Overlay را قابلیت مستقل/);
+  assert.match(html, /Cost per usable operating hour/);
+  assert.match(html, /iso\.org\/standard\/69819\.html/);
+  assert.match(html, /iso\.org\/standard\/44537\.html/);
+  assert.match(html, /iso\.org\/standard\/79919\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67554/);
+  assert.match(html, /section-878\.4700/);
+  assert.match(html, /classification\.cfm\?ID=FSO/);
+  assert.match(html, /classification\.cfm\?ID=HRM/);
+  assert.match(html, /DEN180024\.pdf/);
+  assert.match(html, /iso\.org\/standard\/81720\.html/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /surgical-operation-microscope-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /میکروسکوپ جراحی چرخ‌دار همراه دوربین، چشمی دستیار و ابزارهای آزمون اپتیک و روشنایی در اتاق عمل/,
+  );
+  assert.match(html, /2026-10-10T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ میکروسکوپ جراحی، اپتیک و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید میکروسکوپ جراحی,آزمون پذیرش میکروسکوپ جراحی,ISO 10936-1/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/surgical-operation-microscope-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/surgical-operation-microscope-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/surgical-operation-microscope-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily Iran phaco vitrectomy article validates fluidics, reprocessing and lifecycle", async () => {
   const response = await request(
     "/blog/iran-phacoemulsification-vitrectomy-system-procurement-acceptance",
@@ -2661,8 +2716,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 84);
+  assert.equal(blogUrls.length, 85);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/surgical-operation-microscope-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-phacoemulsification-vitrectomy-system-procurement-acceptance/,
