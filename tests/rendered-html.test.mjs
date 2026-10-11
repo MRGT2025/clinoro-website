@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 85);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 86);
+  assert.match(html, /فقط RPM و دبی نخرید؛ ۱۲ آزمون خرید و آمادگی ECMO در ایران/);
   assert.match(html, /بزرگ‌نمایی بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید میکروسکوپ جراحی/);
   assert.match(html, /فقط نرخ خلأ نخرید؛ ۱۲ آزمون خرید دستگاه فیکو و ویترکتومی در ایران/);
   assert.match(html, /مگاولتاژ بیشتر، درمان بهتر نیست؛ ۱۲ آزمون خرید Linac و IGRT/);
@@ -2262,6 +2263,62 @@ test("daily Iran EMG NCS article validates signal, stimulation and lifecycle wit
   );
 });
 
+test("daily Iran ECMO article validates circuit readiness, alarms, supply and lifecycle", async () => {
+  const response = await request(
+    "/blog/iran-ecmo-system-procurement-acceptance",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /فقط RPM و دبی نخرید/);
+  assert.match(html, /۱۲ آزمون خرید و آمادگی ECMO در ایران/);
+  assert.match(html, /پمپ و Flow را روی Test loop، نه روی نمایشگر، بسنجید/);
+  assert.match(html, /اکسیژناتور و مدار را به‌عنوان یک زنجیره آزمون کنید/);
+  assert.match(html, /Alarm و Fail-safe را با تزریق خطا تحویل بگیرید/);
+  assert.match(html, /باتری، قطع برق و انتقال را زیر بار واقعی/);
+  assert.match(html, /مصرفی را از «اقلام همراه» به برنامه تداوم خدمت/);
+  assert.match(html, /آموزش را با شبیه‌سازی و Competency/);
+  assert.match(html, /Consumable coverage days/);
+  assert.match(html, /iso\.org\/standard\/83184\.html/);
+  assert.match(html, /classification\.cfm\?ID=QJZ/);
+  assert.match(html, /classification\.cfm\?ID=QNR/);
+  assert.match(html, /classification\.cfm\?ID=BYS/);
+  assert.match(html, /classification\.cfm\?ID=QWF/);
+  assert.match(html, /elso-ecmo-guidelines\.aspx/);
+  assert.match(html, /elso_2025_narrative_guideline_on_ecmo_training_and\.pdf/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67554/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/6913/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-ecmo-system-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /سامانه ECMO همراه پمپ، اکسیژناتور و ابزارهای آزمون جریان و فشار برای پذیرش فنی در بخش مراقبت ویژه/,
+  );
+  assert.match(html, /2026-10-11T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ECMO، پشتیبانی قلبی‌ریوی و آمادگی عملیاتی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید ECMO در ایران,دستگاه اکمو,آزمون پذیرش ECMO/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-ecmo-system-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/iran-ecmo-system-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/iran-ecmo-system-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily global surgical microscope article validates optics, light, motion and lifecycle", async () => {
   const response = await request(
     "/blog/surgical-operation-microscope-procurement-acceptance",
@@ -2716,8 +2773,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 85);
+  assert.equal(blogUrls.length, 86);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-ecmo-system-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/surgical-operation-microscope-procurement-acceptance/,
