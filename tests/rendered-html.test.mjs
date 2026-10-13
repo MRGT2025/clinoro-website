@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 86);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 87);
+  assert.match(html, /دو بازو کافی نیست؛ ۱۲ آزمون خرید پندنت پزشکی در ایران پیش از ویرایش ۲۰۲۶/);
   assert.match(html, /فقط RPM و دبی نخرید؛ ۱۲ آزمون خرید و آمادگی ECMO در ایران/);
   assert.match(html, /بزرگ‌نمایی بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید میکروسکوپ جراحی/);
   assert.match(html, /فقط نرخ خلأ نخرید؛ ۱۲ آزمون خرید دستگاه فیکو و ویترکتومی در ایران/);
@@ -2319,6 +2320,60 @@ test("daily Iran ECMO article validates circuit readiness, alarms, supply and li
   );
 });
 
+test("daily Iran medical ceiling pendant article validates structure, services and room acceptance", async () => {
+  const response = await request(
+    "/blog/iran-medical-ceiling-pendant-procurement-acceptance",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /دو بازو کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید پندنت پزشکی در ایران پیش از ویرایش ۲۰۲۶/);
+  assert.match(html, /ویرایش پنجم ISO 11197/);
+  assert.match(html, /در حال انتشار/);
+  assert.match(html, /سازه سقف را پیش از سفارش تأیید کنید/);
+  assert.match(html, /بار ایمن را با توزیع واقعی بسنجید/);
+  assert.match(html, /Reach، حرکت، ترمز و Drift را زیر بار/);
+  assert.match(html, /ترمینال‌های گاز و وکیوم را مستقل از ظاهر/);
+  assert.match(html, /برق عادی، اضطراری و هم‌بندی/);
+  assert.match(html, /Room SAT pass rate/);
+  assert.match(html, /iso\.org\/standard\/74384\.html/);
+  assert.match(html, /iso\.org\/standard\/85403\.html/);
+  assert.match(html, /iso\.org\/standard\/67451\.html/);
+  assert.match(html, /iso\.org\/standard\/60061\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2606/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/6913/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-medical-ceiling-pendant-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /پندنت سقفی پزشکی دو بازو همراه ترمینال‌های گاز و برق و وزنه‌های آزمون برای پذیرش فنی اتاق عمل/,
+  );
+  assert.match(html, /2026-10-13T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ پندنت پزشکی، زیرساخت اتاق و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید پندنت پزشکی در ایران,پندنت اتاق عمل,پندنت ICU,Medical supply unit,ISO 11197/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-ceiling-pendant-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/iran-medical-ceiling-pendant-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/iran-medical-ceiling-pendant-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily global surgical microscope article validates optics, light, motion and lifecycle", async () => {
   const response = await request(
     "/blog/surgical-operation-microscope-procurement-acceptance",
@@ -2773,8 +2828,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 86);
+  assert.equal(blogUrls.length, 87);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-medical-ceiling-pendant-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-ecmo-system-procurement-acceptance/,
