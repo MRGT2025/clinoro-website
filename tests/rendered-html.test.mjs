@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 87);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 88);
+  assert.match(html, /یک PDF کافی نیست؛ ۱۲ آزمون اطلاعات سازنده پس از ISO 20417:2026/);
   assert.match(html, /دو بازو کافی نیست؛ ۱۲ آزمون خرید پندنت پزشکی در ایران پیش از ویرایش ۲۰۲۶/);
   assert.match(html, /فقط RPM و دبی نخرید؛ ۱۲ آزمون خرید و آمادگی ECMO در ایران/);
   assert.match(html, /بزرگ‌نمایی بیشتر، دید بهتر نیست؛ ۱۲ آزمون خرید میکروسکوپ جراحی/);
@@ -2320,6 +2321,57 @@ test("daily Iran ECMO article validates circuit readiness, alarms, supply and li
   );
 });
 
+test("daily global manufacturer information article validates identity, access and document control", async () => {
+  const response = await request(
+    "/blog/medical-device-manufacturer-information-procurement-iso-20417-2026",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /یک PDF کافی نیست/);
+  assert.match(html, /۱۲ آزمون اطلاعات سازنده پس از ISO 20417:2026/);
+  assert.match(html, /ماتریس اطلاعات قابل‌اعمال/);
+  assert.match(html, /U DI|UDI/);
+  assert.match(html, /برچسب را در شرایط استفاده واقعی بخوانید/);
+  assert.match(html, /معنی نمادها را با ISO 15223-1/);
+  assert.match(html, /زبان، قالب و دسترسی را برای روز قطع اینترنت/);
+  assert.match(html, /Revision، تغییر و آرشیو را به Gate پرداخت/);
+  assert.match(html, /Identifier reconciliation rate/);
+  assert.match(html, /Point-of-use retrieval success/);
+  assert.match(html, /iso\.org\/standard\/20417/);
+  assert.match(html, /iso\.org\/standard\/77326\.html/);
+  assert.match(html, /unique-device-identification-system-udi-system\/udi-basics/);
+  assert.match(html, /celex%3A32017R0745/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /medical-device-manufacturer-information-procurement-iso-20417-2026\.webp/);
+  assert.match(
+    html,
+    /میز پذیرش فنی تجهیزات پزشکی با مانیتور، پمپ، بسته‌بندی، اسکنر UDI، دیتالاگر حمل و پرونده اسناد سازنده/,
+  );
+  assert.match(html, /2026-10-14T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ اطلاعات سازنده، برچسب‌گذاری و پرونده تحویل"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="ISO 20417:2026,اطلاعات سازنده تجهیزات پزشکی,برچسب تجهیزات پزشکی,IFU تجهیزات پزشکی,UDI تجهیزات پزشکی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-device-manufacturer-information-procurement-iso-20417-2026"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/medical-device-manufacturer-information-procurement-iso-20417-2026"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/medical-device-manufacturer-information-procurement-iso-20417-2026\.webp"/,
+  );
+});
+
 test("daily Iran medical ceiling pendant article validates structure, services and room acceptance", async () => {
   const response = await request(
     "/blog/iran-medical-ceiling-pendant-procurement-acceptance",
@@ -2828,8 +2880,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 87);
+  assert.equal(blogUrls.length, 88);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/medical-device-manufacturer-information-procurement-iso-20417-2026/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-medical-ceiling-pendant-procurement-acceptance/,
