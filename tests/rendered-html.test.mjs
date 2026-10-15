@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 88);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 89);
+  assert.match(html, /ظاهر براق کافی نیست؛ ۱۲ آزمون خرید یونیت دندان‌پزشکی در ایران/);
   assert.match(html, /یک PDF کافی نیست؛ ۱۲ آزمون اطلاعات سازنده پس از ISO 20417:2026/);
   assert.match(html, /دو بازو کافی نیست؛ ۱۲ آزمون خرید پندنت پزشکی در ایران پیش از ویرایش ۲۰۲۶/);
   assert.match(html, /فقط RPM و دبی نخرید؛ ۱۲ آزمون خرید و آمادگی ECMO در ایران/);
@@ -2321,6 +2322,60 @@ test("daily Iran ECMO article validates circuit readiness, alarms, supply and li
   );
 });
 
+test("daily Iran dental unit article validates chair, utilities, waterline and lifecycle", async () => {
+  const response = await request(
+    "/blog/iran-dental-unit-chair-procurement-acceptance",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /ظاهر براق کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید یونیت دندان‌پزشکی در ایران/);
+  assert.match(html, /Site survey و مرز مسئولیت زیرساخت/);
+  assert.match(html, /حرکت صندلی، بار، پایداری و توقف اضطراری/);
+  assert.match(html, /ایمنی الکتریکی را روی سیستم نصب‌شده/);
+  assert.match(html, /Waterline را با برنامه درمان، پایش و اقدام اصلاحی/);
+  assert.match(html, /آب، هوا، ساکشن و فاضلاب را هم‌زمان/);
+  assert.match(html, /Handpiece، Hose و Foot control/);
+  assert.match(html, /Cost per ready treatment hour/);
+  assert.match(html, /iso\.org\/standard\/69100\.html/);
+  assert.match(html, /iso\.org\/standard\/74497\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/27876/);
+  assert.match(html, /dental-unit-water-quality\.html/);
+  assert.match(html, /iso\.org\/standard\/58009\.html/);
+  assert.match(html, /iso\.org\/standard\/68461\.html/);
+  assert.match(html, /iso\.org\/standard\/72421\.html/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-dental-unit-chair-procurement-acceptance\.webp/);
+  assert.match(
+    html,
+    /یونیت و صندلی دندان‌پزشکی همراه چراغ، اینسترومنت، ابزار آزمون برق، فشار، ساکشن و نمونه‌های آب برای پذیرش فنی/,
+  );
+  assert.match(html, /2026-10-15T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ یونیت دندان‌پزشکی، زیرساخت و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید یونیت دندان‌پزشکی در ایران,آزمون پذیرش یونیت دندان‌پزشکی,صندلی دندان‌پزشکی,ISO 7494-1,ISO 7494-2/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-dental-unit-chair-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/iran-dental-unit-chair-procurement-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/iran-dental-unit-chair-procurement-acceptance\.webp"/,
+  );
+});
+
 test("daily global manufacturer information article validates identity, access and document control", async () => {
   const response = await request(
     "/blog/medical-device-manufacturer-information-procurement-iso-20417-2026",
@@ -2880,8 +2935,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 88);
+  assert.equal(blogUrls.length, 89);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/iran-dental-unit-chair-procurement-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/medical-device-manufacturer-information-procurement-iso-20417-2026/,
