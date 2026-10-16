@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 89);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 90);
+  assert.match(html, /دمای درست کافی نیست؛ ۱۲ آزمون خرید Heater‑Cooler جراحی قلب/);
   assert.match(html, /ظاهر براق کافی نیست؛ ۱۲ آزمون خرید یونیت دندان‌پزشکی در ایران/);
   assert.match(html, /یک PDF کافی نیست؛ ۱۲ آزمون اطلاعات سازنده پس از ISO 20417:2026/);
   assert.match(html, /دو بازو کافی نیست؛ ۱۲ آزمون خرید پندنت پزشکی در ایران پیش از ویرایش ۲۰۲۶/);
@@ -2427,6 +2428,56 @@ test("daily global manufacturer information article validates identity, access a
   );
 });
 
+test("daily global heater-cooler article validates thermal performance, contamination controls and lifecycle", async () => {
+  const response = await request(
+    "/blog/heater-cooler-procurement-cardiac-surgery-acceptance",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /دمای درست کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید Heater‑Cooler/);
+  assert.match(html, /عملکرد گرمایش و سرمایش را با حسگر مستقل/);
+  assert.match(html, /آلارم و رفتار خطا را با تزریق کنترل‌شده/);
+  assert.match(html, /کیفیت آب، Fill\/Drain و خوردگی/);
+  assert.match(html, /پاک‌سازی و ضدعفونی را از ادعا/);
+  assert.match(html, /جهت خروجی هوا و جای دستگاه/);
+  assert.match(html, /Cost per ready case/);
+  assert.match(html, /what-heater-cooler-device/);
+  assert.match(html, /recommendations-use-water-based-heater-cooler-devices/);
+  assert.match(html, /fdas-ongoing-evaluation-and-continued-monitoring/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/90577/);
+  assert.match(html, /mmwr\/volumes\/65\/wr\/mm6540a6\.htm/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /heater-cooler-procurement-cardiac-surgery-acceptance\.webp/);
+  assert.match(
+    html,
+    /دستگاه Heater-Cooler متحرک با مدار آب بسته، مبدل حرارتی و ابزارهای پذیرش فنی در اتاق عمل قلب خالی/,
+  );
+  assert.match(html, /2026-10-16T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ Heater-Cooler، جراحی قلب و کنترل آلودگی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید Heater-Cooler,دستگاه Heater-Cooler جراحی قلب,Heater-Cooler device procurement/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/heater-cooler-procurement-cardiac-surgery-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/heater-cooler-procurement-cardiac-surgery-acceptance"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/heater-cooler-procurement-cardiac-surgery-acceptance\.webp"/,
+  );
+});
+
 test("daily Iran medical ceiling pendant article validates structure, services and room acceptance", async () => {
   const response = await request(
     "/blog/iran-medical-ceiling-pendant-procurement-acceptance",
@@ -2935,8 +2986,12 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 89);
+  assert.equal(blogUrls.length, 90);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/heater-cooler-procurement-cardiac-surgery-acceptance/,
+  );
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-dental-unit-chair-procurement-acceptance/,
