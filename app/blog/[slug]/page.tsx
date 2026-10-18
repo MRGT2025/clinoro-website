@@ -8,6 +8,7 @@ import { PageShell } from "../../components";
 import { getSiteContent } from "../../../lib/site-content";
 import { InjectionLayer } from "../../injection-layer";
 import { findPublishedBlogPost, getPublishedBlogPosts } from "../../../lib/blog";
+import { prepareBlogReferences } from "../../../lib/blog-references.mjs";
 
 type BlogParams={params:Promise<{slug:string}>};
 
@@ -73,15 +74,15 @@ export default async function BlogPostPage({params}:BlogParams){
   const publishedPosts=getPublishedBlogPosts(content.blogPosts);
   const post=publishedPosts.find(item=>item.slug===slug);
   if(!post)notFound();
+  const article=prepareBlogReferences(post.content,post.sources);
   const related=publishedPosts.filter(item=>item.id!==post.id).slice(0,3);
   const articleSchema={"@context":"https://schema.org","@type":"Article",headline:post.title,description:post.excerpt,image:{"@type":"ImageObject",url:`https://clinoromedical.com${post.image}`,caption:post.imageAlt||post.title},datePublished:post.publishedTime,dateModified:post.publishedTime,inLanguage:"fa-IR",articleSection:post.category,keywords:post.keywords?.join(", "),author:{"@type":"Organization",name:post.author},publisher:{"@type":"Organization",name:"Clinoro",logo:{"@type":"ImageObject",url:"https://clinoromedical.com/assets/clinoro-mark-primary.png"}},mainEntityOfPage:`https://clinoromedical.com/blog/${post.slug}`};
   return <PageShell active="/blog"><main id="main-content" className="blog-post-page"><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleSchema)}}/>
     <section className="blog-post-hero"><div className="blog-post-orbit"/><div className="site-wrap"><Link className="blog-back" href="/blog"><ArrowRight size={17}/> بازگشت به بلاگ</Link><div className="blog-post-heading"><span>{post.category}</span><h1>{post.title}</h1><p>{post.excerpt}</p><div><small><UserRound size={15}/>{post.author}</small><small><CalendarDays size={15}/>{new Date(post.publishedTime).toLocaleDateString("fa-IR",{timeZone:"Asia/Dubai"})}</small><small><Clock3 size={15}/>{readingMinutes(post.content).toLocaleString("fa-IR")} دقیقه مطالعه</small></div></div><div className="blog-post-cover prism-edge"><Image src={post.image||"/assets/medical-visual.jpg"} alt={post.imageAlt||post.title} fill priority unoptimized sizes="(max-width:900px) 100vw,1100px"/><div className="blog-cover-scan"/></div>{post.imageCredit&&<a className="blog-image-credit" href={post.imageSource||undefined} target="_blank" rel="noreferrer">عکس: {post.imageCredit}{post.imageLicense?` · مجوز: ${post.imageLicense}`:""} <ExternalLink size={12}/></a>}</div></section>
     <div className="site-wrap blog-post-layout">
-      <article className="blog-post-content">{renderArticle(post.content)}</article>
+      <article className="blog-post-content"><div className="blog-article-body">{renderArticle(article.content)}</div>{!!article.sources.length&&<section className="blog-references" aria-labelledby="blog-references-title"><h2 id="blog-references-title">منابع و مراجع</h2><p>{article.sources.map((source,index)=><span className="blog-reference" key={source.url}>{index>0&&"؛ "}<span className="blog-reference-number">{(index+1).toLocaleString("fa-IR")}. </span><a href={source.url} target="_blank" rel="noopener noreferrer" dir="auto">{source.title}</a></span>)}.</p></section>}</article>
       <aside className="blog-post-aside"><div><BookOpenText size={20}/><b>در این مقاله</b><span>{post.category}</span><span>{readingMinutes(post.content).toLocaleString("fa-IR")} دقیقه مطالعه کاربردی</span></div><Link href="/contact">برای پروژه خود مشاوره بگیرید <ArrowLeft size={16}/></Link></aside>
     </div>
-    {!!post.sources.length&&<section className="article-sources"><div className="site-wrap"><div className="article-sources-head"><span className="eyebrow">VERIFIED REFERENCES</span><h2>منابع و مطالعه بیشتر</h2></div><div>{post.sources.map(source=><a className="source-card prism-edge" href={source.url} target="_blank" rel="noreferrer" key={source.url}><span><ExternalLink size={17}/></span><b>{source.title}</b><small>مشاهده منبع اصلی</small></a>)}</div></div></section>}
     {!!related.length&&<section className="related-insights"><div className="site-wrap"><div className="related-head"><div><span className="eyebrow">KEEP EXPLORING</span><h2>مطالب مرتبط</h2></div><Link href="/blog">همه مطالب <ArrowLeft size={17}/></Link></div><div>{related.map(item=><Link className="related-card prism-edge" href={`/blog/${item.slug}`} key={item.id}><Image src={item.image} alt={item.imageAlt||item.title} fill unoptimized sizes="(max-width:700px) 100vw,33vw"/><span/><div><small>{item.category}</small><h3>{item.title}</h3><em>مطالعه مقاله <ArrowLeft size={15}/></em></div></Link>)}</div></div></section>}
     <InjectionLayer content={content} page="blog"/>
   </main></PageShell>;

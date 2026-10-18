@@ -2,6 +2,28 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { filterBlogPosts, normalizeBlogSearch, suggestBlogSearch } from "../lib/blog-search.mjs";
+import { prepareBlogReferences } from "../lib/blog-references.mjs";
+
+test("article references move external links to the bibliography while keeping prose and internal CTAs",()=>{
+  const result=prepareBlogReferences("بر اساس [راهنمای WHO](https://www.who.int/guide)، تجهیز را بررسی کنید.\n\n[مشاوره Clinoro](/contact)",[{title:"WHO — راهنمای اصلی",url:"https://www.who.int/guide"}]);
+  assert.equal(result.content,"بر اساس راهنمای WHO، تجهیز را بررسی کنید.\n\n[مشاوره Clinoro](/contact)");
+  assert.deepEqual(result.sources,[{title:"WHO — راهنمای اصلی",url:"https://www.who.int/guide"}]);
+});
+
+test("reference extraction preserves query strings, balanced parentheses and all evidence without duplicates",()=>{
+  const result=prepareBlogReferences("[ISO](https://example.org/standard(v2)) و [بخش دوم](https://example.org/standard(v2)#section). https://fda.gov/device?id=FYD&view=full،",[{title:"استاندارد",url:"https://example.org/standard(v2)"}]);
+  assert.match(result.content,/ISO و بخش دوم/);
+  assert.doesNotMatch(result.content,/https?:\/\//);
+  assert.deepEqual(result.sources.map(source=>source.url),["https://example.org/standard(v2)","https://fda.gov/device?id=FYD&view=full"]);
+});
+
+test("future pasted HTML, autolinks and reference-style links share the same final bibliography",()=>{
+  const result=prepareBlogReferences('<a href="https://example.org/a">راهنمای اصلی</a> و [راهنمای دوم][ref].\n\n[ref]: https://example.org/b\n\n<https://example.org/c>\n\nپایان', [{title:"نامعتبر",url:"javascript:alert(1)"}]);
+  assert.doesNotMatch(result.content,/https?:|<a |\[ref\]/);
+  assert.match(result.content,/راهنمای اصلی و راهنمای دوم/);
+  assert.equal(result.sources.length,3);
+  assert.equal(result.sources.find(source=>source.url.endsWith('/b')).title,'راهنمای دوم');
+});
 
 const searchExamples = [
   {slug:"mri",title:"خرید MRI؛ آزمون تصویربرداری",category:"جهانی؛ تصویربرداری",excerpt:"پذیرش دستگاه و خدمات"},
@@ -3410,4 +3432,28 @@ test("terms page is public and canonical", async () => {
     html,
     /rel="canonical" href="https:\/\/clinoromedical\.com\/terms"/,
   );
+});
+
+test("every published article has clean prose and at most one deduplicated paragraph bibliography",async()=>{
+  const sitemap=await (await request('/sitemap.xml')).text();
+  const paths=[...sitemap.matchAll(/<loc>https:\/\/clinoromedical\.com(\/blog\/[^<]+)<\/loc>/g)].map(match=>match[1]);
+  assert.ok(paths.length>=91);
+  for(const path of paths){
+    const response=await request(path);
+    const html=await response.text();
+    assert.equal(response.status,200,path);
+    const body=html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+    assert.ok(body,path);
+    assert.doesNotMatch(body,/https?:\/\/|\]\((?:https?:)?\/\//,path);
+    assert.doesNotMatch(html,/class="source-card/);
+    const bibliographies=[...html.matchAll(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/g)];
+    assert.ok(bibliographies.length<=1,path);
+    if(bibliographies.length){
+      const references=bibliographies[0][1];
+      assert.equal((references.match(/<p>/g)||[]).length,1,path);
+      const urls=[...references.matchAll(/href="([^"]+)"/g)].map(match=>match[1]);
+      assert.equal(urls.length,new Set(urls).size,path);
+      assert.ok(html.indexOf(bibliographies[0][0])>html.indexOf('blog-article-body'),path);
+    }
+  }
 });
