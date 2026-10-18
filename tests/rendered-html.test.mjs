@@ -3457,3 +3457,17 @@ test("every published article has clean prose and at most one deduplicated parag
     }
   }
 });
+
+test("article rendering reads content once per request and observes the next saved document",async()=>{
+  let footerText="REQUEST-CONTENT-FIRST";
+  let reads=0;
+  const db={prepare(sql){const statement={bind(){return statement;},async first(){if(sql.includes("site_content")){reads++;return {document:JSON.stringify({general:{footerText}})};}return null;},async all(){return {results:[]};},async run(){return {meta:{changes:0}};}};return statement;},async batch(){return [];}};
+  for(const marker of ["REQUEST-CONTENT-FIRST","REQUEST-CONTENT-SECOND"]){
+    footerText=marker;reads=0;
+    const response=await worker.fetch(new Request("https://clinoromedical.com/blog/iran-neonatal-phototherapy-procurement-acceptance"),{...env,DB:db},context);
+    const html=await response.text();
+    assert.equal(response.status,200);
+    assert.match(html,new RegExp(marker));
+    assert.equal(reads,1,"layout, metadata and article must share the request's content read");
+  }
+});

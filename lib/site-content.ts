@@ -1609,8 +1609,17 @@ IP، پورت، AE Title، DNS، همگام‌سازی زمان، گواهی‌�
   },
 };
 
-export async function getSiteContent(): Promise<SiteContent> {
-  return (await getStoredSiteContent("primary")) ?? defaultSiteContent;
+declare global {
+  var __CLINORO_REQUEST_CACHE: (() => Map<string, Promise<unknown>> | undefined) | undefined;
+}
+
+export function getSiteContent(): Promise<SiteContent> {
+  const cache = globalThis.__CLINORO_REQUEST_CACHE?.();
+  const pending = cache?.get("site-content-primary") as Promise<SiteContent> | undefined;
+  if (pending) return pending;
+  const content = getStoredSiteContent("primary").then(stored => stored ?? defaultSiteContent);
+  cache?.set("site-content-primary", content);
+  return content;
 }
 
 export async function getDraftSiteContent(): Promise<SiteContent> {
@@ -1657,6 +1666,7 @@ async function saveStoredSiteContent(
     )
     .bind(id, JSON.stringify(content), Date.now())
     .run();
+  if (id === "primary") globalThis.__CLINORO_REQUEST_CACHE?.()?.delete("site-content-primary");
 }
 
 export function normalizeSiteContent(value: Partial<SiteContent>) {

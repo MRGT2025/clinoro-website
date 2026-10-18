@@ -1,6 +1,12 @@
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
+import { AsyncLocalStorage } from "node:async_hooks";
+
+// Share one D1 read/normalization across layout, metadata and page rendering.
+// Each fetch gets its own store; edits are visible on the very next request.
+const contentRequests = new AsyncLocalStorage<Map<string, Promise<unknown>>>();
+globalThis.__CLINORO_REQUEST_CACHE = () => contentRequests.getStore();
 
 interface Env {
   ASSETS: Fetcher;
@@ -62,7 +68,7 @@ const worker = {
       return withSecurityHeaders(imageResponse,url);
     }
 
-    const response=await handler.fetch(request, env, ctx);
+    const response=await contentRequests.run(new Map(),()=>handler.fetch(request, env, ctx));
     return withSecurityHeaders(response,url);
   },
 };
