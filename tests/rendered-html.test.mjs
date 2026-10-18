@@ -1,6 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
+import { filterBlogPosts, normalizeBlogSearch, suggestBlogSearch } from "../lib/blog-search.mjs";
+
+const searchExamples = [
+  {slug:"mri",title:"خرید MRI؛ آزمون تصویربرداری",category:"جهانی؛ تصویربرداری",excerpt:"پذیرش دستگاه و خدمات"},
+  {slug:"lab",title:"خرید آنالایزر آزمایشگاهی ۲۰۲۶",category:"آزمایشگاه",excerpt:"کالیبراسیون و کیفیت"},
+  {slug:"chair",title:"خرید صندلی دندان‌پزشکی",category:"یونیت دندان‌پزشکی",excerpt:"صندلی برقی و نگهداری"},
+];
+
+test("blog search normalizes Persian variants, digits, casing and half-spaces",()=>{
+  assert.equal(normalizeBlogSearch("پزشكي ٢٠٢٦"),normalizeBlogSearch("پزشکی ۲۰۲۶"));
+  assert.deepEqual(filterBlogPosts(searchExamples,"mRi").map(post=>post.slug),["mri"]);
+  assert.deepEqual(filterBlogPosts(searchExamples,"دندانپزشكي").map(post=>post.slug),["chair"]);
+  assert.deepEqual(filterBlogPosts(searchExamples,"آزمایشگاهی 2026").map(post=>post.slug),["lab"]);
+});
+
+test("blog search combines topic with all query words and supports an empty result",()=>{
+  assert.equal(filterBlogPosts(searchExamples,"","all").length,3);
+  assert.deepEqual(filterBlogPosts(searchExamples,"خرید","lab").map(post=>post.slug),["lab"]);
+  assert.deepEqual(filterBlogPosts(searchExamples,"MRI","lab"),[]);
+  assert.deepEqual(filterBlogPosts(searchExamples,"MRI گارانتی"),[]);
+});
+
+test("blog autocomplete stays bounded and suggests only matching existing articles and words",()=>{
+  assert.deepEqual(suggestBlogSearch(searchExamples,""),[]);
+  const suggestions=suggestBlogSearch(searchExamples,"ازما","lab");
+  assert.ok(suggestions.length>0&&suggestions.length<=6);
+  assert.ok(suggestions.some(item=>item.kind==="article"&&item.id==="lab"));
+  assert.ok(suggestions.some(item=>item.kind==="keyword"&&item.value.startsWith("آزمایش")));
+  assert.ok(suggestions.every(item=>item.kind!=="article"||item.id==="lab"));
+  assert.deepEqual(suggestBlogSearch(searchExamples,"zzzz"),[]);
+});
 
 const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
@@ -315,7 +346,11 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   assert.match(html, /از اکسل تا CMMS/);
   assert.match(html, /ثبت تجهیزات پزشکی در بریتانیای کبیر/);
   assert.match(html, /WHO Listed Authorities برای تجهیزات پزشکی/);
-  assert.doesNotMatch(html, /aria-live="polite"/);
+  assert.match(html, /role="combobox"/);
+  assert.match(html, /aria-label="جست‌وجو در مقاله‌ها"/);
+  assert.match(html, /aria-label="فیلتر موضوع مقاله‌ها"/);
+  assert.match(html, /aria-live="polite"/);
+  assert.doesNotMatch(html, /class="blog-filter-chip/);
   assert.doesNotMatch(html, /هنوز مطلبی منتشر نشده است/);
 });
 
