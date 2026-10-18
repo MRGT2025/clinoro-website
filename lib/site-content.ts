@@ -1627,6 +1627,10 @@ export async function getDraftSiteContent(): Promise<SiteContent> {
   return draft ?? getSiteContent();
 }
 
+// Bounded to primary/draft. The D1 document is still read on every request;
+// only repeated parsing/normalization of identical saved bytes is avoided.
+const normalizedDocuments = new Map<string, {document:string; content:SiteContent}>();
+
 async function getStoredSiteContent(
   id: "primary" | "draft",
   fallback = true,
@@ -1638,10 +1642,14 @@ async function getStoredSiteContent(
       .bind(id)
       .first<{ document: string }>();
     if (!row) return fallback ? defaultSiteContent : null;
-    return mergeContent(
+    const cached = normalizedDocuments.get(id);
+    if (cached?.document === row.document) return cached.content;
+    const content = mergeContent(
       defaultSiteContent,
       JSON.parse(row.document) as Partial<SiteContent>,
     );
+    normalizedDocuments.set(id, {document:row.document, content});
+    return content;
   } catch {
     return fallback ? defaultSiteContent : null;
   }
@@ -1666,6 +1674,7 @@ async function saveStoredSiteContent(
     )
     .bind(id, JSON.stringify(content), Date.now())
     .run();
+  normalizedDocuments.delete(id);
   if (id === "primary") globalThis.__CLINORO_REQUEST_CACHE?.()?.delete("site-content-primary");
 }
 

@@ -25,6 +25,12 @@ test("future pasted HTML, autolinks and reference-style links share the same fin
   assert.equal(result.sources.find(source=>source.url.endsWith('/b')).title,'راهنمای دوم');
 });
 
+test("named references without a URL remain plain citations and empty placeholders disappear",()=>{
+  const result=prepareBlogReferences("متن مقاله",[{title:"مرجع چاپی",url:""},{title:"مرجع چاپی",url:""},{title:"",url:""}]);
+  assert.equal(result.content,"متن مقاله");
+  assert.deepEqual(result.sources,[{title:"مرجع چاپی",url:""}]);
+});
+
 const searchExamples = [
   {slug:"mri",title:"خرید MRI؛ آزمون تصویربرداری",category:"جهانی؛ تصویربرداری",excerpt:"پذیرش دستگاه و خدمات"},
   {slug:"lab",title:"خرید آنالایزر آزمایشگاهی ۲۰۲۶",category:"آزمایشگاه",excerpt:"کالیبراسیون و کیفیت"},
