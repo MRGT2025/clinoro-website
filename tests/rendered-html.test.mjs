@@ -245,7 +245,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 90);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 91);
+  assert.match(html, /مکش روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید دودگیر جراحی/);
   assert.match(html, /دمای درست کافی نیست؛ ۱۲ آزمون خرید Heater‑Cooler جراحی قلب/);
   assert.match(html, /ظاهر براق کافی نیست؛ ۱۲ آزمون خرید یونیت دندان‌پزشکی در ایران/);
   assert.match(html, /یک PDF کافی نیست؛ ۱۲ آزمون اطلاعات سازنده پس از ISO 20417:2026/);
@@ -323,6 +324,7 @@ test("shared client search index excludes full blog payload while retaining publ
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /فقط تصویر 4K نخرید؛ ۱۲ آزمون خرید برج آندوسکوپی/);
+  assert.match(html, /مکش روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید دودگیر جراحی/);
   assert.doesNotMatch(
     html,
     /برج آندوسکوپی بدون اسکوپ سازگار، شست‌وشوی اعتبارسنجی‌شده/,
@@ -2478,6 +2480,53 @@ test("daily global heater-cooler article validates thermal performance, contamin
   );
 });
 
+test("daily global surgical plume evacuation article covers the 2026 ISO amendment and acceptance controls", async () => {
+  const response = await request(
+    "/blog/surgical-smoke-evacuation-system-procurement-iso-16571-2026",
+  );
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /مکش روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید دودگیر جراحی/);
+  assert.match(html, /ISO 16571:2024\/Amd 1:2026/);
+  assert.match(html, /فاصله نازل از محل تولید/);
+  assert.match(html, /فیلتر ذره را از کنترل گاز و بخار جدا کنید/);
+  assert.match(html, /آلارم و وضعیت فیلتر را آزمون‌پذیر کنید/);
+  assert.match(html, /هزینه دودگیری هر عمل/);
+  assert.match(html, /iso\.org\/standard\/83065\.html/);
+  assert.match(html, /iso\.org\/standard\/91604\.html/);
+  assert.match(html, /cfStandards\/detail/);
+  assert.match(html, /cdc\.gov\/niosh\/engcontrols\/ecd\/detail193\.html/);
+  assert.match(html, /osha\.gov\/laser-electrosurgery-plume/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(
+    html,
+    /surgical-smoke-evacuation-system-procurement-iso-16571-2026\.webp/,
+  );
+  assert.match(
+    html,
+    /دودگیر جراحی متحرک با فیلتر و شیلنگ جذب متصل به قلم الکتروسرجری روی میز ابزار در اتاق عمل خالی/,
+  );
+  assert.match(html, /2026-10-18T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ دودگیر جراحی، کنترل plume و ISO 16571:2026"/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/surgical-smoke-evacuation-system-procurement-iso-16571-2026"/,
+  );
+  assert.match(
+    html,
+    /<meta property="og:url" content="https:\/\/clinoromedical\.com\/blog\/surgical-smoke-evacuation-system-procurement-iso-16571-2026"/,
+  );
+  assert.match(
+    html,
+    /<meta name="twitter:image" content="https:\/\/clinoromedical\.com\/assets\/blog\/surgical-smoke-evacuation-system-procurement-iso-16571-2026\.webp"/,
+  );
+});
+
 test("daily Iran medical ceiling pendant article validates structure, services and room acceptance", async () => {
   const response = await request(
     "/blog/iran-medical-ceiling-pendant-procurement-acceptance",
@@ -2986,7 +3035,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 90);
+  assert.equal(blogUrls.length, 91);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3147,6 +3196,10 @@ test("discovery files expose public routes and protect admin paths", async () =>
   assert.match(
     sitemap,
     /https:\/\/clinoromedical\.com\/blog\/iran-medical-equipment-electrical-site-readiness/,
+  );
+  assert.match(
+    sitemap,
+    /https:\/\/clinoromedical\.com\/blog\/surgical-smoke-evacuation-system-procurement-iso-16571-2026/,
   );
   assert.match(
     sitemap,
