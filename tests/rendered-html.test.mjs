@@ -304,7 +304,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 93);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 94);
+  assert.match(html, /فلگ بیشتر، CBC بهتر نیست؛ ۱۲ آزمون خرید سل‌کانتر در ایران/);
   assert.match(html, /مکش روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید دودگیر جراحی/);
   assert.match(html, /دمای درست کافی نیست؛ ۱۲ آزمون خرید Heater‑Cooler جراحی قلب/);
   assert.match(html, /ظاهر براق کافی نیست؛ ۱۲ آزمون خرید یونیت دندان‌پزشکی در ایران/);
@@ -3098,7 +3099,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 93);
+  assert.equal(blogUrls.length, 94);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3443,7 +3444,7 @@ test("terms page is public and canonical", async () => {
 test("every published article has clean prose and at most one deduplicated paragraph bibliography",async()=>{
   const sitemap=await (await request('/sitemap.xml')).text();
   const paths=[...sitemap.matchAll(/<loc>https:\/\/clinoromedical\.com(\/blog\/[^<]+)<\/loc>/g)].map(match=>match[1]);
-  assert.ok(paths.length>=93);
+  assert.ok(paths.length>=94);
   for(const path of paths){
     const response=await request(path);
     const html=await response.text();
@@ -3478,6 +3479,42 @@ test("article rendering reads content once per request and observes the next sav
   }
 });
 
+
+test("Iran hematology analyzer guide proves workflow, method performance and grouped sources", async () => {
+  const slug = "iran-hematology-analyzer-cell-counter-procurement-acceptance";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /فلگ بیشتر، CBC بهتر نیست/);
+  assert.match(html, /۲۹ آوریل ۲۰۲۶/);
+  assert.match(html, /CLSI H20/);
+  assert.match(html, /CLSI H26/);
+  assert.match(html, /CBC قابل‌گزارش در ساعت/);
+  assert.match(html, /هزینه پیشنهادی هر CBC قابل‌گزارش/);
+  assert.match(html, /مجوز عرضه در ایران نیست/);
+  assert.match(html, /2026-10-21T08:00:00\+03:30/);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /آنالایزر هماتولوژی پنج‌بخشی بدون برند/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:/);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 8);
+  const blog = await (await request("/blog")).text();
+  const home = await (await request("/")).text();
+  const sitemap = await (await request("/sitemap.xml")).text();
+  assert.ok(blog.includes(`/blog/${slug}`));
+  assert.ok(home.includes(`/blog/${slug}`));
+  assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
+  const post = {slug, title: "فلگ بیشتر، CBC بهتر نیست", excerpt: "سل‌کانتر", category: "ایران؛ هماتولوژی"};
+  assert.equal(filterBlogPosts([post], "سل کانتر")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
+});
 
 test("global spirometer guide distinguishes draft standards, verification and program-specific data rules", async () => {
   const slug = "spirometer-procurement-calibration-data-acceptance";
