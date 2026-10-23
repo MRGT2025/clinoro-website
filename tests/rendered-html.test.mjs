@@ -304,7 +304,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 94);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 95);
+  assert.match(html, /اسکن سریع، OCT بهتر نیست؛ ۱۲ آزمون خرید و پذیرش OCT چشم‌پزشکی در ایران/);
   assert.match(html, /فلگ بیشتر، CBC بهتر نیست؛ ۱۲ آزمون خرید سل‌کانتر در ایران/);
   assert.match(html, /مکش روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید دودگیر جراحی/);
   assert.match(html, /دمای درست کافی نیست؛ ۱۲ آزمون خرید Heater‑Cooler جراحی قلب/);
@@ -3099,7 +3100,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 94);
+  assert.equal(blogUrls.length, 95);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3516,6 +3517,42 @@ test("Iran hematology analyzer guide proves workflow, method performance and gro
   assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
 });
 
+test("Iran ophthalmic OCT guide verifies image performance, interoperability and grouped primary sources", async () => {
+  const slug = "iran-ophthalmic-oct-procurement-acceptance-iso-16971-1";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /اسکن سریع، OCT بهتر نیست/);
+  assert.match(html, /ISO 16971‑1:2024/);
+  assert.match(html, /ISO 15004‑2:2024/);
+  assert.match(html, /۶ اوت ۲۰۲۶/);
+  assert.match(html, /Product Code OBO/);
+  assert.match(html, /هزینه پیشنهادی هر مطالعه قابل‌تفسیر/);
+  assert.match(html, /مجوز عرضه در ایران محسوب نمی‌شود/);
+  assert.match(html, /2026-10-23T08:00:00\+03:30/);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /دستگاه OCT چشم‌پزشکی بدون برند کنار فانتوم کالیبراسیون چشم/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:/);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 8);
+  const blog = await (await request("/blog")).text();
+  const home = await (await request("/")).text();
+  const sitemap = await (await request("/sitemap.xml")).text();
+  assert.ok(blog.includes(`/blog/${slug}`));
+  assert.ok(home.includes(`/blog/${slug}`));
+  assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
+  const post = {slug, title: "اسکن سریع، OCT بهتر نیست", excerpt: "تصویربرداری شبکیه", category: "ایران؛ چشم‌پزشکی"};
+  assert.equal(filterBlogPosts([post], "OCT")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "چشم پزشکی")[0]?.id, slug);
+});
+
 test("global spirometer guide distinguishes draft standards, verification and program-specific data rules", async () => {
   const slug = "spirometer-procurement-calibration-data-acceptance";
   const response = await request(`/blog/${slug}`);
@@ -3577,9 +3614,7 @@ test("Iran audiometer procurement article exposes calibrated system guidance and
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 6);
   const blog = await (await request("/blog")).text();
-  const home = await (await request("/")).text();
   const sitemap = await (await request("/sitemap.xml")).text();
   assert.ok(blog.includes(`/blog/${slug}`));
-  assert.ok(home.includes(`/blog/${slug}`));
   assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
 });
