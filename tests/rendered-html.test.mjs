@@ -304,7 +304,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 95);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 96);
+  assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
   assert.match(html, /اسکن سریع، OCT بهتر نیست؛ ۱۲ آزمون خرید و پذیرش OCT چشم‌پزشکی در ایران/);
   assert.match(html, /فلگ بیشتر، CBC بهتر نیست؛ ۱۲ آزمون خرید سل‌کانتر در ایران/);
   assert.match(html, /مکش روی کاتالوگ کافی نیست؛ ۱۲ آزمون خرید دودگیر جراحی/);
@@ -3100,7 +3101,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 95);
+  assert.equal(blogUrls.length, 96);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3517,6 +3518,43 @@ test("Iran hematology analyzer guide proves workflow, method performance and gro
   assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
 });
 
+test("global CPAP and APAP guide verifies the complete therapy system and groups primary sources", async () => {
+  const slug = "cpap-apap-sleep-apnea-procurement-iso-80601-2-70-2025";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /فشار روی نمایشگر کافی نیست/);
+  assert.match(html, /ISO 80601‑2‑70:2025/);
+  assert.match(html, /ISO 17510:2025/);
+  assert.match(html, /ISO 80601‑2‑74:2026/);
+  assert.match(html, /Product Code QBY/);
+  assert.match(html, /۱۲ سپتامبر ۲۰۲۵/);
+  assert.match(html, /هزینه پیشنهادی هر شب قابل‌استفاده/);
+  assert.match(html, /این مقاله تجویز CPAP/);
+  assert.match(html, /2026-10-24T08:00:00\+03:30/);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /دستگاه CPAP بدون برند با Humidifier، دو ماسک تنفسی/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:/);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 8);
+  const blog = await (await request("/blog")).text();
+  const home = await (await request("/")).text();
+  const sitemap = await (await request("/sitemap.xml")).text();
+  assert.ok(blog.includes(`/blog/${slug}`));
+  assert.ok(home.includes(`/blog/${slug}`));
+  assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
+  const post = {slug, title: "فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP", excerpt: "درمان آپنه خواب", category: "جهانی؛ درمان آپنه خواب، CPAP و مراقبت خانگی"};
+  assert.equal(filterBlogPosts([post], "آپنه خواب")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "CPAP")[0]?.id, slug);
+});
+
 test("Iran ophthalmic OCT guide verifies image performance, interoperability and grouped primary sources", async () => {
   const slug = "iran-ophthalmic-oct-procurement-acceptance-iso-16971-1";
   const response = await request(`/blog/${slug}`);
@@ -3580,10 +3618,8 @@ test("global spirometer guide distinguishes draft standards, verification and pr
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 6);
   const blog = await (await request("/blog")).text();
-  const home = await (await request("/")).text();
   const sitemap = await (await request("/sitemap.xml")).text();
   assert.ok(blog.includes(`/blog/${slug}`));
-  assert.ok(home.includes(`/blog/${slug}`));
   assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
   const post = {slug, title: "اسپیرومتر را با گزارش دمو نخرید", excerpt: "", category: "جهانی؛ اسپیرومتری"};
   assert.equal(filterBlogPosts([post], "اسپیرومتر")[0]?.slug, slug);
