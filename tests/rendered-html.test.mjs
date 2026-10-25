@@ -304,7 +304,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 96);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 97);
+  assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
   assert.match(html, /اسکن سریع، OCT بهتر نیست؛ ۱۲ آزمون خرید و پذیرش OCT چشم‌پزشکی در ایران/);
   assert.match(html, /فلگ بیشتر، CBC بهتر نیست؛ ۱۲ آزمون خرید سل‌کانتر در ایران/);
@@ -3101,7 +3102,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 96);
+  assert.equal(blogUrls.length, 97);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3508,14 +3509,48 @@ test("Iran hematology analyzer guide proves workflow, method performance and gro
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 8);
   const blog = await (await request("/blog")).text();
+  const sitemap = await (await request("/sitemap.xml")).text();
+  assert.ok(blog.includes(`/blog/${slug}`));
+  assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
+  const post = {slug, title: "فلگ بیشتر، CBC بهتر نیست", excerpt: "سل‌کانتر", category: "ایران؛ هماتولوژی"};
+  assert.equal(filterBlogPosts([post], "سل کانتر")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
+});
+
+test("Iran electrotherapy guide verifies real output, combination-device boundaries and grouped primary sources", async () => {
+  const slug = "iran-electrotherapy-tens-nmes-procurement-acceptance";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /تعداد کانال، درمان بهتر نیست/);
+  assert.match(html, /IEC 60601‑2‑10:2012\+A1:2016\+A2:2023/);
+  assert.match(html, /Product Code GZJ/);
+  assert.match(html, /IEC 61689:2022/);
+  assert.match(html, /هزینه پیشنهادی هر جلسه قابل‌تحویل/);
+  assert.match(html, /این مقاله پروتکل درمان یا تجویز TENS/);
+  assert.match(html, /مجوز عرضه در ایران محسوب نمی‌شود/);
+  assert.match(html, /2026-10-25T08:00:00\+03:30/);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /دستگاه الکتروتراپی بدون برند با چهار کانال، کابل‌ها، الکترودها/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:/);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 8);
+  const blog = await (await request("/blog")).text();
   const home = await (await request("/")).text();
   const sitemap = await (await request("/sitemap.xml")).text();
   assert.ok(blog.includes(`/blog/${slug}`));
   assert.ok(home.includes(`/blog/${slug}`));
   assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
-  const post = {slug, title: "فلگ بیشتر، CBC بهتر نیست", excerpt: "سل‌کانتر", category: "ایران؛ هماتولوژی"};
-  assert.equal(filterBlogPosts([post], "سل کانتر")[0]?.slug, slug);
-  assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
+  const post = {slug, title: "تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی", excerpt: "TENS و NMES", category: "ایران؛ فیزیوتراپی و الکتروتراپی"};
+  assert.equal(filterBlogPosts([post], "الکتروتراپی")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "TENS")[0]?.id, slug);
 });
 
 test("global CPAP and APAP guide verifies the complete therapy system and groups primary sources", async () => {
