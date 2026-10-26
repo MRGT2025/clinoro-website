@@ -3,6 +3,44 @@ import test from "node:test";
 import { readFile } from "node:fs/promises";
 import { filterBlogPosts, normalizeBlogSearch, suggestBlogSearch } from "../lib/blog-search.mjs";
 import { prepareBlogReferences } from "../lib/blog-references.mjs";
+import { inspectDailyPost, marketForDate, tehranDate, verifyLive } from "../scripts/verify-daily-blog.mjs";
+
+test("daily publication uses Tehran midnight and calendar parity even after a missed run", () => {
+  assert.equal(tehranDate(new Date("2026-10-25T20:29:59Z")), "2026-10-25");
+  assert.equal(tehranDate(new Date("2026-10-25T20:30:00Z")), "2026-10-26");
+  assert.equal(marketForDate("2026-08-14"), "iran");
+  assert.equal(marketForDate("2026-10-26"), "global");
+  assert.equal(marketForDate("2026-10-27"), "iran");
+  assert.throws(() => marketForDate("2026-02-30"));
+});
+
+test("a missed day or invalid daily source cannot be mistaken for publication", async () => {
+  const source = await readFile(new URL("../lib/daily-blog-posts-2026-10-26.ts", import.meta.url), "utf8");
+  assert.equal(inspectDailyPost(undefined, "2026-10-26").status, "needs_publication");
+  assert.equal(inspectDailyPost(source, "2026-10-26").status, "source_ready");
+  assert.equal(inspectDailyPost(source, "2026-10-27").status, "source_invalid");
+  assert.equal(inspectDailyPost(source + source, "2026-10-26").status, "source_invalid");
+  assert.equal(inspectDailyPost(source.replace("+03:30", "Z"), "2026-10-26").status, "source_invalid");
+  assert.equal(inspectDailyPost(source.replace("جهانی؛", "ایران؛"), "2026-10-26").status, "source_invalid");
+});
+
+test("daily recovery requires the current article, all discovery routes, image and metadata", async () => {
+  const source = await readFile(new URL("../lib/daily-blog-posts-2026-10-26.ts", import.meta.url), "utf8");
+  const post = inspectDailyPost(source, "2026-10-26");
+  const url = `https://clinoromedical.com/blog/${post.slug}`;
+  const article = `${post.title} ${post.publishedTime}<link rel="canonical" href="${url}"/><meta property="og:url" content="${url}"/><script>{"@type":"Article","datePublished":"${post.publishedTime}"}</script><div class="blog-article-body">مقاله</div><section class="blog-references"><p><a href="https://example.org/a">A</a><a href="https://example.org/b">B</a></p></section>`;
+  const pages = new Map([[`/blog/${post.slug}`, article], ["/blog", `/blog/${post.slug}`], ["/", `/blog/${post.slug}`], ["/sitemap.xml", `<loc>${url}</loc>`]]);
+  const fetcher = async target => {
+    const path = new URL(target).pathname;
+    return path === post.image ? new Response(new Uint8Array([1]), { headers: { "content-type": "image/webp" } }) : new Response(pages.get(path) ?? "missing");
+  };
+  assert.equal((await verifyLive(post, { fetcher })).status, "verified");
+  pages.set("/sitemap.xml", `<loc>${url}</loc><loc>${url}</loc>`);
+  assert.equal((await verifyLive(post, { fetcher })).status, "pending_deployment");
+  pages.set("/sitemap.xml", `<loc>${url}</loc>`);
+  assert.equal((await verifyLive(post, { fetcher: async target => target.endsWith(post.image) ? new Response("missing", { status: 404 }) : fetcher(target) })).status, "pending_deployment");
+  assert.equal((await verifyLive({ status: "needs_publication" }, { fetcher: () => { throw new Error("must not fetch"); } })).status, "needs_publication");
+});
 
 test("article references move external links to the bibliography while keeping prose and internal CTAs",()=>{
   const result=prepareBlogReferences("بر اساس [راهنمای WHO](https://www.who.int/guide)، تجهیز را بررسی کنید.\n\n[مشاوره Clinoro](/contact)",[{title:"WHO — راهنمای اصلی",url:"https://www.who.int/guide"}]);
@@ -304,7 +342,8 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 97);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 98);
+  assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
   assert.match(html, /اسکن سریع، OCT بهتر نیست؛ ۱۲ آزمون خرید و پذیرش OCT چشم‌پزشکی در ایران/);
@@ -3102,7 +3141,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 97);
+  assert.equal(blogUrls.length, 98);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3517,6 +3556,38 @@ test("Iran hematology analyzer guide proves workflow, method performance and gro
   assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
 });
 
+test("global patient warming guide separates patient temperature, system output and safety evidence", async () => {
+  const slug = "patient-warming-system-procurement-iec-60601-2-35";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  assert.match(html, /دمای خروجی، دمای بیمار نیست/);
+  assert.match(html, /IEC 60601‑2‑35:2020\+A1:2023/);
+  assert.match(html, /TRF 60601‑2‑35E:2024/);
+  assert.match(html, /Product Code DWJ/);
+  assert.match(html, /۷ آوریل ۲۰۲۶/);
+  assert.match(html, /این متن تجویز دمای درمان/);
+  assert.match(html, /هزینه پیشنهادی هر عمل قابل‌پشتیبانی/);
+  assert.match(html, /2026-10-26T10:45:00\+03:30/);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:/);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 6);
+  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+    assert.ok((await (await request(route)).text()).includes(`/blog/${slug}`), route);
+  }
+  const post = {slug, title: "خرید گرم‌کننده بیمار", excerpt: "Forced-air warming", category: "جهانی؛ اتاق عمل"};
+  assert.equal(filterBlogPosts([post], "گرم کننده")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "Forced")[0]?.id, slug);
+});
+
 test("Iran electrotherapy guide verifies real output, combination-device boundaries and grouped primary sources", async () => {
   const slug = "iran-electrotherapy-tens-nmes-procurement-acceptance";
   const response = await request(`/blog/${slug}`);
@@ -3616,10 +3687,8 @@ test("Iran ophthalmic OCT guide verifies image performance, interoperability and
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 8);
   const blog = await (await request("/blog")).text();
-  const home = await (await request("/")).text();
   const sitemap = await (await request("/sitemap.xml")).text();
   assert.ok(blog.includes(`/blog/${slug}`));
-  assert.ok(home.includes(`/blog/${slug}`));
   assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
   const post = {slug, title: "اسکن سریع، OCT بهتر نیست", excerpt: "تصویربرداری شبکیه", category: "ایران؛ چشم‌پزشکی"};
   assert.equal(filterBlogPosts([post], "OCT")[0]?.slug, slug);

@@ -97,5 +97,7 @@ urgent runtime rollback, use Cloudflare Worker version rollback, then align
 `main` with the restored version so the next build does not reintroduce the
 fault.
 
-Daily article automation must remain disabled until all release verification
-checks above pass in production.
+Daily article publication is gated by the release verification checks above.
+The recurring task remains enabled so its recovery slots can finish a missed
+or incomplete daily release. See `DAILY_BLOG_PUBLISHING.md`; a completed task
+run without proof of today's public article is not a successful publication.
