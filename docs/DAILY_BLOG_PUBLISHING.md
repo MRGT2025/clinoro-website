@@ -37,6 +37,9 @@ do not silently exit or reuse yesterday's result.
   Persian alt and provenance. Use full Tehran ISO timestamps (`+03:30`).
 - Keep external reference links in `sources`; the renderer produces one final
   bibliography paragraph. No external links inside article prose; preserve CTAs.
+- Use the renderer's supported `##`/`###` headings, plain paragraphs, lists and
+  inline links. The page already supplies the H1 title. Do not insert a second
+  `#` title or literal `**` markers; these are not rendered as rich text here.
 - Run `npm run install:ci`, `npm run lint`, `npm test`, Cloudflare compatibility
   build, and `npm run validate:artifact`. A failed gate blocks publication.
 - If production binding IDs are unavailable locally, use only temporary command

@@ -3575,6 +3575,7 @@ test("global patient warming guide separates patient temperature, system output 
   const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
   assert.ok(body);
   assert.doesNotMatch(body, /href="https?:/);
+  assert.doesNotMatch(body, /\*\*|<p># /);
   assert.match(body, /href="\/procurement"/);
   const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
   assert.ok(refs);
