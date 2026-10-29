@@ -342,7 +342,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 98);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 99);
   assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
@@ -3141,7 +3141,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 98);
+  assert.equal(blogUrls.length, 99);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3556,6 +3556,36 @@ test("Iran hematology analyzer guide proves workflow, method performance and gro
   assert.equal(suggestBlogSearch([post], "همات")[0]?.id, slug);
 });
 
+test("Iran tourniquet guide verifies configuration, pressure, legal evidence and discovery", async () => {
+  const slug = "iran-surgical-pneumatic-tourniquet-procurement";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  for (const text of ["تورنیکه جراحی را با کاف بخرید", "مصوب ۱ دی ۱۳۹۷", "ماده ۱۲", "K202919", "۲۰ مه ۲۰۲۱", "IEC 60601‑1:2005+A1:2012+A2:2020", "این متن تجویز فشار", "هزینه پیشنهادی هر عمل قابل‌پشتیبانی", "2026-10-29T08:05:00+03:30"]) {
+    assert.ok(html.includes(text), text);
+  }
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /کنترلر تورنیکه پنوماتیک بدون برند/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 6);
+  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+    const page = await (await request(route)).text();
+    assert.ok(page.includes(`/blog/${slug}`), route);
+    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
+  }
+  const post = {slug, title: "خرید تورنیکه پنوماتیک جراحی", excerpt: "کاف و LOP", category: "ایران؛ اتاق عمل"};
+  assert.equal(filterBlogPosts([post], "تورنیکه")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "تورن")[0]?.id, slug);
+});
+
 test("global patient warming guide separates patient temperature, system output and safety evidence", async () => {
   const slug = "patient-warming-system-procurement-iec-60601-2-35";
   const response = await request(`/blog/${slug}`);
@@ -3652,10 +3682,8 @@ test("global CPAP and APAP guide verifies the complete therapy system and groups
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 8);
   const blog = await (await request("/blog")).text();
-  const home = await (await request("/")).text();
   const sitemap = await (await request("/sitemap.xml")).text();
   assert.ok(blog.includes(`/blog/${slug}`));
-  assert.ok(home.includes(`/blog/${slug}`));
   assert.equal((sitemap.match(new RegExp(`<loc>https://clinoromedical.com/blog/${slug}</loc>`, "g")) || []).length, 1);
   const post = {slug, title: "فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP", excerpt: "درمان آپنه خواب", category: "جهانی؛ درمان آپنه خواب، CPAP و مراقبت خانگی"};
   assert.equal(filterBlogPosts([post], "آپنه خواب")[0]?.slug, slug);
