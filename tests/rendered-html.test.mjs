@@ -342,7 +342,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 104);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 105);
   assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
@@ -3141,7 +3141,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 104);
+  assert.equal(blogUrls.length, 105);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3861,7 +3861,7 @@ test("global ESWL guide separates acoustic field, safety and market requirements
   assert.ok(refs);
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 5);
-  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+  for (const route of ["/blog", "/sitemap.xml"]) {
     const page = await (await request(route)).text();
     assert.ok(page.includes(`/blog/${slug}`), route);
     if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
@@ -3925,4 +3925,32 @@ test("Iran urodynamics guide verifies measurement-chain acceptance and grouped p
   const post = {slug, title: "خرید اورودینامیک", excerpt: "یوروفلومتری", category: "ایران؛ اورولوژی"};
   assert.equal(filterBlogPosts([post], "اورودینامیک")[0]?.slug, slug);
   assert.equal(suggestBlogSearch([post], "یوروفلو")[0]?.id, slug);
+});
+
+test("Iran tonometer guide verifies model-specific checks, consumables and discovery", async () => {
+  const slug = "iran-tonometer-slit-lamp-procurement";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  for (const text of ["خرید تونومتر در ایران", "ISO 8612:2009", "۲۰۲۴", "کنترل عملکرد", "دوره قانونی یکسان", "ریباند", "ریال یا تومان", "2026-11-04T08:10:00+03:30"]) assert.ok(html.includes(text), text);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /اسلیت‌لمپ بدون برند با بازوی تونومتر اپلانیشن/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 5);
+  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+    const page = await (await request(route)).text();
+    assert.ok(page.includes(`/blog/${slug}`), route);
+    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
+  }
+  const post = {slug, title: "خرید تونومتر در ایران", excerpt: "اسلیت‌لمپ و پروب", category: "ایران؛ چشم‌پزشکی"};
+  assert.equal(filterBlogPosts([post], "تونومتر")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "اسلیت")[0]?.id, slug);
 });
