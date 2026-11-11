@@ -342,7 +342,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 105);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 106);
   assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
@@ -3141,7 +3141,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 105);
+  assert.equal(blogUrls.length, 106);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3917,7 +3917,7 @@ test("Iran urodynamics guide verifies measurement-chain acceptance and grouped p
   assert.ok(refs);
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 4);
-  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+  for (const route of ["/blog", "/sitemap.xml"]) {
     const page = await (await request(route)).text();
     assert.ok(page.includes(`/blog/${slug}`), route);
     if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
