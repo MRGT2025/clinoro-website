@@ -85,6 +85,16 @@ import { dailyBlogPosts20260729 } from "./daily-blog-posts-2026-07-29";
 import { dailyBlogPosts20260728 } from "./daily-blog-posts-2026-07-28";
 import { dailyBlogPosts20260727 } from "./daily-blog-posts-2026-07-27";
 import { v35BlogPosts } from "./v35-blog-posts";
+import {
+  classifyProduct,
+  defaultProductCategories,
+  mergeProductCategories,
+  PEPTIDES_META_EN,
+  PEPTIDES_META_FA,
+  type ProductCategory,
+} from "./catalog";
+
+export type { ProductCategory };
 
 export type ProductDocument = { title: string; url: string; type: string };
 export type TechnicalSpec = { label: string; value: string };
@@ -121,6 +131,10 @@ export type ProductProcurement = {
 export type ProductItem = {
   slug: string;
   cat: string;
+  subcategory?: string;
+  productType?: "equipment" | "consumable";
+  seoDescription?: string;
+  seoDescriptionEn?: string;
   image: string;
   gallery: string[];
   fa: string;
@@ -350,6 +364,7 @@ export type SiteContent = {
     | "blog",
     PageIntro
   >;
+  productCategories: ProductCategory[];
   products: ProductItem[];
   services: ServiceItem[];
   solutions: SolutionItem[];
@@ -899,6 +914,7 @@ export const defaultSiteContent: SiteContent = {
       source: "https://commons.wikimedia.org/",
     },
   },
+  productCategories: defaultProductCategories,
   products: [
     {
       slug: "icu-patient-monitor",
@@ -1199,6 +1215,123 @@ export const defaultSiteContent: SiteContent = {
       imageSource:
         "https://commons.wikimedia.org/wiki/File:Operating_Room_Surgical_Light_During_Plastic_Surgery_Procedure.jpg",
       imageLicense: "CC BY-SA 4.0",
+      featured: false,
+    },
+    {
+      slug: "peptides",
+      cat: "aesthetics",
+      subcategory: "peptides",
+      productType: "consumable",
+      seoDescription: PEPTIDES_META_FA,
+      seoDescriptionEn: PEPTIDES_META_EN,
+      image: "/assets/medical-visual.jpg",
+      gallery: [],
+      fa: "محلول احیاکننده مو",
+      en: "Biomimetic Peptides HCPR",
+      tag: "پپتیدها",
+      summary:
+        "پپتید بیومیمتیک TOSKANI برای پروتکل‌های احیای مو در کلینیک؛ حمایت از فولیکول، کاهش ریزش و بهبود تراکم.",
+      brand: "TOSKANI",
+      model: "HCPR",
+      availability: "موجود در انبار",
+      intendedUse: "تحریک فولیکول مو، کمک به کاهش ریزش و بهبود تراکم در استفاده حرفه‌ای کلینیک.",
+      specs: ["bFGF، IGF-1، VEGF، ویتامین‌ها، اسیدهای آمینه و کوآنزیم‌ها"],
+      technicalSpecs: [
+        { label: "تعداد جلسات", value: "۴ تا ۶" },
+        { label: "دفعات پیشنهادی", value: "هفته‌ای یک‌بار یا هر دو هفته یک‌بار" },
+      ],
+      services: [],
+      documents: [],
+      international: {
+        summary: PEPTIDES_META_EN,
+        intendedUse: "Professional clinic use for hair follicle support, less shedding and improved density.",
+        specs: ["bFGF, IGF-1, VEGF, vitamins, amino acids and coenzymes"],
+        services: [],
+        procurement: {
+          leadTime: "",
+          warranty: "",
+          serviceResponse: "",
+          infrastructure: [],
+          consumables: [],
+          training: [],
+          acceptance: [],
+          lifecycle: [],
+          tcoFactors: [],
+        },
+      },
+      procurement: {
+        evidenceLevel: "verified",
+        leadTime: "",
+        warranty: "",
+        serviceResponse: "",
+        infrastructure: [],
+        consumables: [],
+        training: [],
+        acceptance: [],
+        lifecycle: [],
+        tcoFactors: [],
+      },
+      imageCredit: "",
+      imageSource: "",
+      imageLicense: "",
+      featured: false,
+    },
+    {
+      slug: "cocktails",
+      cat: "aesthetics",
+      subcategory: "cocktails",
+      productType: "consumable",
+      seoDescription:
+        "کوکتل مو پلاس برای مزوتراپی؛ ترکیبی از چند ماده مؤثر برای پروتکل‌های پوست و مو در کلینیک.",
+      seoDescriptionEn:
+        "Hair Cocktail Plus, a mesotherapy cocktail of combined actives for clinic skin and hair protocols.",
+      image: "/assets/medical-visual.jpg",
+      gallery: [],
+      fa: "کوکتل مو پلاس",
+      en: "HAIR COCTAIL PLUS",
+      tag: "کوکتل‌های مزوتراپی",
+      summary:
+        "کوکتل‌ها حاوی چندین ماده مؤثر هستند که برای اثربخشی بیشتر با یکدیگر ترکیب شده‌اند و بسته به بافت هدف، کاربردهای گوناگونی دارند.",
+      brand: "TOSKANI",
+      model: "Hair Cocktail Plus",
+      availability: "موجود در انبار",
+      intendedUse: "مزوتراپی حرفه‌ای پوست و مو، مطابق برگه همان محصول.",
+      specs: ["پانتنول، تائورین، گلوتاتیون، بیوتین و عصاره سابال سرولاتا"],
+      technicalSpecs: [{ label: "شکل محصول", value: "کوکتل مزوتراپی" }],
+      services: [],
+      documents: [],
+      international: {
+        summary: "A mesotherapy cocktail combining several actives for clinic skin and hair protocols.",
+        intendedUse: "Professional mesotherapy use according to the selected product leaflet.",
+        specs: ["Panthenol, taurine, glutathione, biotin and serenoa extract"],
+        services: [],
+        procurement: {
+          leadTime: "",
+          warranty: "",
+          serviceResponse: "",
+          infrastructure: [],
+          consumables: [],
+          training: [],
+          acceptance: [],
+          lifecycle: [],
+          tcoFactors: [],
+        },
+      },
+      procurement: {
+        evidenceLevel: "model",
+        leadTime: "",
+        warranty: "",
+        serviceResponse: "",
+        infrastructure: [],
+        consumables: [],
+        training: [],
+        acceptance: [],
+        lifecycle: [],
+        tcoFactors: [],
+      },
+      imageCredit: "",
+      imageSource: "",
+      imageLicense: "",
       featured: false,
     },
   ],
@@ -1780,13 +1913,18 @@ function mergeContent(
     "/assets/product-8.jpg": "/assets/surgical-light.jpg",
   };
   const savedProducts = Array.isArray(value.products) ? value.products : [];
+  const productCategories = mergeProductCategories(
+    base.productCategories,
+    value.productCategories,
+  );
+  const typeExplicit = new WeakMap<ProductItem, boolean>();
   const normalizeProduct = (
     saved: ProductItem,
     seed: ProductItem,
     index: number,
   ): ProductItem => {
     const savedImage = typeof saved.image === "string" ? saved.image : "";
-    return {
+    const item: ProductItem = {
       ...seed,
       ...saved,
       slug: saved.slug || seed.slug || `product-${index + 1}`,
@@ -1865,7 +2003,19 @@ function mergeContent(
           ? saved.procurement.tcoFactors
           : seed.procurement.tcoFactors,
       },
+      subcategory: typeof saved.subcategory === "string" ? saved.subcategory : seed.subcategory || "",
+      productType:
+        saved.productType === "consumable" || saved.productType === "equipment"
+          ? saved.productType
+          : seed.productType,
+      seoDescription: typeof saved.seoDescription === "string" ? saved.seoDescription : seed.seoDescription || "",
+      seoDescriptionEn: typeof saved.seoDescriptionEn === "string" ? saved.seoDescriptionEn : seed.seoDescriptionEn || "",
     };
+    typeExplicit.set(
+      item,
+      saved.productType === "consumable" || saved.productType === "equipment",
+    );
+    return item;
   };
   let products: ProductItem[];
   if ((value.schemaVersion ?? 0) >= 6) {
@@ -1898,6 +2048,9 @@ function mergeContent(
       );
     products = [...seeded, ...extras];
   }
+  products = products.map((product) =>
+    classifyProduct(product, productCategories, typeExplicit.get(product) === true),
+  );
   const pages = Object.fromEntries(
     (Object.keys(base.pages) as Array<keyof SiteContent["pages"]>).map(
       (key) => [
@@ -2045,6 +2198,7 @@ function mergeContent(
     },
     home,
     pages,
+    productCategories,
     products,
     solutions,
     about: { ...base.about, ...value.about },
