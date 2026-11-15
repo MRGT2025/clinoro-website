@@ -19,16 +19,17 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { ProductItem } from "../../lib/site-content";
+import {
+  categoryPath,
+  childCategories,
+  defaultProductCategories,
+  productMatchesCategory,
+  topLevelCategories,
+  visibleLines,
+  visibleText,
+  type ProductCategory,
+} from "../../lib/catalog";
 import { DecisionPackWorkspace } from "./decision-pack";
-
-const filters = [
-  ["all", "همه"],
-  ["critical", "مراقبت ویژه"],
-  ["imaging", "تصویربرداری"],
-  ["lab", "آزمایشگاه"],
-  ["surgery", "اتاق عمل"],
-  ["sterile", "استریل"],
-] as const;
 
 const fixedRows: Array<[string, (product: ProductItem) => string]> = [
   ["برند", (product) => product.brand],
@@ -54,6 +55,19 @@ const buyerPriorities = [
 ] as const;
 
 const decisionCoverage = (product: ProductItem) => {
+  if (product.productType === "consumable") {
+    const fields = [
+      visibleText(product.brand),
+      visibleText(product.model),
+      visibleText(product.intendedUse),
+      visibleText(product.availability),
+      visibleText(product.summary),
+      product.technicalSpecs.some((spec) => spec.label.trim() || spec.value.trim()) ? "specs" : "",
+      visibleLines(product.services).length ? "services" : "",
+      product.documents.length ? "documents" : "",
+    ];
+    return Math.round((fields.filter((value) => Boolean(String(value).trim())).length / fields.length) * 100);
+  }
   const fields = [
     product.brand,
     product.model,
@@ -74,7 +88,21 @@ const decisionCoverage = (product: ProductItem) => {
   );
 };
 
-export function ProductBrowser({ products }: { products: ProductItem[] }) {
+export function ProductBrowser({
+  products,
+  categories = defaultProductCategories,
+}: {
+  products: ProductItem[];
+  categories?: ProductCategory[];
+}) {
+  const filters = useMemo(
+    () =>
+      [
+        ["all", "همه"],
+        ...topLevelCategories(categories).map((category) => [category.id, category.fa]),
+      ] as Array<[string, string]>,
+    [categories],
+  );
   const [cat, setCat] = useState("all");
   const [q, setQ] = useState("");
   const [compareSlugs, setCompareSlugs] = useState<string[]>([]);
@@ -120,7 +148,7 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
       setHydrated(true);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [products]);
+  }, [products, filters]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -148,12 +176,14 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
     () =>
       products.filter(
         (product) =>
-          (cat === "all" || product.cat === cat) &&
+          productMatchesCategory(product, categories, cat) &&
           (product.fa.includes(q) ||
             product.en.toLowerCase().includes(q.toLowerCase())),
       ),
-    [cat, q, products],
+    [cat, q, products, categories],
   );
+  const activeChildren = childCategories(categories, cat);
+  const activeLabel = filters.find(([id]) => id === cat)?.[1] || "";
   const compared = compareSlugs
     .map((slug) => products.find((product) => product.slug === slug))
     .filter((product): product is ProductItem => Boolean(product));
@@ -305,6 +335,16 @@ export function ProductBrowser({ products }: { products: ProductItem[] }) {
             />
           </label>
         </div>
+        {cat !== "all" && (
+          <div className="catalog-subnav">
+            <Link href={categoryPath(cat)}>صفحه {activeLabel}</Link>
+            {activeChildren.map((child) => (
+              <Link href={categoryPath(child.id)} key={child.id}>
+                {child.fa}
+              </Link>
+            ))}
+          </div>
+        )}
 
         <div className="catalog-guidance">
           <div>

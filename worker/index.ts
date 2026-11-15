@@ -2,6 +2,7 @@
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
 import { AsyncLocalStorage } from "node:async_hooks";
+import { isCatalogDocumentRequest } from "../lib/catalog";
 
 // Share one D1 read/normalization across layout, metadata and page rendering.
 // Each fetch gets its own store; edits are visible on the very next request.
@@ -68,10 +69,63 @@ const worker = {
       return withSecurityHeaders(imageResponse,url);
     }
 
+    const catalogDocument = isCatalogDocumentRequest(request.method, url.pathname, request.headers);
+    if (catalogDocument) {
+      const cached = await readCatalogCache(url);
+      if (cached) return privateDocument(cached);
+    }
+
     const response=await contentRequests.run(new Map(),()=>handler.fetch(request, env, ctx));
-    return withSecurityHeaders(response,url);
+    const secured = withSecurityHeaders(response,url);
+    if (catalogDocument && secured.status === 200 && secured.headers.get("content-type")?.includes("text/html") && !secured.headers.has("set-cookie")) {
+      storeCatalogCache(url, secured, ctx);
+    }
+    return secured;
   },
 };
+
+const CATALOG_CACHE_SECONDS = 120;
+
+type EdgeCache = {
+  match(request: Request): Promise<Response | undefined>;
+  put(request: Request, response: Response): Promise<void>;
+};
+
+function edgeCache() {
+  const storage = (globalThis as { caches?: { default?: EdgeCache } }).caches;
+  return storage?.default;
+}
+
+function catalogCacheRequest(url: URL) {
+  return new Request(`https://clinoro-catalog-cache.internal${url.pathname}`);
+}
+
+async function readCatalogCache(url: URL) {
+  try {
+    return (await edgeCache()?.match(catalogCacheRequest(url))) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function storeCatalogCache(url: URL, response: Response, ctx: ExecutionContext) {
+  try {
+    const cache = edgeCache();
+    if (!cache) return;
+    const headers = new Headers(response.headers);
+    headers.set("Cache-Control", `public, s-maxage=${CATALOG_CACHE_SECONDS}, max-age=0`);
+    const stored = new Response(response.clone().body, { status: response.status, headers });
+    ctx.waitUntil(cache.put(catalogCacheRequest(url), stored).catch(() => undefined));
+  } catch {
+    // A cache miss must still render. Catalog HTML stays correct either way.
+  }
+}
+
+function privateDocument(response: Response) {
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "no-store, must-revalidate");
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
 
 function withSecurityHeaders(response:Response,url:URL){
   const headers=new Headers(response.headers);

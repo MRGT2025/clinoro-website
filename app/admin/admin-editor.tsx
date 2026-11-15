@@ -65,6 +65,7 @@ import type {
   InjectionCode,
   PageIntro,
   PageKey,
+  ProductCategory,
   ProductItem,
   SavedDesignPreset,
   ServiceItem,
@@ -76,6 +77,7 @@ import type {
 import type { ContentRevisionSummary } from "../../lib/content-revisions";
 import type { AdminMember } from "../../lib/admin-users";
 import type { RfqStatus, RfqSubmission } from "../../lib/rfq";
+import { asConsumableProduct, categorySlug, defaultProductCategories, topLevelCategories } from "../../lib/catalog";
 
 const pageLabels: Record<keyof SiteContent["pages"], string> = {
   products: "محصولات",
@@ -1053,6 +1055,51 @@ export function AdminEditor({
               />
             ))}
           {active === "products" && (
+            <>
+            <p className="admin-help">برای محصول زیبایی، نوع را «مصرفی / زیبایی» بگذارید، دسته را «زیبایی و پوست» و یکی از زیرگروه‌ها را انتخاب کنید. گروه یا زیرگروه تازه را در «دسته‌های محصول» اضافه کنید. بعد از انتشار، در فیلتر کاتالوگ، صفحه گروه و نقشه سایت می‌آید و نیاز به تغییر کد ندارد.</p>
+            <CollectionPanel
+              title="دسته‌های محصول"
+              count={content.productCategories.length}
+              onAdd={() =>
+                setContent({
+                  ...content,
+                  productCategories: [
+                    ...content.productCategories,
+                    {
+                      id: `group-${Date.now()}`,
+                      fa: "گروه جدید",
+                      en: "New group",
+                      summary: "",
+                      summaryEn: "",
+                      image: "/assets/medical-visual.jpg",
+                      parentId: "",
+                      order: content.productCategories.length + 1,
+                    },
+                  ],
+                })
+              }
+            >
+              {content.productCategories.map((item, index) => (
+                <CategoryEditor
+                  key={`${item.id}-${index}`}
+                  item={item}
+                  index={index}
+                  categories={content.productCategories}
+                  builtIn={defaultProductCategories.some((category) => category.id === item.id)}
+                  onChange={(next) => {
+                    const items = [...content.productCategories];
+                    items[index] = next;
+                    setContent({ ...content, productCategories: items });
+                  }}
+                  onRemove={() =>
+                    setContent({
+                      ...content,
+                      productCategories: content.productCategories.filter((_, i) => i !== index),
+                    })
+                  }
+                />
+              ))}
+            </CollectionPanel>
             <CollectionPanel
               title="کاتالوگ و صفحات اختصاصی محصولات"
               count={content.products.length}
@@ -1064,6 +1111,10 @@ export function AdminEditor({
                     {
                       slug: `new-product-${Date.now()}`,
                       cat: "critical",
+                      subcategory: "",
+                      productType: "equipment",
+                      seoDescription: "",
+                      seoDescriptionEn: "",
                       image: "/assets/patient-monitor.jpg",
                       gallery: [],
                       fa: "محصول جدید",
@@ -1121,6 +1172,7 @@ export function AdminEditor({
                   key={`${item.slug}-${index}`}
                   item={item}
                   index={index}
+                  categories={content.productCategories}
                   onChange={(next) => {
                     const items = [...content.products];
                     items[index] = next;
@@ -1159,6 +1211,7 @@ export function AdminEditor({
                 />
               ))}
             </CollectionPanel>
+            </>
           )}
           {active === "content" && (
             <>
@@ -2155,6 +2208,7 @@ function EditorDetails({
   children,
   onRemove,
   open = false,
+  removable = true,
 }: {
   title: string;
   subtitle: string;
@@ -2162,6 +2216,7 @@ function EditorDetails({
   children: React.ReactNode;
   onRemove: () => void;
   open?: boolean;
+  removable?: boolean;
 }) {
   return (
     <details className="admin-item" open={open}>
@@ -2173,7 +2228,7 @@ function EditorDetails({
         </div>
         <ChevronDown size={18} />
       </summary>
-      <Remove onClick={onRemove} />
+      {removable && <Remove onClick={onRemove} />}
       <div className="admin-item-body">{children}</div>
     </details>
   );
@@ -2239,9 +2294,61 @@ function PageEditor({
     </div>
   );
 }
+function CategoryEditor({
+  item,
+  index,
+  categories,
+  builtIn,
+  onChange,
+  onRemove,
+}: {
+  item: ProductCategory;
+  index: number;
+  categories: ProductCategory[];
+  builtIn: boolean;
+  onChange: (value: ProductCategory) => void;
+  onRemove: () => void;
+}) {
+  const parentOptions: Array<[string, string]> = [
+    ["", "گروه اصلی"],
+    ...categories
+      .filter((category) => !category.parentId && category.id !== item.id)
+      .map((category) => [category.id, category.fa] as [string, string]),
+  ];
+  return (
+    <EditorDetails
+      title={item.fa || "گروه جدید"}
+      subtitle={item.en || item.id}
+      index={index}
+      removable={!builtIn}
+      onRemove={onRemove}
+    >
+      <Grid>
+        <Field label="نام فارسی" value={item.fa} onChange={(fa) => onChange({ ...item, fa })} />
+        <Field label="نام انگلیسی" value={item.en} onChange={(en) => onChange({ ...item, en })} />
+        <Field
+          label="شناسه آدرس"
+          value={item.id}
+          onChange={(id) => onChange(builtIn ? item : { ...item, id: categorySlug(id) || item.id })}
+        />
+        <SelectField
+          label="گروه والد"
+          value={item.parentId}
+          onChange={(parentId) => onChange(builtIn ? item : { ...item, parentId })}
+          options={parentOptions}
+        />
+        <TextArea wide label="توضیح فارسی صفحه" value={item.summary} onChange={(summary) => onChange({ ...item, summary })} />
+        <TextArea wide label="English page summary" value={item.summaryEn} onChange={(summaryEn) => onChange({ ...item, summaryEn })} />
+        <Field label="ترتیب" value={String(item.order)} onChange={(order) => onChange({ ...item, order: Number(order) || item.order })} />
+        <Field label="تصویر" value={item.image} onChange={(image) => onChange({ ...item, image })} />
+      </Grid>
+    </EditorDetails>
+  );
+}
 function ProductEditor({
   item,
   index,
+  categories,
   onChange,
   onRemove,
   onUpload,
@@ -2249,11 +2356,24 @@ function ProductEditor({
 }: {
   item: ProductItem;
   index: number;
+  categories: ProductCategory[];
   onChange: (value: ProductItem) => void;
   onRemove: () => void;
   onUpload: (file: File) => void;
   onDocumentUpload: (file: File) => void;
 }) {
+  const parents = topLevelCategories(categories);
+  const children = categories.filter((category) => category.parentId === item.cat);
+  const categoryOptions: Array<[string, string]> = [
+    ...parents.map((category) => [category.id, category.fa] as [string, string]),
+    ...(parents.some((category) => category.id === item.cat) || !item.cat ? [] : [[item.cat, `${item.cat} (فعلی)`] as [string, string]]),
+  ];
+  const subcategoryOptions: Array<[string, string]> = [
+    ["", "بدون زیرگروه"],
+    ...children.map((category) => [category.id, category.fa] as [string, string]),
+    ...(children.some((category) => category.id === item.subcategory) || !item.subcategory ? [] : [[item.subcategory, `${item.subcategory} (فعلی)`] as [string, string]]),
+  ];
+  const consumable = item.productType === "consumable";
   return (
     <EditorDetails
       title={item.fa || "محصول جدید"}
@@ -2262,6 +2382,38 @@ function ProductEditor({
       onRemove={onRemove}
     >
       <Grid>
+        <SelectField
+          label="نوع محصول"
+          value={item.productType || "equipment"}
+          onChange={(value) =>
+            onChange(
+              value === "consumable"
+                ? asConsumableProduct({ ...item, productType: "consumable" })
+                : { ...item, productType: "equipment" },
+            )
+          }
+          options={[["equipment", "تجهیز بیمارستانی"], ["consumable", "مصرفی / زیبایی"]]}
+        />
+        <SelectField
+          label="دسته‌بندی"
+          value={item.cat}
+          onChange={(cat) =>
+            onChange({
+              ...item,
+              cat,
+              subcategory: categories.some((category) => category.id === item.subcategory && category.parentId === cat)
+                ? item.subcategory
+                : "",
+            })
+          }
+          options={categoryOptions}
+        />
+        <SelectField
+          label="زیرگروه"
+          value={item.subcategory || ""}
+          onChange={(subcategory) => onChange({ ...item, subcategory })}
+          options={subcategoryOptions}
+        />
         <Field
           label="نام فارسی"
           value={item.fa}
@@ -2281,11 +2433,6 @@ function ProductEditor({
               slug: value.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
             })
           }
-        />
-        <Field
-          label="دسته‌بندی"
-          value={item.cat}
-          onChange={(value) => onChange({ ...item, cat: value })}
         />
         <Field
           label="برچسب"
@@ -2312,6 +2459,18 @@ function ProductEditor({
           label="خلاصه معرفی"
           value={item.summary}
           onChange={(value) => onChange({ ...item, summary: value })}
+        />
+        <TextArea
+          wide
+          label="توضیح متا برای گوگل"
+          value={item.seoDescription || ""}
+          onChange={(seoDescription) => onChange({ ...item, seoDescription })}
+        />
+        <TextArea
+          wide
+          label="English meta description"
+          value={item.seoDescriptionEn || ""}
+          onChange={(seoDescriptionEn) => onChange({ ...item, seoDescriptionEn })}
         />
         <TextArea
           wide
@@ -2397,6 +2556,16 @@ function ProductEditor({
           value={item.international.procurement.leadTime}
           onChange={(leadTime)=>onChange({...item,international:{...item.international,procurement:{...item.international.procurement,leadTime}}})}
         />
+        <SelectField
+          label="سطح شواهد"
+          value={item.procurement.evidenceLevel}
+          onChange={(evidenceLevel) => onChange({...item,procurement:{...item.procurement,evidenceLevel:evidenceLevel as ProductItem["procurement"]["evidenceLevel"]}})}
+          options={[["category","اطلاعات گروه محصول"],["model","مدل مشخص"],["verified","مدل و مدارک تأییدشده"]]}
+        />
+        <Field label="زمان تأمین" value={item.procurement.leadTime} onChange={(leadTime)=>onChange({...item,procurement:{...item.procurement,leadTime}})}/>
+        <details className="wide admin-optional" open={!consumable}>
+          <summary>{consumable ? "فیلدهای تجهیز بیمارستانی، اختیاری برای مصرفی و در صفحه عمومی پنهان" : "زیرساخت، آموزش، پذیرش، PM، گارانتی و SLA"}</summary>
+          <div className="admin-grid">
         <Field
           label="English warranty scope"
           value={item.international.procurement.warranty}
@@ -2414,14 +2583,6 @@ function ProductEditor({
           value={item.international.procurement[key].join("\n")}
           onChange={(value)=>onChange({...item,international:{...item.international,procurement:{...item.international.procurement,[key]:value.split("\n").map(line=>line.trim()).filter(Boolean)}}})}
         />)}
-        <div className="admin-subsection-title wide"><ClipboardList size={18}/><div><b>Product Intelligence و چرخه عمر</b><small>اطلاعاتی که وارد می‌کنید در Decision Pack و مقایسه خریدار استفاده می‌شود</small></div></div>
-        <SelectField
-          label="سطح شواهد"
-          value={item.procurement.evidenceLevel}
-          onChange={(evidenceLevel) => onChange({...item,procurement:{...item.procurement,evidenceLevel:evidenceLevel as ProductItem["procurement"]["evidenceLevel"]}})}
-          options={[["category","اطلاعات گروه محصول"],["model","مدل مشخص"],["verified","مدل و مدارک تأییدشده"]]}
-        />
-        <Field label="زمان تأمین" value={item.procurement.leadTime} onChange={(leadTime)=>onChange({...item,procurement:{...item.procurement,leadTime}})}/>
         <Field label="گارانتی" value={item.procurement.warranty} onChange={(warranty)=>onChange({...item,procurement:{...item.procurement,warranty}})}/>
         <Field label="SLA / زمان پاسخ" value={item.procurement.serviceResponse} onChange={(serviceResponse)=>onChange({...item,procurement:{...item.procurement,serviceResponse}})}/>
         {(["infrastructure","consumables","training","acceptance","lifecycle","tcoFactors"] as const).map((key)=><TextArea
@@ -2431,6 +2592,8 @@ function ProductEditor({
           value={item.procurement[key].join("\n")}
           onChange={(value)=>onChange({...item,procurement:{...item.procurement,[key]:value.split("\n").map(line=>line.trim()).filter(Boolean)}})}
         />)}
+          </div>
+        </details>
         <TextArea
           wide
           label="دیتاشیت و مدارک؛ هر خط: عنوان | نوع | لینک"

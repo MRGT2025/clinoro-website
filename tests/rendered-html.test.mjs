@@ -3954,3 +3954,91 @@ test("Iran tonometer guide verifies model-specific checks, consumables and disco
   assert.equal(filterBlogPosts([post], "تونومتر")[0]?.slug, slug);
   assert.equal(suggestBlogSearch([post], "اسلیت")[0]?.id, slug);
 });
+
+test("aesthetic catalog is data-driven and consumable pages omit empty equipment sections", async () => {
+  const { classifyProduct, defaultProductCategories, PEPTIDES_META_FA, publicProductView, isCatalogDocumentRequest } = await import("../lib/catalog.ts");
+  const mapped = classifyProduct({
+    slug: "peptides",
+    cat: "Aesthetic medicine",
+    tag: "Aesthetic medicine",
+    fa: "محلول احیاکننده مو ",
+    en: "Biomimetic Peptides HCPR",
+    summary: "پپتیدها قطعاتی از پروتئین‌ها هستند.\nجمله دوم.",
+    procurement: {
+      evidenceLevel: "verified",
+      leadTime: "در پیشنهاد همان پروژه تأیید می‌شود",
+      warranty: "اصالت محصول",
+      serviceResponse: "در SLA پیشنهاد فنی تعریف می‌شود",
+      infrastructure: ["نیازهای زیرساختی را ثبت کنید"],
+      consumables: ["مصرفی و اکسسوری را ثبت کنید"],
+      training: ["آموزش کاربر"],
+      acceptance: ["آزمون پذیرش"],
+      lifecycle: ["برنامه PM و خدمات"],
+      tcoFactors: ["قیمت خرید"],
+    },
+  }, defaultProductCategories, false);
+  assert.equal(mapped.cat, "aesthetics");
+  assert.equal(mapped.subcategory, "peptides");
+  assert.equal(mapped.productType, "consumable");
+  assert.equal(mapped.fa, "محلول احیاکننده مو");
+  assert.equal(mapped.seoDescription, PEPTIDES_META_FA);
+  const hidden = publicProductView(mapped);
+  assert.equal(hidden.showDecisionPack, false);
+  assert.equal(hidden.showReadiness, false);
+  assert.equal(hidden.infrastructure.length, 0);
+  assert.equal(hidden.training.length, 0);
+  assert.equal(hidden.acceptance.length, 0);
+  assert.equal(hidden.lifecycle.length, 0);
+  assert.equal(hidden.warranty, "");
+  assert.equal(hidden.sla, "");
+  assert.equal(isCatalogDocumentRequest("GET", "/products/category/aesthetics", new Headers({ accept: "text/html" })), true);
+  assert.equal(isCatalogDocumentRequest("GET", "/products/peptides", new Headers({ accept: "text/html", rsc: "1" })), false);
+  assert.equal(isCatalogDocumentRequest("GET", "/admin", new Headers({ accept: "text/html" })), false);
+
+  const catalog = await request("/products");
+  const catalogHtml = await catalog.text();
+  assert.equal(catalog.status, 200);
+  assert.match(catalogHtml, /زیبایی و پوست/);
+  assert.match(catalog.headers.get("cache-control") || "", /no-store/);
+
+  const family = await request("/products/category/aesthetics");
+  const familyHtml = await family.text();
+  assert.equal(family.status, 200);
+  for (const name of ["کوکتل‌های مزوتراپی", "پپتیدها", "نخ و لیفت", "فیلر"]) assert.match(familyHtml, new RegExp(name));
+  assert.match(familyHtml, /href="\/products\/category\/cocktails"/);
+  assert.match(familyHtml, /href="\/products\/category\/peptides"/);
+  assert.match(familyHtml, /href="\/products\/category\/threads"/);
+  assert.match(familyHtml, /href="\/products\/category\/fillers"/);
+  assert.match(familyHtml, /rel="canonical" href="https:\/\/clinoromedical\.com\/products\/category\/aesthetics"/);
+  assert.match(familyHtml, /rel="alternate" hrefLang="fa-IR" href="https:\/\/clinoromedical\.com\/products\/category\/aesthetics"/);
+  assert.match(familyHtml, /rel="alternate" hrefLang="en" href="https:\/\/clinoromedical\.com\/en\/products\/category\/aesthetics"/);
+
+  const imaging = await request("/products/category/imaging");
+  const imagingHtml = await imaging.text();
+  assert.equal(imaging.status, 200);
+  assert.match(imagingHtml, /سیستم سونوگرافی/);
+  assert.match(imagingHtml, /rel="canonical" href="https:\/\/clinoromedical\.com\/products\/category\/imaging"/);
+
+  const peptides = await request("/products/peptides");
+  const peptidesHtml = await peptides.text();
+  assert.equal(peptides.status, 200);
+  assert.match(peptidesHtml, /<title>محلول احیاکننده مو \| تجهیزات پزشکی \| Clinoro<\/title>/);
+  assert.doesNotMatch(peptidesHtml, /مو {2}\|/);
+  assert.match(peptidesHtml, new RegExp(`<meta name="description" content="${PEPTIDES_META_FA}"`));
+  const detail = peptidesHtml.slice(peptidesHtml.indexOf("product-detail-page"), peptidesHtml.indexOf("</main>", peptidesHtml.indexOf("product-detail-page")));
+  assert.doesNotMatch(detail, /نیازهای زیرساختی را ثبت کنید|آموزش کاربر|آزمون پذیرش|برنامه PM و خدمات|PROCUREMENT DECISION PACK|BEFORE RFQ|دامنه گارانتی|SLA خدمات/);
+
+  const englishFamily = await request("/en/products/category/aesthetics");
+  const englishFamilyHtml = await englishFamily.text();
+  assert.equal(englishFamily.status, 200);
+  assert.match(englishFamilyHtml, /Aesthetics &amp; Skin|Aesthetics & Skin/);
+  assert.match(englishFamilyHtml, /rel="canonical" href="https:\/\/clinoromedical\.com\/en\/products\/category\/aesthetics"/);
+  assert.match(englishFamilyHtml, /rel="alternate" hrefLang="fa-IR" href="https:\/\/clinoromedical\.com\/products\/category\/aesthetics"/);
+  assert.match(englishFamilyHtml, /rel="alternate" hrefLang="en" href="https:\/\/clinoromedical\.com\/en\/products\/category\/aesthetics"/);
+  assert.match(englishFamilyHtml, /rel="alternate" hrefLang="x-default" href="https:\/\/clinoromedical\.com\/en\/products\/category\/aesthetics"/);
+
+  const sitemap = await (await request("/sitemap.xml")).text();
+  for (const path of ["/products/category/aesthetics", "/products/category/peptides", "/products/category/cocktails", "/products/category/threads", "/products/category/fillers", "/products/category/imaging", "/products/category/surgery", "/en/products/category/aesthetics", "/en/products/category/peptides"]) {
+    assert.match(sitemap, new RegExp(`<loc>https://clinoromedical\\.com${path}</loc>`));
+  }
+});
