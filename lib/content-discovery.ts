@@ -11,19 +11,33 @@ function domainMatch(query: string, candidate: string) {
 function tokens(text: string) {
   return new Set(normalizeBlogSearch(text).split(" ").filter(word => word.length > 2 && !generic.has(word) && !/^\d+$/.test(word)));
 }
+type IndexedPost = { post: BlogPost & {publishedTime: string}; title: Set<string>; context: Set<string>; domainText: string; timestamp: number };
+// Content documents are immutable snapshots. A new CMS document gets a new
+// array, so its index is rebuilt without retaining old documents indefinitely.
+const relatedIndex = new WeakMap<BlogPost[], IndexedPost[]>();
+function indexPosts(posts: BlogPost[]) {
+  const cached = relatedIndex.get(posts);
+  if (cached) return cached;
+  const index = getPublishedBlogPosts(posts).map(post => ({
+    post, title: tokens(post.title),
+    context: tokens([post.category, ...(post.keywords || [])].join(" ")),
+    domainText: post.title + " " + post.category,
+    timestamp: Date.parse(post.publishedTime),
+  }));
+  relatedIndex.set(posts, index);
+  return index;
+}
 export function relatedBlogPosts(posts: BlogPost[], subject: string, excludeSlug = "", limit = 3) {
-  const query = tokens(subject);
-  return getPublishedBlogPosts(posts)
-    .filter(post => post.slug !== excludeSlug)
-    .map(post => {
-      const title = tokens(post.title);
-      const context = tokens([post.category, ...(post.keywords || [])].join(" "));
-      const domain = domainMatch(subject, post.title+" "+post.category) ? 8 : 0;
-      const score = domain + [...query].reduce((sum, token) => sum + (title.has(token) ? 3 : context.has(token) ? 1 : 0), 0);
-      return { post, score };
+  const query = [...tokens(subject)];
+  return indexPosts(posts)
+    .filter(({post}) => post.slug !== excludeSlug)
+    .map(({post, title, context, domainText, timestamp}) => {
+      const domain = domainMatch(subject, domainText) ? 8 : 0;
+      const score = domain + query.reduce((sum, token) => sum + (title.has(token) ? 3 : context.has(token) ? 1 : 0), 0);
+      return { post, score, timestamp };
     })
     .filter(item => item.score >= 3)
-    .sort((a,b) => b.score - a.score || Date.parse(b.post.publishedTime) - Date.parse(a.post.publishedTime))
+    .sort((a,b) => b.score - a.score || b.timestamp - a.timestamp)
     .slice(0,limit).map(item => item.post);
 }
 export function categoryHasProducts(category: ProductCategory, categories: ProductCategory[], products: CatalogProductInput[]) {

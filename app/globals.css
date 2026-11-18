@@ -404,3 +404,5 @@ html[data-motion="full"] .hero-reticle{animation:reticleDrift calc(6s / var(--mo
 .blog-article-body h2{scroll-margin-top:120px}
 .policy-copy{max-width:900px;padding-top:100px;line-height:2.2}
 .policy-copy h2{margin-top:32px}
+
+.buyer-questions h2{font-size:clamp(23px,3vw,34px);line-height:1.6}.buyer-questions>div>p{line-height:1.9}.buyer-questions-list{display:grid;gap:12px;margin-top:26px}.buyer-questions details{border:1px solid rgba(110,145,160,.35);border-radius:16px;padding:18px 22px}.buyer-questions summary{cursor:pointer;font-weight:700;line-height:1.9}.buyer-questions summary:focus-visible{outline:2px solid currentColor;outline-offset:6px}.buyer-questions details p{max-width:85ch;line-height:2.1;margin:14px 0 0}.buyer-questions-links{display:flex;gap:14px 24px;flex-wrap:wrap;margin-top:28px}.buyer-questions-links a{text-decoration:underline;text-underline-offset:5px;line-height:2}

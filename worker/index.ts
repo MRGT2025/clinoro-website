@@ -105,7 +105,7 @@ function edgeCache() {
 }
 
 function catalogCacheRequest(url: URL) {
-  return new Request(`https://clinoro-catalog-cache.internal/seo-20261118-v1${url.pathname}`);
+  return new Request(`https://clinoro-catalog-cache.internal/seo-20261118-v2${url.pathname}`);
 }
 
 async function readCatalogCache(url: URL) {

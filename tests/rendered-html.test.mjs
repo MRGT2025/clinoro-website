@@ -4,6 +4,13 @@ import { readFile } from "node:fs/promises";
 import { filterBlogPosts, normalizeBlogSearch, suggestBlogSearch } from "../lib/blog-search.mjs";
 import { prepareBlogReferences } from "../lib/blog-references.mjs";
 import { inspectDailyPost, marketForDate, tehranDate, verifyLive } from "../scripts/verify-daily-blog.mjs";
+import { formatPersianDate } from "../lib/persian-format.ts";
+
+test("public dates follow Tehran midnight independently of server timezone", () => {
+  assert.equal(formatPersianDate("2026-11-18T20:29:59Z"), formatPersianDate("2026-11-18T00:00:00+03:30"));
+  assert.equal(formatPersianDate("2026-11-18T20:30:00Z"), formatPersianDate("2026-11-19T00:00:00+03:30"));
+  assert.notEqual(formatPersianDate("2026-11-18T20:29:59Z"), formatPersianDate("2026-11-18T20:30:00Z"));
+});
 
 test("daily publication uses Tehran midnight and calendar parity even after a missed run", () => {
   assert.equal(tehranDate(new Date("2026-10-25T20:29:59Z")), "2026-10-25");
@@ -114,6 +121,8 @@ const request = (path) =>
     env,
     context,
   );
+
+
 
 test("Iranian domain permanently redirects to the canonical host", async () => {
   for (const hostname of ["clinoromedical.ir", "www.clinoromedical.ir"]) {
@@ -4088,4 +4097,20 @@ test("SEO: duplicate stored slugs do not duplicate public articles or conceal va
   assert.equal(items.length,3);
   const malformed={...valid,slug:"invalid",publishedAt:"invalid",publishedTime:"bad"};
   assert.equal(getPublishedBlogPosts([malformed,{...valid,slug:"invalid"}]).length,1);
+});
+
+test("commercial landing pages expose buyer answers and consistent share metadata in server HTML", async () => {
+  for (const [path, expected] of [["/services", "زمان پاسخ اولیه"], ["/procurement", "تأیید موجودی نیست"]]) {
+    const response = await request(path);
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.ok(html.includes(expected), path);
+    assert.equal((html.match(/<h1[ >]/g) || []).length, 1);
+    assert.equal((html.match(/<summary>/g) || []).length, 4);
+    for (const target of ["/products", "/contact", "/blog"]) assert.ok(html.includes(`href="${target}"`));
+    assert.ok(html.includes(`rel="canonical" href="https://clinoromedical.com${path}"`));
+    const title = html.match(/<title>(.*?)<\/title>/)?.[1];
+    const og = html.match(/<meta property="og:title" content="([^"]+)"/)?.[1];
+    assert.equal(og, title);
+  }
 });
