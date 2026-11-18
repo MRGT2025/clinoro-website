@@ -103,8 +103,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "critical",
     fa: "مراقبت ویژه",
     en: "Critical Care",
-    summary: "پایش و تجهیزات حیاتی برای مراقبت ویژه، اورژانس و ریکاوری.",
-    summaryEn: "Monitoring and life-support equipment for intensive care, emergency and recovery.",
+    summary: "تجهیزات پایش و پشتیبانی حیات برای ICU، اورژانس و ریکاوری؛ پارامترها، هشدارها، اتصال و نیاز خدمات را با گردش کار بخش تطبیق دهید.",
+    summaryEn: "Monitoring and life-support equipment for ICU, emergency and recovery; compare parameters, alarm workflows, connectivity and service requirements.",
     image: "/assets/patient-monitor.jpg",
     parentId: "",
     order: 1,
@@ -113,8 +113,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "imaging",
     fa: "تصویربرداری",
     en: "Imaging",
-    summary: "سامانه‌های تصویربرداری تشخیصی با انتخاب پروب، اتصال و ظرفیت مرکز.",
-    summaryEn: "Diagnostic imaging systems selected around probes, connectivity and facility capacity.",
+    summary: "سامانه‌های تصویربرداری تشخیصی بر پایه تخصص و ظرفیت مرکز؛ ترکیب پروب، اتصال DICOM/PACS و نیاز نصب را پیش از استعلام مشخص کنید.",
+    summaryEn: "Diagnostic imaging systems selected around specialty, workload and facility capacity; confirm probe packages, DICOM/PACS needs and installation requirements.",
     image: "/assets/ultrasound.jpg",
     parentId: "",
     order: 2,
@@ -123,8 +123,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "lab",
     fa: "آزمایشگاه",
     en: "Laboratory",
-    summary: "آنالایزرها و گردش کار آزمایشگاه، متناسب با حجم نمونه و اتصال LIS.",
-    summaryEn: "Laboratory analyzers sized around sample volume, reagents and LIS connectivity.",
+    summary: "آنالایزر و گردش کار آزمایشگاه را با حجم نمونه، منوی تست، معرف، کنترل کیفی، ظرفیت خدمات و اتصال LIS تطبیق دهید.",
+    summaryEn: "Laboratory analyzers matched to sample volume, test menu, reagents and LIS; review QC workflow, service scope and throughput before selection.",
     image: "/assets/hematology.jpg",
     parentId: "",
     order: 3,
@@ -133,8 +133,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "surgery",
     fa: "اتاق عمل",
     en: "Operating Room",
-    summary: "بیهوشی، نور جراحی و زیرساخت اتاق عمل در یک مسیر خرید مشخص.",
-    summaryEn: "Anesthesia, surgical lighting and operating-room infrastructure on one buying path.",
+    summary: "تجهیزات بیهوشی، نور جراحی و زیرساخت اتاق عمل را با نیاز بالینی، جانمایی، تأسیسات، نصب و آزمون پذیرش هماهنگ کنید.",
+    summaryEn: "Anesthesia, surgical lighting and operating-room infrastructure planned together; confirm utilities, room layout, installation and acceptance tests.",
     image: "/assets/anesthesia.jpg",
     parentId: "",
     order: 4,
@@ -143,8 +143,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "sterile",
     fa: "استریل",
     en: "Sterile Processing",
-    summary: "استریلیزاسیون و زنجیره استریل برای کلینیک و CSSD.",
-    summaryEn: "Sterilization systems for clinics and central sterile services.",
+    summary: "تجهیزات استریل و CSSD را با نوع بار، ظرفیت، چرخه، کیفیت آب، مستندات اعتبارسنجی و برنامه نگهداری مقایسه کنید.",
+    summaryEn: "Sterilization equipment for clinics and CSSD; compare load type, chamber capacity, cycle records, water quality, validation and maintenance needs.",
     image: "/assets/autoclave.jpg",
     parentId: "",
     order: 5,
@@ -153,8 +153,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "aesthetics",
     fa: "زیبایی و پوست",
     en: "Aesthetics & Skin",
-    summary: "محصولات مصرفی زیبایی و پوست. هر زیرگروه صفحه جدا دارد تا کاتالوگ یک فهرست طولانی نشود.",
-    summaryEn: "Aesthetic and skin consumables. Each subgroup has its own page, so the range is not one long list.",
+    summary: "گروه‌های مصرفی پوست و زیبایی را بر اساس سازنده، مستندات، اصالت، شرایط نگهداری و دامنه کاربرد کلینیک بررسی کنید.",
+    summaryEn: "Aesthetic and skin consumables organized by subgroup; check manufacturer documentation, authenticity, storage conditions and professional-use scope.",
     image: "/assets/medical-visual.jpg",
     parentId: "",
     order: 6,
@@ -163,8 +163,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "cocktails",
     fa: "کوکتل‌های مزوتراپی",
     en: "Mesotherapy cocktails",
-    summary: "کوکتل‌های مزوتراپی برای پروتکل‌های پوست و مو در کلینیک.",
-    summaryEn: "Mesotherapy cocktails for clinic skin and hair protocols.",
+    summary: "کوکتل‌های مزوتراپی برای استفاده حرفه‌ای کلینیک؛ ترکیب، اصالت، شرایط نگهداری و کاربرد را با بروشور رسمی همان محصول تطبیق دهید.",
+    summaryEn: "Mesotherapy cocktails for professional clinic use; review the official leaflet, composition, authenticity and storage requirements for the selected product.",
     image: "",
     parentId: "aesthetics",
     order: 1,
@@ -173,8 +173,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "peptides",
     fa: "پپتیدها",
     en: "Peptides",
-    summary: "پپتیدهای بیومیمتیک برای پروتکل‌های پوست و مو.",
-    summaryEn: "Biomimetic peptides for skin and hair protocols.",
+    summary: "پپتیدهای بیومیمتیک در گروه مراقبت پوست و مو؛ ترکیب، اصالت و شرایط نگهداری را از مستندات رسمی محصول بررسی کنید.",
+    summaryEn: "Biomimetic peptide products for professional skin and hair workflows; confirm the exact formulation, authenticity and storage instructions in official documents.",
     image: "",
     parentId: "aesthetics",
     order: 2,
@@ -183,8 +183,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "threads",
     fa: "نخ و لیفت",
     en: "Threads & lift",
-    summary: "نخ و محصولات لیفت برای پروتکل‌های زیبایی.",
-    summaryEn: "Threads and lift products for aesthetic protocols.",
+    summary: "نخ و محصولات لیفت برای پروتکل‌های زیبایی؛ جنس، طول، بسته‌بندی استریل و شرایط نگهداری را با مستندات مدل تطبیق دهید.",
+    summaryEn: "Threads and lift products for professional aesthetic use; verify material, length, sterile packaging and storage requirements in the selected product documents.",
     image: "",
     parentId: "aesthetics",
     order: 3,
@@ -193,8 +193,8 @@ export const defaultProductCategories: ProductCategory[] = [
     id: "fillers",
     fa: "فیلر",
     en: "Fillers",
-    summary: "فیلر و محصولات حجم‌دهنده برای کاربرد زیبایی.",
-    summaryEn: "Fillers and volumizing products for aesthetic use.",
+    summary: "فیلر و محصولات حجم‌دهنده در گروه زیبایی؛ سازنده، ترکیب، شرایط نگهداری و شناسه مدل را پیش از خرید از مدارک رسمی بررسی کنید.",
+    summaryEn: "Fillers and volumizing products for professional aesthetic use; verify manufacturer, formulation, model identifier and storage instructions from official documents.",
     image: "",
     parentId: "aesthetics",
     order: 4,
@@ -404,10 +404,24 @@ export function bodyText(value: unknown) {
 export function productMetaDescription(product: CatalogProductInput, locale: "fa" | "en") {
   const explicit = locale === "fa" ? product.seoDescription : product.seoDescriptionEn;
   const cleanExplicit = (explicit || "").replace(/\s+/g, " ").trim();
-  if (cleanExplicit) return clipMeta(cleanExplicit);
+  const contextual: Record<string, { fa: string; en: string }> = {
+    "hematology-analyzer": {
+      fa: " برای انتخاب، ظرفیت نمونه، نوع افتراق، معرف و اتصال LIS را با نیاز آزمایشگاه تطبیق دهید.",
+      en: " Confirm sample volume, differential, reagents and LIS needs before requesting a model.",
+    },
+    "infusion-syringe-pumps": {
+      fa: " پیش از استعلام، دامنه دوزگذاری، هشدارها، مصرفی‌ها و آموزش کاربر را مشخص کنید.",
+      en: " Confirm dosing workflows, alarms, consumables and user training before requesting a model.",
+    },
+  };
+  const suffix = contextual[product.slug || ""]?.[locale] || "";
+  if (cleanExplicit) {
+    return clipMeta(cleanExplicit.length < 70 ? cleanExplicit + suffix : cleanExplicit);
+  }
   if (product.slug === "peptides") return locale === "fa" ? PEPTIDES_META_FA : PEPTIDES_META_EN;
   const summary = locale === "fa" ? product.summary : product.international?.summary;
-  return clipMeta((summary || "").replace(/\s+/g, " ").trim());
+  const cleanSummary = (summary || "").replace(/\s+/g, " ").trim();
+  return clipMeta(cleanSummary.length < 70 ? cleanSummary + suffix : cleanSummary);
 }
 
 export function productMatchesCategory(product: CatalogProductInput, categories: ProductCategory[], id: string) {

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Calculator, CheckCircle2, ClipboardCopy, Download, FileCheck2, Info, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ProductItem } from "../../lib/site-content";
+import { optimizedAssetUrl } from "../../lib/assets";
 
 type CostKey = "acquisition" | "installation" | "training" | "annualService" | "annualConsumables" | "annualDowntime";
 const costFields: Array<[CostKey,string,string]> = [
@@ -91,7 +92,7 @@ export function DecisionPackWorkspace({
     <section className="decision-selected-products">
       <header><span>02</span><div><small>SHORTLIST & EVIDENCE</small><h4>انتخاب‌ها و وضعیت شواهد</h4></div></header>
       <div>{products.map(product=><article key={product.slug}>
-        <div className="decision-product-head"><span><Image src={product.image} alt={`تصویر مرجع ${product.fa}`} fill unoptimized sizes="72px"/></span><div><small>{product.en}</small><b>{product.fa}</b><em>{evidenceLabels[product.procurement.evidenceLevel]}</em></div></div>
+        <div className="decision-product-head"><span><Image src={optimizedAssetUrl(product.image)} alt={`تصویر مرجع ${product.fa}`} fill unoptimized sizes="72px"/></span><div><small>{product.en}</small><b>{product.fa}</b><em>{evidenceLabels[product.procurement.evidenceLevel]}</em></div></div>
         <dl><div><dt>زمان تأمین</dt><dd>{product.procurement.leadTime}</dd></div><div><dt>گارانتی</dt><dd>{product.procurement.warranty}</dd></div><div><dt>SLA</dt><dd>{product.procurement.serviceResponse}</dd></div></dl>
         <div className="decision-readiness-columns"><div><small>زیرساخت</small>{product.procurement.infrastructure.map(item=><span key={item}><CheckCircle2 size={13}/>{item}</span>)}</div><div><small>آزمون پذیرش</small>{product.procurement.acceptance.map(item=><span key={item}><FileCheck2 size={13}/>{item}</span>)}</div><div><small>چرخه عمر</small>{product.procurement.lifecycle.map(item=><span key={item}><ShieldCheck size={13}/>{item}</span>)}</div></div>
       </article>)}</div>
@@ -103,6 +104,6 @@ export function DecisionPackWorkspace({
       <div className="tco-results"><article><small>هزینه اولیه</small><b>{money(totals.initial)}</b><span>{currency}</span></article><article><small>هزینه سالانه</small><b>{money(totals.annual)}</b><span>{currency}</span></article><article className="total"><small>TCO برنامه‌ریزی {years.toLocaleString("fa-IR")} ساله</small><b>{money(totals.total)}</b><span>{currency}</span></article></div>
       <p><Info size={16}/>این محاسبه فقط ابزار برنامه‌ریزی است و قیمت، نرخ ارز یا پیشنهاد فروش محسوب نمی‌شود. ارقام نهایی باید در پیشنهاد رسمی همان پروژه تأیید شوند.</p>
     </section>
-    <footer className="decision-pack-footer"><Image src="/assets/clinoro-logo-primary.png" width={170} height={44} alt="Clinoro" unoptimized/><div><b>PRECISION · MEDICAL TECHNOLOGY · COMMERCE</b><span suppressHydrationWarning>Generated {new Date().toLocaleDateString("en-CA")}</span></div></footer>
+    <footer className="decision-pack-footer"><Image src="/assets/clinoro-logo-primary.webp" width={170} height={44} alt="Clinoro" unoptimized/><div><b>PRECISION · MEDICAL TECHNOLOGY · COMMERCE</b><span suppressHydrationWarning>Generated {new Date().toLocaleDateString("en-CA")}</span></div></footer>
   </div>;
 }

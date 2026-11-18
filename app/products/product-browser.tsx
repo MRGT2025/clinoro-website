@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import type { ProductItem } from "../../lib/site-content";
+import { optimizedAssetUrl } from "../../lib/assets";
 import {
   categoryPath,
   childCategories,
@@ -378,7 +379,7 @@ export function ProductBrowser({
                   aria-label={`مشاهده ${product.fa}`}
                 >
                   <Image
-                    src={product.image}
+                    src={optimizedAssetUrl(product.image)}
                     alt={`تصویر مرجع ${product.fa}`}
                     fill
                     unoptimized
@@ -455,7 +456,7 @@ export function ProductBrowser({
               {compared.map((product) => (
                 <span key={product.slug}>
                   <Image
-                    src={product.image}
+                    src={optimizedAssetUrl(product.image)}
                     alt=""
                     fill
                     unoptimized
@@ -611,7 +612,7 @@ export function ProductBrowser({
                     <article key={product.slug}>
                       <div>
                         <Image
-                          src={product.image}
+                          src={optimizedAssetUrl(product.image)}
                           alt={`تصویر مرجع ${product.fa}`}
                           fill
                           unoptimized

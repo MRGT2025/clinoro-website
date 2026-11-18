@@ -110,7 +110,20 @@ const workerUrl = new URL("../dist/server/index.js", import.meta.url);
 workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
 const { default: worker } = await import(workerUrl.href);
 const env = {
-  ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) },
+  ASSETS: {
+    fetch: async (request) => {
+      const path = new URL(request.url).pathname;
+      const assetFiles = {
+        "/assets/patient-monitor.webp": "../public/assets/patient-monitor.webp",
+        "/assets/clinoro-logo-primary.webp": "../public/assets/clinoro-logo-primary.webp",
+      };
+      const file = assetFiles[path];
+      if (!file) return new Response("Not found", { status: 404 });
+      return new Response(await readFile(new URL(file, import.meta.url)), {
+        headers: { "content-type": "image/webp" },
+      });
+    },
+  },
 };
 const context = { waitUntil() {}, passThroughOnException() {} };
 const request = (path) =>
@@ -239,7 +252,7 @@ test("catalog links to real product detail pages", async () => {
   const html = await response.text();
   assert.equal(response.status, 200);
   assert.match(html, /\/products\/icu-patient-monitor/);
-  assert.match(html, /patient-monitor\.jpg/);
+  assert.match(html, /patient-monitor\.webp/);
   assert.match(html, /تصویر مرجع/);
   assert.match(html, /مقایسه برای تصمیم خرید/);
   assert.match(html, /تا سه تجهیز را کنار هم بگذارید/);
@@ -3070,14 +3083,15 @@ test("product detail renders structured data and technical content", async () =>
   const response = await request("/products/ultrasound-imaging-system");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.match(html, /\"@type\":\"Product\"/);
+  assert.match(html, /\"@type\":\"WebPage\"/);
+  assert.doesNotMatch(html, /\"@type\":\"Product\"/);
   assert.match(html, /مشخصات قابل انتخاب/);
   assert.match(html, /PROCUREMENT DECISION PACK/);
   assert.match(html, /بسته تصمیم خرید این گروه محصول/);
   assert.match(html, /PRODUCT INTELLIGENCE/);
   assert.match(html, /سطح شواهد فعلی/);
   assert.match(html, /"@type":"FAQPage"/);
-  assert.match(html, /"additionalProperty"/);
+  assert.match(html, /"mainEntity":\{"@type":"Thing"/);
   assert.match(html, /درخواست پیشنهاد و دیتاشیت/);
   assert.match(html, /CC BY 4\.0/);
 });
@@ -4112,5 +4126,36 @@ test("commercial landing pages expose buyer answers and consistent share metadat
     const title = html.match(/<title>(.*?)<\/title>/)?.[1];
     const og = html.match(/<meta property="og:title" content="([^"]+)"/)?.[1];
     assert.equal(og, title);
+  }
+});
+
+test("SEO: key metadata descriptions are useful, localized and within snippet guidance", async () => {
+  const paths = [
+    "/credentials",
+    "/privacy",
+    "/terms",
+    "/products/category/imaging",
+    "/products/category/lab",
+    "/products/category/critical",
+    "/en/products/category/imaging",
+    "/en/products/category/critical",
+    "/products/hematology-analyzer",
+    "/products/infusion-syringe-pumps",
+  ];
+  for (const path of paths) {
+    const response = await request(path);
+    assert.equal(response.status, 200, path);
+    const html = await response.text();
+    const description = html.match(/<meta name="description" content="([^"]+)"/)?.[1];
+    assert.ok(description, "missing description: " + path);
+    assert.ok(description.length >= 70 && description.length <= 160, path + ": " + description.length + " chars");
+  }
+});
+
+test("SEO: generated image variants are publicly served as WebP", async () => {
+  for (const path of ["/assets/patient-monitor.webp", "/assets/clinoro-logo-primary.webp"]) {
+    const response = await request(path);
+    assert.equal(response.status, 200, path);
+    assert.match(response.headers.get("content-type") || "", /image\/webp/i);
   }
 });

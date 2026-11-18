@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Boxes, ChevronLeft, Clock3, Headphones, Menu, Search, ShieldCheck, X } from "lucide-react";
 import { ExperienceLayer } from "./experience";
 import { useSiteContent } from "./content-context";
+import { optimizedAssetUrl } from "../lib/assets";
 
 export const navigation = [
   ["خانه", "/"], ["محصولات", "/products"], ["خدمات", "/services"],
@@ -22,7 +23,7 @@ const staticSearchItems = [
 export function Brand() {
   const {general}=useSiteContent();
   return <Link className="brand" href="/" aria-label="صفحه اصلی کلینورو">
-    {general.logoUrl?<span className="brand-lockup"><Image src={general.logoUrl} alt={general.logoAlt||general.brand} width={225} height={55} unoptimized priority/></span>:<><span className="brand-copy"><b>{general.brand}</b><small>{general.tagline}</small></span><span className="brand-cross" aria-hidden="true"><i /><i /></span></>}
+    {general.logoUrl?<span className="brand-lockup"><Image src={optimizedAssetUrl(general.logoUrl)} alt={general.logoAlt||general.brand} width={225} height={55} unoptimized priority/></span>:<><span className="brand-copy"><b>{general.brand}</b><small>{general.tagline}</small></span><span className="brand-cross" aria-hidden="true"><i /><i /></span></>}
   </Link>;
 }
 

@@ -18,6 +18,7 @@ import {
 import { cleanName, productMetaDescription, publicProductView } from "../../../../lib/catalog";
 import { getSiteContent } from "../../../../lib/site-content";
 import { EnglishShell } from "../../en-shell";
+import { optimizedAssetUrl } from "../../../../lib/assets";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -78,34 +79,25 @@ export default async function EnglishProductDetail({ params }: Params) {
     view.tcoEn.length ? { title: "TCO factors", items: view.tcoEn, icon: <FileText /> } : null,
   ].filter((item): item is { title: string; items: string[]; icon: ReactNode } => Boolean(item));
   const questions = [...view.specsEn, ...view.servicesEn];
-  const schema = {
+  const pageSchema = {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "WebPage",
+    "@id": "https://clinoromedical.com/en/products/" + product.slug + "#webpage",
+    url: "https://clinoromedical.com/en/products/" + product.slug,
     name: view.en,
     description: view.metaDescriptionEn,
     inLanguage: "en",
-    image: `https://clinoromedical.com${product.image}`,
-    category: product.tag,
-    url: `https://clinoromedical.com/en/products/${product.slug}`,
-    audience: {
-      "@type": "Audience",
-      audienceType: "Healthcare procurement and clinical engineering teams",
-    },
-    additionalProperty: [
-      ...view.specsEn.map((value, index) => ({ "@type": "PropertyValue", name: `Decision criterion ${index + 1}`, value })),
-      { "@type": "PropertyValue", name: "Evidence level", value: product.procurement.evidenceLevel },
-      view.leadTimeEn ? { "@type": "PropertyValue", name: "Lead time", value: view.leadTimeEn } : null,
-    ].filter(Boolean),
+    mainEntity: { "@type": "Thing", name: view.en },
   };
 
   return (
     <EnglishShell content={content} active="/en/products">
       <main id="main-content" className="global-product-detail">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }} />
         <section className="global-product-hero">
           <div className="site-wrap">
             <div className="global-product-media">
-              <Image src={product.image} alt={`Reference image for ${view.en}`} fill priority unoptimized sizes="(max-width:900px) 100vw,50vw" />
+              <Image src={optimizedAssetUrl(product.image)} alt={`Reference image for ${view.en}`} fill priority unoptimized sizes="(max-width:900px) 100vw,50vw" />
               {product.imageLicense && <small>REFERENCE IMAGE · {product.imageLicense}</small>}
             </div>
             <article>

@@ -13,6 +13,7 @@ import {
   productsForCategoryPage,
 } from "../../../../lib/catalog";
 import { getSiteContent, type ProductItem } from "../../../../lib/site-content";
+import { optimizedAssetUrl } from "../../../../lib/assets";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -107,7 +108,7 @@ export default async function ProductCategoryPage({ params }: Params) {
                 return (
                   <Link href={categoryPath(child.id)} key={child.id}>
                     <span>
-                      <Image src={categoryImage(child, content.productCategories, content.products)} alt="" fill unoptimized sizes="(max-width:700px) 100vw,240px" />
+                      <Image src={optimizedAssetUrl(categoryImage(child, content.productCategories, content.products))} alt="" fill unoptimized sizes="(max-width:700px) 100vw,240px" />
                     </span>
                     <div>
                       <small>{child.en}</small>
@@ -154,7 +155,7 @@ function CatalogCard({ product }: { product: ProductItem }) {
   return (
     <article className="product-card">
       <Link className="product-image" href={`/products/${product.slug}`} aria-label={`مشاهده ${product.fa}`}>
-        <Image src={product.image} alt={`تصویر مرجع ${product.fa}`} fill unoptimized sizes="(max-width:700px) 100vw,33vw" />
+        <Image src={optimizedAssetUrl(product.image)} alt={`تصویر مرجع ${product.fa}`} fill unoptimized sizes="(max-width:700px) 100vw,33vw" />
         {product.tag && <span>{product.tag}</span>}
       </Link>
       <div className="product-body">

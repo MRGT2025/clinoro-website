@@ -8,6 +8,7 @@ import { cleanName, productMetaDescription, publicProductView } from "../../../l
 import { getSiteContent } from "../../../lib/site-content";
 import { RelatedGuides } from "../../related-guides";
 import { PageShell } from "../../components";
+import { optimizedAssetUrl } from "../../../lib/assets";
 
 type ProductParams = { params: Promise<{ slug: string }> };
 
@@ -69,36 +70,23 @@ export default async function ProductDetailPage({ params }: ProductParams) {
     view.acceptance.length ? ["آزمون پذیرش", view.acceptance.join("، "), <ClipboardCheck key="accept" />] : null,
     view.lifecycle.length ? ["چرخه عمر", view.lifecycle.join("، "), <Gauge key="life" />] : null,
   ].filter((item): item is [string, string, ReactNode] => Boolean(item));
-  const schema = {
+  const pageSchema = {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "WebPage",
+    "@id": "https://clinoromedical.com/products/" + product.slug + "#webpage",
+    url: "https://clinoromedical.com/products/" + product.slug,
     name: view.fa,
-    alternateName: view.en,
     description: view.metaDescriptionFa,
-    image: `https://clinoromedical.com${product.image}`,
-    category: product.tag,
-    ...(product.procurement.evidenceLevel !== "category" && view.brand ? { brand: { "@type": "Brand", name: view.brand } } : {}),
-    ...(product.procurement.evidenceLevel !== "category" && view.model ? { model: view.model } : {}),
-    url: `https://clinoromedical.com/products/${product.slug}`,
-    audience: { "@type": "Audience", audienceType: "Hospitals, clinics and healthcare procurement teams" },
-    additionalProperty: [
-      ...view.technicalSpecs.map((spec) => ({ "@type": "PropertyValue", name: spec.label || "Specification", value: spec.value || spec.label })),
-      { "@type": "PropertyValue", name: "Evidence level", value: product.procurement.evidenceLevel },
-      view.leadTime ? { "@type": "PropertyValue", name: "Lead time", value: view.leadTime } : null,
-      view.warranty ? { "@type": "PropertyValue", name: "Warranty scope", value: view.warranty } : null,
-      view.sla ? { "@type": "PropertyValue", name: "Service response", value: view.sla } : null,
-    ].filter(Boolean),
-    ...(view.documents.length
-      ? { subjectOf: view.documents.map((document) => ({ "@type": "DigitalDocument", name: document.title, encodingFormat: document.type, url: document.url })) }
-      : {}),
+    inLanguage: "fa-IR",
+    mainEntity: { "@type": "Thing", name: view.fa },
   };
   const crumbs = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "خانه", item: "https://clinoromedical.com/" },
-      { "@type": "ListItem", position: 2, name: "محصولات", item: "https://clinoromedical.com/products" },
-      { "@type": "ListItem", position: 3, name: view.fa, item: `https://clinoromedical.com/products/${product.slug}` },
+      { "@type": "ListItem", position: 1, name: "خانه", item: { "@id": "https://clinoromedical.com/", name: "خانه" } },
+      { "@type": "ListItem", position: 2, name: "محصولات", item: { "@id": "https://clinoromedical.com/products", name: "محصولات" } },
+      { "@type": "ListItem", position: 3, name: view.fa, item: { "@id": "https://clinoromedical.com/products/" + product.slug, name: view.fa } },
     ],
   };
   const questions = view.consumable
@@ -123,14 +111,14 @@ export default async function ProductDetailPage({ params }: ProductParams) {
   return (
     <PageShell active="/products">
       <main id="main-content" className="product-detail-page">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
         {faqEntries.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />}
         <section className="product-detail-hero">
           <div className="product-detail-aura" />
           <div className="site-wrap product-detail-hero-grid">
             <div className="product-detail-media prism-edge">
-              <Image src={product.image} alt={`تصویر مرجع ${view.consumable ? view.fa : `گروه محصول ${view.fa}`}`} fill priority unoptimized sizes="(max-width:900px) 100vw,52vw" />
+              <Image src={optimizedAssetUrl(product.image)} alt={`تصویر مرجع ${view.consumable ? view.fa : `گروه محصول ${view.fa}`}`} fill priority unoptimized sizes="(max-width:900px) 100vw,52vw" />
               {product.imageLicense && <span>REFERENCE IMAGE · {product.imageLicense}</span>}
             </div>
             <div className="product-detail-copy glass-panel prism-edge">

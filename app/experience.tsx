@@ -37,7 +37,7 @@ const showcase = [
     en: "CRITICAL CARE",
     title: "اطلاعات حیاتی، در لحظه‌ای که هر ثانیه مهم است",
     text: "پایش چندپارامتری، مدیریت هشدار و اتصال مرکزی برای ICU، CCU، اورژانس و ریکاوری.",
-    image: "/assets/patient-monitor.jpg",
+    image: "/assets/patient-monitor.webp",
     stat: "24/7",
     statLabel: "Continuous monitoring",
     color: "#47d7ee",

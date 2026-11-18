@@ -12,6 +12,7 @@ import {
 import { categoryHasProducts } from "../../../../../lib/content-discovery";
 import { getSiteContent } from "../../../../../lib/site-content";
 import { EnglishShell } from "../../../en-shell";
+import { optimizedAssetUrl } from "../../../../../lib/assets";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -99,7 +100,7 @@ export default async function EnglishProductCategoryPage({ params }: Params) {
                 {children.map((child) => (
                   <Link href={categoryPath(child.id, "en")} key={child.id}>
                     <span>
-                      <Image src={categoryImage(child, content.productCategories, content.products)} alt="" fill unoptimized sizes="(max-width:700px) 100vw,25vw" />
+                      <Image src={optimizedAssetUrl(categoryImage(child, content.productCategories, content.products))} alt="" fill unoptimized sizes="(max-width:700px) 100vw,25vw" />
                     </span>
                     <small>{child.en}</small>
                     <h2>{child.fa}</h2>
@@ -116,7 +117,7 @@ export default async function EnglishProductCategoryPage({ params }: Params) {
                 {products.map((product) => (
                   <article key={product.slug}>
                     <Link href={`/en/products/${product.slug}`} className="global-product-image">
-                      <Image src={product.image} alt={`Reference image for ${product.en}`} fill unoptimized sizes="(max-width:700px) 100vw,33vw" />
+                      <Image src={optimizedAssetUrl(product.image)} alt={`Reference image for ${product.en}`} fill unoptimized sizes="(max-width:700px) 100vw,33vw" />
                       {product.tag && <span>{product.tag}</span>}
                     </Link>
                     <div>
