@@ -9,6 +9,7 @@ import {
   childCategories,
   productsForCategoryPage,
 } from "../../../../../lib/catalog";
+import { categoryHasProducts } from "../../../../../lib/content-discovery";
 import { getSiteContent } from "../../../../../lib/site-content";
 import { EnglishShell } from "../../../en-shell";
 
@@ -25,6 +26,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: category.en,
     description,
+    robots: { index: categoryHasProducts(category,content.productCategories,content.products), follow: true },
     alternates: {
       canonical: path,
       languages: {

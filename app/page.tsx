@@ -7,9 +7,10 @@ import { getSiteContent } from "../lib/site-content";
 import { CustomContentBlocks } from "./custom-content";
 import { InjectionLayer } from "./injection-layer";
 import type { Metadata } from "next";
+import { homeCategoryPath } from "../lib/content-discovery";
 import { getPublishedBlogPosts } from "../lib/blog";
 
-export const metadata:Metadata={alternates:{canonical:"/",languages:{"fa-IR":"/","en":"/en"}}};
+export const metadata:Metadata={title:{absolute:"خرید و تأمین تجهیزات پزشکی در ایران | Clinoro"},description:"بررسی و استعلام تجهیزات پزشکی، بیمارستانی و آزمایشگاهی؛ همراه با مشاوره انتخاب، مدارک فنی، نصب، آموزش و برنامه خدمات متناسب با پروژه در ایران.",alternates:{canonical:"/",languages:{"fa-IR":"/","en":"/en"}}};
 
 const categoryIcons=[HeartPulse,ScanLine,Microscope,Stethoscope,Syringe,Gauge];
 const serviceIcons=[ClipboardCheck,PackageCheck,Settings,Wrench];
@@ -22,7 +23,7 @@ export default async function Home() { const content=await getSiteContent(); con
         <div className="data-chip chip-top glass-panel"><span className="signal-dot"/><div><small>SYSTEM STATUS</small><b>Operational</b></div></div>
         <div className="data-chip chip-bottom glass-panel"><span className="mini-wave"/><div><small>CLINICAL SUPPORT</small><b>Connected</b></div></div>
       </div>
-      <div className="hero-copy glass-panel prism-edge reveal-up"><span className="hero-kicker"><Sparkles size={15}/> {content.home.kicker}</span><h1>{content.home.title}<br/><HeroSignal signals={content.home.signals}/></h1><p>{content.home.intro}</p>
+      <div className="hero-copy glass-panel prism-edge reveal-up"><span className="hero-kicker"><Sparkles size={15}/> {content.home.kicker}</span><h1>{content.home.title === "فناوری پزشکی،" ? "تأمین تجهیزات پزشکی در ایران" : content.home.title}<br/><HeroSignal signals={content.home.signals}/></h1><p>{content.home.intro}</p>
         <div className="hero-actions"><Link className="button button-primary" href="/products">مشاهده محصولات <ArrowLeft size={18}/></Link><Link className="button button-glass" href="/contact">شروع استعلام <ArrowLeft size={18}/></Link></div>
         <div className="hero-assurance"><span><BadgeCheck size={17}/> پیشنهاد فنی ساختارمند</span><span><BookOpenCheck size={17}/> اسناد و آموزش کامل</span></div>
       </div><ProofRail/>
@@ -34,7 +35,7 @@ export default async function Home() { const content=await getSiteContent(); con
   <div id="systems"><InteractiveShowcase/></div>
   <div id="planner"><ClinicalPlanner/></div>
   <section className="section section-light motion-section" id="categories"><div className="site-wrap"><SectionTitle eyebrow="PRODUCT ECOSYSTEM" title="تجهیز مناسب برای هر محیط درمانی" text="دسته‌بندی محصولات بر اساس سناریوی واقعی استفاده، نیاز بالینی و مسیر تصمیم‌گیری مراکز درمانی شکل گرفته است."/>
-    <div className="category-showcase" data-reveal>{content.home.categories.map(({title,en,image},index)=>{const Icon=categoryIcons[index%categoryIcons.length];return <Link className={`category-card${index===0?" featured": ""}`} href="/products" key={`${title}-${index}`}><Image src={image} alt={title} fill unoptimized sizes="(max-width:700px) 100vw,33vw"/><div className="category-shade"/><span className="category-index">{String(index+1).padStart(2,"0")}</span><span className="category-icon"><Icon size={21}/></span><div><small>{en}</small><h3>{title}</h3></div><ArrowLeft className="category-arrow" size={19}/></Link>})}</div>
+    <div className="category-showcase" data-reveal>{content.home.categories.map(({title,en,image},index)=>{const Icon=categoryIcons[index%categoryIcons.length];return <Link className={`category-card${index===0?" featured": ""}`} href={homeCategoryPath(title,en,content.productCategories)} key={`${title}-${index}`}><Image src={image} alt={title} fill unoptimized sizes="(max-width:700px) 100vw,33vw"/><div className="category-shade"/><span className="category-index">{String(index+1).padStart(2,"0")}</span><span className="category-icon"><Icon size={21}/></span><div><small>{en}</small><h3>{title}</h3></div><ArrowLeft className="category-arrow" size={19}/></Link>})}</div>
     <div className="section-action"><Link href="/products">مشاهده تمام محصولات <ArrowLeft size={17}/></Link></div>
   </div></section>
   <section className="section services-section motion-section"><div className="services-glow"/><div className="service-radar"/><div className="site-wrap"><SectionTitle eyebrow="BEYOND EQUIPMENT" title="خدماتی که خرید را به یک راهکار کامل تبدیل می‌کنند" text="در Clinoro، تحویل دستگاه پایان مسیر نیست. کیفیت واقعی زمانی شکل می‌گیرد که انتخاب، اجرا و پشتیبانی در یک جریان منسجم باشند."/>

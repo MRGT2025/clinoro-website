@@ -9,9 +9,8 @@ import { blogTopics, filterBlogPosts, matchesBlogTopic, suggestBlogSearch } from
 
 type BlogCardPost=Omit<BlogPost,"content"|"sources">&{publishedTime:string;readingMinutes:number};
 
-function formatDate(value:string){
-  return new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"numeric",day:"numeric",timeZone:"Asia/Dubai"}).format(new Date(value));
-}
+const blogDateFormatter = new Intl.DateTimeFormat("fa-IR-u-ca-persian",{year:"numeric",month:"numeric",day:"numeric",timeZone:"Asia/Tehran"});
+function formatDate(value:string){ return blogDateFormatter.format(new Date(value)); }
 
 export function BlogExplorer({posts}:{posts:BlogCardPost[]}){
   const [query,setQuery]=useState("");

@@ -212,11 +212,7 @@ test("home exposes production SEO and security metadata", async () => {
   assert.match(html, /clinoro-logo-primary\.png/);
   assert.match(html, /clinoro-mark-primary\.png/);
   assert.match(html, /لوگوی Clinoro با نشانه پالس پزشکی و درگاه تجارت/);
-  assert.match(html, /clinoro-wordmark-primary\.png/);
-  assert.match(html, /class="brand-intro"/);
-  assert.match(html, /PRECISION/);
-  assert.match(html, /MEDICAL TECHNOLOGY/);
-  assert.match(html, /COMMERCE/);
+  assert.doesNotMatch(html, /class="brand-intro"/);
   assert.doesNotMatch(html, /clinoro-logo-minimal-grey\.png/);
 });
 
@@ -4038,7 +4034,58 @@ test("aesthetic catalog is data-driven and consumable pages omit empty equipment
   assert.match(englishFamilyHtml, /rel="alternate" hrefLang="x-default" href="https:\/\/clinoromedical\.com\/en\/products\/category\/aesthetics"/);
 
   const sitemap = await (await request("/sitemap.xml")).text();
-  for (const path of ["/products/category/aesthetics", "/products/category/peptides", "/products/category/cocktails", "/products/category/threads", "/products/category/fillers", "/products/category/imaging", "/products/category/surgery", "/en/products/category/aesthetics", "/en/products/category/peptides"]) {
+  for (const path of ["/products/category/aesthetics", "/products/category/peptides", "/products/category/cocktails", "/products/category/imaging", "/products/category/surgery", "/en/products/category/aesthetics", "/en/products/category/peptides"]) {
     assert.match(sitemap, new RegExp(`<loc>https://clinoromedical\\.com${path}</loc>`));
   }
+});
+
+test("SEO: commercial entry page is direct, canonical and connected to category pages", async () => {
+  const html = await (await request("/")).text();
+  assert.match(html, /<title>خرید و تأمین تجهیزات پزشکی در ایران \| Clinoro<\/title>/);
+  assert.match(html, /<h1>تأمین تجهیزات پزشکی در ایران/);
+  assert.doesNotMatch(html, /class="brand-intro"/);
+  assert.match(html, /href="\/products\/category\/imaging"/);
+  assert.match(html, /href="\/products\/category\/lab"/);
+  // Technical product records and injected code are not serialized as global client context.
+  assert.doesNotMatch(html, /\\?"technicalSpecs\\?":/);
+});
+
+test("SEO: articles expose anchored navigation, publishing transparency and topical links", async () => {
+  const html = await (await request("/blog/iran-visual-field-perimeter-procurement")).text();
+  assert.match(html, /"@type":"BreadcrumbList"/);
+  assert.match(html, /<time dateTime="2026-11-12T08:07:50\+03:30"/i);
+  assert.match(html, /href="\/editorial-policy"/);
+  const links = [...html.matchAll(/href="#(section-\d+)"/g)].map(match=>match[1]);
+  assert.ok(links.length > 0);
+  for (const anchor of links) assert.ok(html.includes(`id="${anchor}"`), anchor);
+  assert.match(html, /href="\/blog\/(?:iran-tonometer-slit-lamp-procurement|iran-ophthalmic-oct-procurement-acceptance-iso-16971-1)"/);
+  assert.doesNotMatch(html.match(/<section class="related-insights">([\s\S]*?)<\/section>/)?.[1] || "", /npwt-pump-dressing-procurement/);
+});
+
+test("SEO: sitemap contains only unique destinations and excludes empty catalog groups", async () => {
+  const xml = await (await request("/sitemap.xml")).text();
+  const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match=>match[1]);
+  assert.equal(urls.length,new Set(urls).size);
+  assert.ok(urls.includes("https://clinoromedical.com/editorial-policy"));
+  for (const path of ["/products/category/fillers","/en/products/category/fillers"]) {
+    const html=await (await request(path)).text();
+    assert.match(html, /name="robots" content="noindex, follow"/);
+    assert.ok(!urls.includes(`https://clinoromedical.com${path}`));
+  }
+  const product=await (await request("/products/ultrasound-imaging-system")).text();
+  assert.match(product, /راهنماهای خرید و بهره‌برداری مرتبط/);
+  assert.match(product, /href="\/blog\/ultrasound-probe-lifecycle-procurement-2026"/);
+});
+
+test("SEO: duplicate stored slugs do not duplicate public articles or conceal valid data", async () => {
+  const { getPublishedBlogPosts } = await import("../lib/blog.ts");
+  const valid = {slug:"same",id:"seed",published:true,publishedAt:"2026-11-18",publishedTime:"2026-11-18T08:00:00+03:30"};
+  const saved = { ...valid, id:"saved", title:"stored copy" };
+  const items=[valid,saved,{...valid,id:"draft",slug:"draft",published:false}];
+  const result=getPublishedBlogPosts(items);
+  assert.equal(result.length,1);
+  assert.equal(result[0].id,"seed");
+  assert.equal(items.length,3);
+  const malformed={...valid,slug:"invalid",publishedAt:"invalid",publishedTime:"bad"};
+  assert.equal(getPublishedBlogPosts([malformed,{...valid,slug:"invalid"}]).length,1);
 });

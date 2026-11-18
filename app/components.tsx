@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, Boxes, ChevronLeft, Clock3, Headphones, Menu, Search, ShieldCheck, X } from "lucide-react";
 import { ExperienceLayer } from "./experience";
 import { useSiteContent } from "./content-context";
-import { getPublishedBlogPosts } from "../lib/blog";
 
 export const navigation = [
   ["خانه", "/"], ["محصولات", "/products"], ["خدمات", "/services"],
@@ -42,7 +41,7 @@ export function SiteHeader({ active = "/" }: { active?: string }) {
     onScroll(); window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("keydown", onKey);
     return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("keydown", onKey); };
   }, []);
-  const searchItems=useMemo(()=>[...staticSearchItems,...(productCategories||[]).map(category=>[category.fa,"محصولات",`/products/category/${category.id}`] as const),...products.map(product=>[product.fa,"محصولات",`/products/${product.slug}`] as const),...getPublishedBlogPosts(blogPosts).map(post=>[post.title,"بلاگ",`/blog/${post.slug}`] as const)],[blogPosts,products,productCategories]);
+  const searchItems=useMemo(()=>[...staticSearchItems,...(productCategories||[]).map(category=>[category.fa,"محصولات",`/products/category/${category.id}`] as const),...products.map(product=>[product.fa,"محصولات",`/products/${product.slug}`] as const),...blogPosts.map(post=>[post.title,"بلاگ",`/blog/${post.slug}`] as const)],[blogPosts,products,productCategories]);
   const results = useMemo(() => query.trim() ? searchItems.filter((item) => item[0].includes(query.trim())) : searchItems.slice(0, 5), [query,searchItems]);
   return <>
     <header className={`site-header${scrolled ? " is-scrolled" : ""}`}><div className="glass-nav prism-edge">

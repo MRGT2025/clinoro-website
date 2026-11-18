@@ -29,6 +29,7 @@ interface ExecutionContext {
 
 const PRIMARY_HOSTNAME = "clinoromedical.com";
 const REDIRECT_HOSTNAMES = new Set([
+  "www.clinoromedical.com",
   "clinoromedical.ir",
   "www.clinoromedical.ir",
 ]);
@@ -44,7 +45,7 @@ const worker = {
     globalThis.__CLINORO_RUNTIME_ENV = env;
     const url = new URL(request.url);
 
-    if (REDIRECT_HOSTNAMES.has(url.hostname.toLowerCase())) {
+    if (REDIRECT_HOSTNAMES.has(url.hostname.toLowerCase()) || (url.hostname.toLowerCase() === PRIMARY_HOSTNAME && url.protocol === "http:")) {
       url.protocol = "https:";
       url.hostname = PRIMARY_HOSTNAME;
       url.port = "";
@@ -69,7 +70,14 @@ const worker = {
       return withSecurityHeaders(imageResponse,url);
     }
 
-    const catalogDocument = isCatalogDocumentRequest(request.method, url.pathname, request.headers);
+    const publicBlogDocument = request.method === "GET"
+      && /^\/blog(?:\/[^/]+)?$/.test(url.pathname)
+      && !request.headers.has("cookie")
+      && !request.headers.has("authorization")
+      && !request.headers.has("rsc")
+      && !request.headers.has("next-router-state-tree")
+      && request.headers.get("accept")?.includes("text/html");
+    const catalogDocument = isCatalogDocumentRequest(request.method, url.pathname, request.headers) || publicBlogDocument;
     if (catalogDocument) {
       const cached = await readCatalogCache(url);
       if (cached) return privateDocument(cached);
@@ -97,7 +105,7 @@ function edgeCache() {
 }
 
 function catalogCacheRequest(url: URL) {
-  return new Request(`https://clinoro-catalog-cache.internal${url.pathname}`);
+  return new Request(`https://clinoro-catalog-cache.internal/seo-20261118-v1${url.pathname}`);
 }
 
 async function readCatalogCache(url: URL) {

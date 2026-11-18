@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ChevronLeft } from "lucide-react";
+import { RelatedGuides } from "../../../related-guides";
+import { categoryBuyingQuestions, categoryHasProducts } from "../../../../lib/content-discovery";
 import { InnerHero } from "../../../inner-components";
 import {
   categoryImage,
@@ -23,8 +25,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const description = category.summary || category.fa;
   const image = categoryImage(category, content.productCategories, content.products);
   return {
-    title: category.fa,
+    title: `خرید و تأمین ${category.fa}`,
     description,
+    robots: { index: categoryHasProducts(category, content.productCategories, content.products), follow: true },
     alternates: {
       canonical: path,
       languages: { "fa-IR": path, en: categoryPath(category.id, "en") },
@@ -141,6 +144,8 @@ export default async function ProductCategoryPage({ params }: Params) {
           )}
         </div>
       </section>
+      {categoryHasProducts(category,content.productCategories,content.products) && <section className="section seo-guides"><div className="site-wrap"><h2>پیش از استعلام {category.fa} چه اطلاعاتی آماده کنیم؟</h2><ul>{categoryBuyingQuestions(category).map(question=><li key={question}>{question}</li>)}</ul><p>قیمت و زمان تأمین بر اساس مدل، پیکربندی، اقلام همراه و دامنهٔ خدمات همان پیشنهاد مشخص می‌شود. برای مقایسهٔ پیشنهادها، این موارد را روی یک مبنا ثبت کنید.</p><Link href="/procurement">شروع استعلام و مقایسهٔ فنی {category.fa}</Link></div></section>}
+      <RelatedGuides posts={content.blogPosts} subject={`${category.fa} ${category.en}`}/>
     </InnerHero>
   );
 }

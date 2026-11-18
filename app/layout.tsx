@@ -18,9 +18,9 @@ import "@fontsource/noto-sans-arabic/700.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/700.css";
 import "./globals.css";
+import { getPublishedBlogPosts } from "../lib/blog";
 import { getSiteContent } from "../lib/site-content";
 import { SiteContentProvider } from "./content-context";
-import { BrandIntro } from "./brand-intro";
 import type { CSSProperties } from "react";
 
 export const dynamic = "force-dynamic";
@@ -122,32 +122,17 @@ export default async function RootLayout({
     "--font-en": enFonts[design.enFont] || enFonts.manrope,
   } as CSSProperties;
   const clientContent = {
-    ...content,
-    blogPosts: content.blogPosts.map((post) => ({
-      id: post.id,
-      slug: post.slug,
-      title: post.title,
-      excerpt: "",
-      content: "",
-      image: "",
-      category: "",
-      author: "",
-      publishedAt: post.publishedAt,
-      publishedTime: post.publishedTime,
-      published: post.published,
-      seoTitle: "",
-      seoDescription: "",
-      sources: [],
-      imageCredit: "",
-      imageSource: "",
-      imageAlt: "",
-      imageLicense: "",
-      keywords: [],
-    })),
+    general: content.general,
+    home: content.home,
+    international: content.international,
+    products: content.products.map(({slug,fa,en}) => ({slug,fa,en})),
+    productCategories: content.productCategories.map(({id,fa}) => ({id,fa})),
+    blogPosts: getPublishedBlogPosts(content.blogPosts).map(({slug,title}) => ({slug,title})),
   };
   const organization = {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": "https://clinoromedical.com/#organization",
     name: "Clinoro Medical Technologies",
     alternateName: content.general.brand,
     url: "https://clinoromedical.com",
@@ -170,6 +155,7 @@ export default async function RootLayout({
   const website = {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": "https://clinoromedical.com/#website",
     name: "Clinoro Medical Technologies",
     alternateName: "Clinoro",
     url: "https://clinoromedical.com/",
@@ -189,7 +175,6 @@ export default async function RootLayout({
       "query-input": "required name=search_term_string",
     },
   };
-  const introState = `try{if(sessionStorage.getItem("clinoro-brand-intro-v1")==="seen"||matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.dataset.clinoroIntro="seen"}catch{}`;
   return (
     <html
       lang="fa"
@@ -204,7 +189,6 @@ export default async function RootLayout({
       data-button-style={design.buttonStyle}
     >
       <body>
-        <script dangerouslySetInnerHTML={{ __html: introState }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }}
@@ -213,7 +197,6 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }}
         />
-        <BrandIntro motionMode={content.general.motionMode} />
         <SiteContentProvider content={clientContent}>
           {children}
         </SiteContentProvider>

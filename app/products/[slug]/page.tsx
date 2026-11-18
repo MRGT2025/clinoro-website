@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { Activity, ArrowLeft, Check, ChevronLeft, ClipboardCheck, Download, FileText, Gauge, GraduationCap, Network, PackageSearch, ShieldCheck, Target, Wrench } from "lucide-react";
 import { cleanName, productMetaDescription, publicProductView } from "../../../lib/catalog";
 import { getSiteContent } from "../../../lib/site-content";
+import { RelatedGuides } from "../../related-guides";
 import { PageShell } from "../../components";
 
 type ProductParams = { params: Promise<{ slug: string }> };
@@ -303,7 +304,7 @@ export default async function ProductDetailPage({ params }: ProductParams) {
             </aside>
           </div>
         </section>
-      </main>
+      <RelatedGuides posts={content.blogPosts} subject={`${product.fa} ${product.en} ${product.tag}`}/></main>
     </PageShell>
   );
 }

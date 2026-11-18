@@ -23,19 +23,31 @@ export function getBlogPostPublishedTime(post: BlogPost) {
   return isValidTimestamp(fallback) ? fallback : null;
 }
 
+const publishedCache = new WeakMap<BlogPost[], (BlogPost & {publishedTime: string})[]>();
 export function getPublishedBlogPosts(posts: BlogPost[]) {
-  return posts
+  const cached = publishedCache.get(posts);
+  if (cached) return cached;
+  const seen = new Set<string>();
+  const result = posts
     .filter((post) => post.published && post.slug.trim())
     .map((post) => {
       const publishedTime = getBlogPostPublishedTime(post);
-      return publishedTime ? { ...post, publishedTime } : null;
+      return publishedTime ? { ...post, slug: post.slug.trim(), publishedTime } : null;
     })
     .filter((post): post is BlogPost & { publishedTime: string } => Boolean(post))
+    .filter(post => {
+      const slug = post.slug.trim();
+      if (seen.has(slug)) return false;
+      seen.add(slug);
+      return true;
+    })
     .sort(
       (a, b) =>
         Date.parse(b.publishedTime) - Date.parse(a.publishedTime) ||
         a.slug.localeCompare(b.slug),
     );
+  publishedCache.set(posts,result);
+  return result;
 }
 
 export function findPublishedBlogPost(posts: BlogPost[], slug: string) {
