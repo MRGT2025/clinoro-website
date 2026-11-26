@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 54811)
-Total output lines: 4189
-
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFile } from "node:fs/promises";
@@ -363,7 +360,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 109);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 110);
   assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
@@ -1903,7 +1900,388 @@ test("daily global medical refrigeration article validates the complete cold cha
   assert.match(html, /href="\/contact"/);
   assert.match(html, /medical-refrigerator-freezer-cold-chain-procurement\.webp/);
   assert.match(html, /تصویر تولیدشده برای Clinoro/);
-  assert.match(html, /2026-09-1…4811 tokens truncated…nt-certification",
+  assert.match(html, /2026-09-18T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ زنجیره سرد، نگهداری و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید یخچال پزشکی,خرید فریزر آزمایشگاهی,یخچال واکسن/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/medical-refrigerator-freezer-cold-chain-procurement"/,
+  );
+});
+
+test("daily Iran operating-table article validates configurations, safety and lifecycle support", async () => {
+  const response = await request(
+    "/blog/iran-operating-table-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تحمل وزن روی کاتالوگ کافی نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /بار ایمن را در «همان وضعیت» اثبات کنید/);
+  assert.match(html, /پایداری، پایه و ترمز را روی کف واقعی بسنجید/);
+  assert.match(html, /سازگاری با C-arm و تصویربرداری را با شات واقعی ثابت کنید/);
+  assert.match(html, /SAT، نگهداری، SLA و TCO را به پرداخت متصل کنید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68385/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /ecfr\.gov\/current\/title-21/);
+  assert.match(html, /accessdata\.fda\.gov\/scripts\/cdrh\/cfdocs\/cfpcd/);
+  assert.match(html, /pubmed\.ncbi\.nlm\.nih\.gov\/38186052/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-operating-table-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-19T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ تخت جراحی، ایمنی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید تخت جراحی در ایران,آزمون پذیرش تخت جراحی,IEC 60601-2-46:2023/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-operating-table-procurement-acceptance"/,
+  );
+});
+
+test("daily global surgical-light article validates optical, mechanical and lifecycle performance", async () => {
+  const response = await request(
+    "/blog/surgical-light-procurement-iec-60601-2-41",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /لوکس بیشتر، دید بهتر نیست/);
+  assert.match(html, /۱۲ آزمون پیش از قرارداد، تحویل و تسویه/);
+  assert.match(html, /روشنایی مرکزی را در فاصله مرجع واقعی اندازه بگیرید/);
+  assert.match(html, /Shadow dilution را با انسداد واقعی بسنجید/);
+  assert.match(html, /گرما، Irradiance و خطر فوتوبیولوژیک را جدا کنید/);
+  assert.match(html, /نصب، SAT، سرویس و TCO را یک قرارداد کنید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/62677/);
+  assert.match(html, /ecfr\.gov\/current\/title-21/);
+  assert.match(html, /accessdata\.fda\.gov\/scripts\/cdrh\/cfdocs\/cfpcd/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789241501378/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /surgical-light-procurement-iec-60601-2-41\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-20T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ چراغ جراحی، نور و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید چراغ جراحی,آزمون پذیرش چراغ جراحی,IEC 60601-2-41:2021/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/surgical-light-procurement-iec-60601-2-41"/,
+  );
+});
+
+test("daily Iran medical-gas pipeline article validates identity, continuity and commissioning", async () => {
+  const response = await request(
+    "/blog/iran-medical-gas-pipeline-commissioning-2026",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /فقط فشار مانومتر کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و تحویل/);
+  assert.match(html, /هویت گاز و نبود Cross-connection را در هر ترمینال ثابت کنید/);
+  assert.match(html, /فشار، دبی و افت شبکه را در بدترین بار هم‌زمان بسنجید/);
+  assert.match(html, /آلارم را به‌عنوان زنجیره اطلاع‌رسانی بیازمایید/);
+  assert.match(html, /Commissioning dossier، آموزش و برنامه عمر را شرط تحویل کنید/);
+  assert.match(html, /iso\.org\/standard\/60061\.html/);
+  assert.match(html, /iso\.org\/standard\/87169\.html/);
+  assert.match(html, /who\.int\/publications\/i\/item\/9789240101616/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-medical-gas-pipeline-commissioning-2026\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-21T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ گازهای طبی، زیرساخت و تحویل فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="تحویل شبکه گازهای طبی در ایران,آزمون پذیرش گازهای طبی,ISO 7396-1:2016/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-medical-gas-pipeline-commissioning-2026"/,
+  );
+});
+
+test("daily global PET-CT article validates quantitative performance, integration and lifecycle", async () => {
+  const response = await request(
+    "/blog/pet-ct-procurement-acceptance-iec-61675-1",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد SUV روی بروشور کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و پذیرش PET\/CT/);
+  assert.match(html, /تفکیک مکانی را با روش و هندسه یکسان بسنجید/);
+  assert.match(html, /زنجیره SUV و کالیبراسیون متقابل را تحویل بگیرید/);
+  assert.match(html, /DICOM و جریان داده را با نمونه واقعی آزمون کنید/);
+  assert.match(html, /Baseline، QC و معیار اقدام را قبل از Go-live بسازید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67292/);
+  assert.match(html, /iaea\.org\/publications\/8002/);
+  assert.match(html, /aapm\.org\/pubs\/reports\/detail\.asp\?docid=193/);
+  assert.match(html, /dicom\.nema\.org/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /pet-ct-procurement-acceptance-iec-61675-1\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-24T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ PET\/CT، پزشکی هسته‌ای و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید PET\/CT,آزمون پذیرش PET\/CT,IEC 61675-1:2022/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/pet-ct-procurement-acceptance-iec-61675-1"/,
+  );
+});
+
+test("daily Iran neonatal phototherapy article includes SSR, current standards, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-neonatal-phototherapy-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /عدد میکرووات کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و تحویل فتوتراپی نوزاد/);
+  assert.match(html, /به‌جای یک نقطه، نقشه تابش بسازید/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/64029/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68374/);
+  assert.match(html, /ecfr\.gov\/current\/title-21\/chapter-I\/subchapter-H\/part-880\/subpart-F\/section-880\.5700/);
+  assert.match(html, /publications\.aap\.org\/pediatrics\/article\/150\/3\/e2022058859/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-neonatal-phototherapy-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-25T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ فتوتراپی نوزاد، ایمنی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید فتوتراپی نوزاد,فتوتراپی نوزاد در ایران,آزمون پذیرش فتوتراپی/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-neonatal-phototherapy-procurement-acceptance"/,
+  );
+});
+
+test("daily global capnography article includes SSR, current standards, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/capnography-etco2-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /یک عدد EtCO₂ کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید و پذیرش کاپنوگراف/);
+  assert.match(html, /Mainstream یا Sidestream/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /iso\.org\/standard\/67241\.html/);
+  assert.match(html, /iso\.org\/standard\/83477\.html/);
+  assert.match(html, /standard__identification_no=45633/);
+  assert.match(html, /classification\.cfm\?ID=CCK/);
+  assert.match(html, /section-868\.1400/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67388/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /capnography-etco2-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-26T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ کاپنوگرافی، پایش تنفسی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید کاپنوگراف,آزمون پذیرش کاپنوگراف,مانیتور EtCO2/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/capnography-etco2-procurement-acceptance"/,
+  );
+});
+
+test("daily Iran 12-lead ECG article includes SSR, primary standards, Tehran metadata and acceptance controls", async () => {
+  const response = await request(
+    "/blog/iran-12-lead-ecg-electrocardiograph-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تعداد لید کافی نیست/);
+  assert.match(html, /۱۲ آزمون خرید دستگاه ECG دوازده‌لید در ایران/);
+  assert.match(html, /زنجیره ده الکترود و کابل بیمار/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2636/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/67346/);
+  assert.match(html, /standard__identification_no=44849/);
+  assert.match(html, /section-870\.2340/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/2638/);
+  assert.match(html, /dicom\.nema\.org\/medical\/dicom\/current\/output\/chtml\/part04\/sect_b\.5\.html/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-12-lead-ecg-electrocardiograph-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-27T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ ECG دوازده‌لید، تشخیص قلب و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه ECG در ایران,خرید الکتروکاردیوگراف دوازده لید,آزمون پذیرش ECG/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-12-lead-ecg-electrocardiograph-procurement-acceptance"/,
+  );
+});
+
+test("daily global point-of-care blood gas article includes current standards, end-to-end controls and Tehran metadata", async () => {
+  const response = await request(
+    "/blog/point-of-care-blood-gas-analyzer-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /کارتریج ارزان، نتیجه ارزان نیست/);
+  assert.match(html, /۱۲ آزمون خرید آنالایزر گاز خون/);
+  assert.match(html, /زنجیره نمونه را پیش از روشن‌کردن دستگاه/);
+  assert.match(html, /هزینه هر نتیجه قابل‌گزارش/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /iso\.org\/standard\/76677\.html/);
+  assert.match(html, /iso\.org\/standard\/71119\.html/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/60197/);
+  assert.match(html, /section-862\.1120/);
+  assert.match(html, /classification\.cfm\?ID=CHL/);
+  assert.match(html, /K223857\.pdf/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /point-of-care-blood-gas-analyzer-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-28T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ گاز خون، آزمایش در محل و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید آنالایزر گاز خون,آزمون پذیرش گاز خون,Point of Care blood gas analyzer/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/point-of-care-blood-gas-analyzer-procurement-acceptance"/,
+  );
+});
+
+test("daily Iran EEG article includes current amendment, signal-chain acceptance and Tehran metadata", async () => {
+  const response = await request(
+    "/blog/iran-eeg-electroencephalograph-procurement-acceptance",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /تعداد کانال بیشتر، EEG بهتر نیست/);
+  assert.match(html, /۱۲ آزمون خرید الکتروانسفالوگراف در ایران/);
+  assert.match(html, /ورودی و کالیبراسیون را با شبیه‌ساز قابل‌ردیابی/);
+  assert.match(html, /ویدئو، صدا و Event marker/);
+  assert.match(html, /ده علامت توقف خرید/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/26376/);
+  assert.match(html, /webstore\.iec\.ch\/en\/publication\/68608/);
+  assert.match(html, /section-882\.1400/);
+  assert.match(html, /regulationnumber=882\.1400/);
+  assert.match(html, /dicom\.nema\.org\/medical\/dicom\/current/);
+  assert.match(html, /qavanin\.ir\/Law\/TreeText/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /iran-eeg-electroencephalograph-procurement-acceptance\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-29T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"ایران؛ EEG، نوروفیزیولوژی و پذیرش فنی"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید دستگاه EEG در ایران,خرید الکتروانسفالوگراف,آزمون پذیرش EEG/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/iran-eeg-electroencephalograph-procurement-acceptance"/,
+  );
+});
+
+test("daily global CSSD washer-disinfector article separates cleaning from disinfection and includes current ISO metadata", async () => {
+  const response = await request(
+    "/blog/cssd-washer-disinfector-procurement-iso-15883-2024",
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /چرخه کامل، ابزار تمیز نیست/);
+  assert.match(html, /۱۲ آزمون خرید واشر-دیس‌اینفکتور CSSD/);
+  assert.match(html, /Cleaning efficacy را مستقل از دما اثبات کنید/);
+  assert.match(html, /A0 یک شاخص مواجهه حرارتی/);
+  assert.match(html, /IQ\/OQ\/PQ، Baseline، SLA و پرداخت/);
+  assert.match(html, /iso\.org\/standard\/81249\.html/);
+  assert.match(html, /iso\.org\/standard\/84377\.html/);
+  assert.match(html, /iso\.org\/standard\/68297\.html/);
+  assert.match(html, /medical-washers-and-medical-washer-disinfectors/);
+  assert.match(html, /cdc\.gov\/infection-control\/hcp\/disinfection-sterilization\/cleaning\.html/);
+  assert.match(html, /href="\/procurement"/);
+  assert.match(html, /href="\/contact"/);
+  assert.match(html, /cssd-washer-disinfector-procurement-iso-15883-2024\.webp/);
+  assert.match(html, /تصویر تولیدشده برای Clinoro/);
+  assert.match(html, /2026-09-30T08:00:00\+03:30/);
+  assert.match(html, /"@type":"Article"/);
+  assert.match(
+    html,
+    /"articleSection":"جهانی؛ CSSD، شست‌وشو و ضدعفونی ابزار"/,
+  );
+  assert.match(
+    html,
+    /<meta name="keywords" content="خرید واشر دیس اینفکتور CSSD,آزمون پذیرش washer disinfector,ISO 15883-1:2024/,
+  );
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/clinoromedical\.com\/blog\/cssd-washer-disinfector-procurement-iso-15883-2024"/,
+  );
+});
+
+test("daily Iran Class II biosafety-cabinet article proves installed containment and includes NSF 49:2026 metadata", async () => {
+  const response = await request(
+    "/blog/iran-class-ii-biological-safety-cabinet-procurement-certification",
   );
   assert.equal(response.status, 200);
   const html = await response.text();
@@ -2782,7 +3160,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 109);
+  assert.equal(blogUrls.length, 110);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -3540,34 +3918,6 @@ test("global patient hoist guide separates compatibility, acceptance and jurisdi
   assert.equal(suggestBlogSearch([post], "اسلینگ")[0]?.id, slug);
 });
 
-test("global hospital glucose meter guide validates the full POC system and grouped primary sources", async () => {
-  const slug = "hospital-poc-glucose-meter-procurement";
-  const response = await request(`/blog/${slug}`);
-  const html = await response.text();
-  assert.equal(response.status, 200);
-  for (const text of ["خرید گلوکومتر بیمارستانی", "ISO 15197:2013", "Point-of-Care", "لانست یک‌بارمصرف", "Lot", "هزینهٔ هر نتیجهٔ قابل‌گزارش", "2026-11-19T08:00:00+03:30"]) assert.ok(html.includes(text), text);
-  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
-  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
-  assert.match(html, /"@type":"Article"/);
-  assert.match(html, /گلوکومتر حرفه‌ای بیمارستانی با نمایشگر خاموش/);
-  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
-  assert.ok(body);
-  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
-  assert.match(body, /href="\/procurement"/);
-  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
-  assert.ok(refs);
-  assert.equal((refs.match(/<p>/g) || []).length, 1);
-  assert.equal((refs.match(/href="https?:/g) || []).length, 5);
-  for (const route of ["/", "/blog", "/sitemap.xml"]) {
-    const page = await (await request(route)).text();
-    assert.ok(page.includes(`/blog/${slug}`), route);
-    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
-  }
-  const post = {slug, title: "خرید گلوکومتر بیمارستانی", excerpt: "نوار تست قند خون و کنترل کیفیت", category: "جهانی؛ تست در محل"};
-  assert.equal(filterBlogPosts([post], "گلوکومتر")[0]?.slug, slug);
-  assert.equal(suggestBlogSearch([post], "کنترل کیفیت")[0]?.id, slug);
-});
-
 test("Iran urodynamics guide verifies measurement-chain acceptance and grouped primary sources", async () => {
   const slug = "iran-urodynamics-uroflowmetry-procurement";
   const response = await request(`/blog/${slug}`);
@@ -3808,4 +4158,58 @@ test("SEO: generated image variants are publicly served as WebP", async () => {
     assert.equal(response.status, 200, path);
     assert.match(response.headers.get("content-type") || "", /image\/webp/i);
   }
+});
+
+test("global hospital glucose meter guide validates the full POC system and grouped primary sources", async () => {
+  const slug = "hospital-poc-glucose-meter-procurement";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  for (const text of ["خرید گلوکومتر بیمارستانی", "ISO 15197:2013", "Point-of-Care", "لانست یک‌بارمصرف", "Lot", "هزینهٔ هر نتیجهٔ قابل‌گزارش", "2026-11-19T08:00:00+03:30"]) assert.ok(html.includes(text), text);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /گلوکومتر حرفه‌ای بیمارستانی با نمایشگر خاموش/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 5);
+  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+    const page = await (await request(route)).text();
+    assert.ok(page.includes(`/blog/${slug}`), route);
+    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
+  }
+});
+
+test("Iran clinical chemistry analyzer guide validates procurement evidence and discovery", async () => {
+  const slug = "iran-clinical-chemistry-analyzer-procurement";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  for (const text of ["خرید اتوآنالایزر بیوشیمی در ایران", "Carryover", "ISO 15189:2022", "ISO 17511:2020", "EP15", "اتصال LIS", "هزینهٔ هر نتیجهٔ قابل‌گزارش", "2026-11-26T08:00:00+03:30"]) assert.ok(html.includes(text), text);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /اتوآنالایزر بیوشیمی بالینی بدون برند/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
+  assert.match(body, /href="\/procurement"/);
+  assert.match(body, /href="\/contact"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 12);
+  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+    const page = await (await request(route)).text();
+    assert.ok(page.includes(`/blog/${slug}`), route);
+    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
+  }
+  const post = { slug, title: "خرید اتوآنالایزر بیوشیمی در ایران", excerpt: "Carryover و کنترل کیفیت", category: "ایران؛ آزمایشگاه" };
+  assert.equal(filterBlogPosts([post], "اتوآنالایزر")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "کنترل کیفیت")[0]?.id, slug);
 });
