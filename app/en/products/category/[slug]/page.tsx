@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../../../../lib/json-ld";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -80,7 +81,7 @@ export default async function EnglishProductCategoryPage({ params }: Params) {
   return (
     <EnglishShell content={content} active="/en/products">
       <main id="main-content" className="global-products">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(list) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(list) }} />
         <section className="global-inner-hero">
           <div className="site-wrap">
             <span>{parent ? parent.en.toUpperCase() : "PRODUCT CATEGORY"}</span>

@@ -1,49 +1,16 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import type { AuthenticatedUser } from "../lib/access-security";
 
-export type ChatGPTUser = {
-  displayName: string;
-  email: string;
-  fullName: string | null;
-  authProvider: "chatgpt" | "cloudflare-access";
-};
-
-const USER_EMAIL_HEADER = "oai-authenticated-user-email";
-const USER_FULL_NAME_HEADER = "oai-authenticated-user-full-name";
-const USER_FULL_NAME_ENCODING_HEADER =
-  "oai-authenticated-user-full-name-encoding";
-const CLOUDFLARE_ACCESS_EMAIL_HEADER =
-  "cf-access-authenticated-user-email";
-const PERCENT_ENCODED_UTF8 = "percent-encoded-utf-8";
+export type ChatGPTUser = AuthenticatedUser;
 const SIGN_IN_PATH = "/signin-with-chatgpt";
 const SIGN_OUT_PATH = "/signout-with-chatgpt";
 const CLOUDFLARE_ACCESS_SIGN_OUT_PATH = "/cdn-cgi/access/logout";
 const CALLBACK_PATH = "/callback";
 
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
-  const requestHeaders = await headers();
-  const chatGPTEmail = requestHeaders.get(USER_EMAIL_HEADER);
-  const cloudflareAccessEmail = requestHeaders.get(
-    CLOUDFLARE_ACCESS_EMAIL_HEADER,
-  );
-  const email = chatGPTEmail ?? cloudflareAccessEmail;
-  if (!email) return null;
-
-  const encodedFullName = chatGPTEmail
-    ? requestHeaders.get(USER_FULL_NAME_HEADER)
-    : null;
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get(USER_FULL_NAME_ENCODING_HEADER) === PERCENT_ENCODED_UTF8
-      ? safeDecodeURIComponent(encodedFullName)
-      : null;
-
-  return {
-    displayName: fullName ?? email,
-    email,
-    fullName,
-    authProvider: chatGPTEmail ? "chatgpt" : "cloudflare-access",
-  };
+  // The Worker establishes this request-local identity after verification.
+  // Raw request email headers are never authentication at the app layer.
+  return globalThis.__CLINORO_AUTHENTICATED_USER?.() ?? null;
 }
 
 export async function requireChatGPTUser(
@@ -96,12 +63,4 @@ function isReservedAuthPath(pathname: string): boolean {
     pathname === SIGN_OUT_PATH ||
     pathname === CALLBACK_PATH
   );
-}
-
-function safeDecodeURIComponent(value: string): string | null {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return null;
-  }
 }

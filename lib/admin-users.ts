@@ -1,4 +1,5 @@
 import { ensureDatabase, getD1 } from "../db";
+import { HttpError } from "./http-security";
 
 export const OWNER_EMAIL = "reisi.general.trading@gmail.com";
 
@@ -45,9 +46,9 @@ export async function listAdminMembers(): Promise<AdminMember[]> {
 export async function addAdminMember(input: { email: string; username: string; createdBy: string }) {
   const email = normalizeAdminEmail(input.email);
   const username = input.username.trim();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("ایمیل معتبر نیست");
-  if (email === OWNER_EMAIL) throw new Error("این ایمیل متعلق به مدیر اصلی است");
-  if (username.length < 2 || username.length > 60) throw new Error("نام کاربری باید بین ۲ تا ۶۰ کاراکتر باشد");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 320) throw new HttpError(400, "ایمیل معتبر نیست");
+  if (email === OWNER_EMAIL) throw new HttpError(400, "این ایمیل متعلق به مدیر اصلی است");
+  if (username.length < 2 || username.length > 60) throw new HttpError(400, "نام کاربری باید بین ۲ تا ۶۰ کاراکتر باشد");
   await ensureDatabase();
   const now = Date.now();
   await getD1().prepare("INSERT INTO admin_users (email, username, role, active, created_by, created_at, updated_at) VALUES (?, ?, 'admin', 1, ?, ?, ?) ON CONFLICT(email) DO UPDATE SET username = excluded.username, active = 1, updated_at = excluded.updated_at")
@@ -57,8 +58,8 @@ export async function addAdminMember(input: { email: string; username: string; c
 
 export async function removeAdminMember(email: string, actorEmail: string) {
   const normalized = normalizeAdminEmail(email);
-  if (normalized === OWNER_EMAIL) throw new Error("مدیر اصلی قابل حذف نیست");
-  if (normalized === normalizeAdminEmail(actorEmail)) throw new Error("نمی‌توانید حساب فعال خودتان را حذف کنید");
+  if (normalized === OWNER_EMAIL) throw new HttpError(400, "مدیر اصلی قابل حذف نیست");
+  if (normalized === normalizeAdminEmail(actorEmail)) throw new HttpError(400, "نمی‌توانید حساب فعال خودتان را حذف کنید");
   await ensureDatabase();
   await getD1().prepare("DELETE FROM admin_users WHERE email = ?").bind(normalized).run();
 }

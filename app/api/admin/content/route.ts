@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthorizedAdmin } from "../../../../lib/admin-auth";
 import { publishContentRevision } from "../../../../lib/content-revisions";
 import { getDraftSiteContent, getSiteContent, normalizeSiteContent, saveDraftSiteContent, stripCodeInjections, type SiteContent } from "../../../../lib/site-content";
+import { assertSameOrigin, readJsonBody, errorResponse, ADMIN_CONTENT_BYTES } from "../../../../lib/http-security";
 
 export async function GET(request:Request){
   const admin=await getAuthorizedAdmin();
@@ -14,7 +15,9 @@ export async function GET(request:Request){
 export async function PUT(request:Request){
   const admin=await getAuthorizedAdmin();
   if(!admin) return NextResponse.json({error:"Unauthorized"},{status:401});
-  const payload=await request.json().catch(()=>null) as SiteContent|{content:SiteContent;mode?:"draft"|"publish";note?:string}|null;
+  try {
+  assertSameOrigin(request);
+  const payload=await readJsonBody(request, ADMIN_CONTENT_BYTES) as unknown as SiteContent|{content:SiteContent;mode?:"draft"|"publish";note?:string}|null;
   if(!payload||typeof payload!=="object")return NextResponse.json({error:"Invalid content"},{status:400});
   const wrapped="content" in payload;
   const submitted=wrapped?payload.content:payload;
@@ -39,4 +42,5 @@ export async function PUT(request:Request){
   }
   const revision=await publishContentRevision(body,admin.member.email,note||"انتشار از پنل مدیریت");
   return NextResponse.json({ok:true,mode,revisionId:revision.id,updatedAt:new Date(revision.createdAt).toISOString()});
+  } catch (error) { return errorResponse(error); }
 }

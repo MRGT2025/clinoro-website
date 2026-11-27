@@ -3,6 +3,15 @@ import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } fr
 import handler from "vinext/server/app-router-entry";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { isCatalogDocumentRequest } from "../lib/catalog";
+import { createAccessVerifier, isAdminPath, trustedSitesIdentity, type AuthenticatedUser } from "../lib/access-security";
+
+// Defined by the build target, never inferred from a request header or hostname.
+declare const __CLINORO_TRUSTED_SITES_AUTH__: boolean;
+const trustedSitesBuild = typeof __CLINORO_TRUSTED_SITES_AUTH__ !== "undefined" && __CLINORO_TRUSTED_SITES_AUTH__;
+const requestIdentity = new AsyncLocalStorage<{ user: AuthenticatedUser | null }>();
+globalThis.__CLINORO_AUTHENTICATED_USER = () => requestIdentity.getStore()?.user ?? null;
+let verifier: ReturnType<typeof createAccessVerifier> | null = null;
+let verifierConfiguration = "";
 
 // Share one D1 read/normalization across layout, metadata and page rendering.
 // Each fetch gets its own store; edits are visible on the very next request.
@@ -10,6 +19,9 @@ const contentRequests = new AsyncLocalStorage<Map<string, Promise<unknown>>>();
 globalThis.__CLINORO_REQUEST_CACHE = () => contentRequests.getStore();
 
 interface Env {
+  CLINORO_AUTH_MODE?: string;
+  CLINORO_ACCESS_ISSUER?: string;
+  CLINORO_ACCESS_AUDIENCE?: string;
   ASSETS: Fetcher;
   DB: D1Database;
   BUCKET: R2Bucket;
@@ -58,6 +70,26 @@ const worker = {
       });
     }
 
+    let user: AuthenticatedUser | null = null;
+    if (trustedSitesBuild) {
+      // Only Sites builds run behind the platform's authenticated dispatch boundary.
+      user = trustedSitesIdentity(request.headers);
+    } else if (isAdminPath(url.pathname)) {
+      if (env.CLINORO_AUTH_MODE !== "cloudflare-access") {
+        return withSecurityHeaders(Response.json({ error: "Admin authentication is unavailable" }, { status: 503 }), url);
+      }
+      const configurationKey = (env.CLINORO_ACCESS_ISSUER ?? "") + "\n" + (env.CLINORO_ACCESS_AUDIENCE ?? "");
+      if (!verifier || verifierConfiguration !== configurationKey) {
+        verifier = createAccessVerifier({ issuer: env.CLINORO_ACCESS_ISSUER, audience: env.CLINORO_ACCESS_AUDIENCE });
+        verifierConfiguration = configurationKey;
+      }
+      try { user = await verifier(request.headers.get("cf-access-jwt-assertion")); }
+      catch { return withSecurityHeaders(Response.json({ error: "Unauthorized" }, { status: 401 }), url); }
+    }
+    const cleanHeaders = new Headers(request.headers);
+    for (const name of ["oai-authenticated-user-email", "oai-authenticated-user-full-name", "oai-authenticated-user-full-name-encoding", "cf-access-authenticated-user-email"]) cleanHeaders.delete(name);
+    request = new Request(request, { headers: cleanHeaders });
+
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];
       const imageResponse=await handleImageOptimization(request, {
@@ -83,7 +115,7 @@ const worker = {
       if (cached) return privateDocument(cached);
     }
 
-    const response=await contentRequests.run(new Map(),()=>handler.fetch(request, env, ctx));
+    const response=await requestIdentity.run({ user },()=>contentRequests.run(new Map(),()=>handler.fetch(request, env, ctx)));
     const secured = withSecurityHeaders(response,url);
     if (catalogDocument && secured.status === 200 && secured.headers.get("content-type")?.includes("text/html") && !secured.headers.has("set-cookie")) {
       storeCatalogCache(url, secured, ctx);
@@ -143,7 +175,7 @@ function withSecurityHeaders(response:Response,url:URL){
   headers.set("Permissions-Policy","camera=(), microphone=(), geolocation=(), payment=()");
   if(url.protocol==="https:")headers.set("Strict-Transport-Security","max-age=31536000; includeSubDomains");
   if(headers.get("content-type")?.includes("text/html"))headers.set("Content-Security-Policy","default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' blob: https:; font-src 'self' data:; connect-src 'self' https:; frame-src 'self'");
-  if(url.pathname.startsWith("/admin")||url.pathname.startsWith("/api/admin"))headers.set("Cache-Control","private, no-store");
+  if(isAdminPath(url.pathname))headers.set("Cache-Control","private, no-store");
   return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
 }
 
