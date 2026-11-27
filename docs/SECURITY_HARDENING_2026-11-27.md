@@ -124,3 +124,13 @@ enquiries, upload media or change production data. Verify canonical public pages
 anonymous Access redirects and the legitimate administrator login after rollout.
 Do not describe unsigned-header tests or local dummy-token tests as a verified
 production login.
+## Production build runtime
+
+The root `.node-version` pins Cloudflare Workers Builds to Node.js 24.22.3,
+the security release used for the successful local release gate of 151 tests.
+Cloudflare's default 24.22.1 completed the 14 helper assertions but reported
+asynchronous `ERR_INVALID_STATE` activity after the multipart cancellation
+test, so the release gate stopped before deployment. The pin aligns the
+build environment; it does not remove, skip or weaken that test, the upload
+limiter, or the audit gate. The exact underlying runtime cause is not claimed
+from this version difference alone. The hosted gate must pass before release.
