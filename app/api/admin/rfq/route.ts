@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthorizedAdmin } from "../../../../lib/admin-auth";
 import { listRfqSubmissions, updateRfqStatus } from "../../../../lib/rfq";
+import { assertSameOrigin, readJsonBody, errorResponse, SMALL_JSON_BYTES } from "../../../../lib/http-security";
 
 export async function GET(request:Request){
   if(!await getAuthorizedAdmin())return NextResponse.json({error:"Unauthorized"},{status:401});
@@ -11,8 +12,10 @@ export async function GET(request:Request){
 export async function PATCH(request:Request){
   if(!await getAuthorizedAdmin())return NextResponse.json({error:"Unauthorized"},{status:401});
   try{
-    const body=await request.json() as {id?:string;status?:string};
+    assertSameOrigin(request);
+    const body=await readJsonBody(request, SMALL_JSON_BYTES) as {id?:string;status?:string};
+    if(typeof body.id!=="string"||typeof body.status!=="string")return NextResponse.json({error:"Invalid request details"},{status:400});
     await updateRfqStatus(body.id||"",body.status||"");
     return NextResponse.json({ok:true});
-  }catch(error){return NextResponse.json({error:error instanceof Error?error.message:"خطا در تغییر وضعیت"},{status:400})}
+  }catch(error){return errorResponse(error)}
 }

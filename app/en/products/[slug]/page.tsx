@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../../../lib/json-ld";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Image from "next/image";
@@ -93,7 +94,7 @@ export default async function EnglishProductDetail({ params }: Params) {
   return (
     <EnglishShell content={content} active="/en/products">
       <main id="main-content" className="global-product-detail">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(pageSchema) }} />
         <section className="global-product-hero">
           <div className="site-wrap">
             <div className="global-product-media">

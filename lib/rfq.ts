@@ -1,4 +1,5 @@
 import { ensureDatabase, getD1 } from "../db";
+import { HttpError } from "./http-security";
 
 export const rfqStatuses=["new","reviewing","contacted","qualified","closed"] as const;
 export type RfqStatus=typeof rfqStatuses[number];
@@ -30,17 +31,17 @@ export async function createRfqSubmission(input:Record<string,unknown>,request:R
   const message=clean(input.message,4000);
   const sourceUrl=clean(input.sourceUrl,500);
   const consent=input.consent===true;
-  if(clean(input.website,200))throw new Error("درخواست نامعتبر است");
-  if(name.length<2)throw new Error("نام و نام خانوادگی را کامل وارد کنید");
-  if(!/^[-+()\d\s]{7,40}$/.test(phone))throw new Error("شماره تماس معتبر نیست");
-  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error("ایمیل معتبر نیست");
-  if(message.length<12)throw new Error("شرح درخواست باید حداقل ۱۲ کاراکتر باشد");
-  if(!consent)throw new Error("تأیید سیاست حریم خصوصی الزامی است");
+  if(clean(input.website,200))throw new HttpError(400,"درخواست نامعتبر است");
+  if(name.length<2)throw new HttpError(400,"نام و نام خانوادگی را کامل وارد کنید");
+  if(!/^[-+()\d\s]{7,40}$/.test(phone))throw new HttpError(400,"شماره تماس معتبر نیست");
+  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new HttpError(400,"ایمیل معتبر نیست");
+  if(message.length<12)throw new HttpError(400,"شرح درخواست باید حداقل ۱۲ کاراکتر باشد");
+  if(!consent)throw new HttpError(400,"تأیید سیاست حریم خصوصی الزامی است");
   await ensureDatabase();
   const now=Date.now();
   const recent=await getD1().prepare("SELECT COUNT(*) AS total FROM rfq_submissions WHERE created_at > ? AND (phone = ? OR (email <> '' AND email = ?))")
     .bind(now-10*60*1000,phone,email).first<{total:number}>();
-  if(Number(recent?.total||0)>=3)throw new Error("تعداد درخواست‌ها زیاد است؛ لطفاً چند دقیقه دیگر دوباره تلاش کنید");
+  if(Number(recent?.total||0)>=3)throw new HttpError(429,"تعداد درخواست‌ها زیاد است؛ لطفاً چند دقیقه دیگر دوباره تلاش کنید",600);
   const id=crypto.randomUUID();
   const reference=`CLN-${new Date(now).toISOString().slice(2,10).replaceAll("-","")}-${id.slice(0,6).toUpperCase()}`;
   const userAgent=clean(request.headers.get("user-agent"),300);
@@ -60,10 +61,10 @@ export async function listRfqSubmissions(status?:string):Promise<RfqSubmission[]
 }
 
 export async function updateRfqStatus(id:string,status:string){
-  if(!rfqStatuses.includes(status as RfqStatus))throw new Error("وضعیت نامعتبر است");
+  if(!rfqStatuses.includes(status as RfqStatus))throw new HttpError(400,"وضعیت نامعتبر است");
   await ensureDatabase();
   const result=await getD1().prepare("UPDATE rfq_submissions SET status = ?, updated_at = ? WHERE id = ?").bind(status,Date.now(),id).run();
-  if(!result.meta.changes)throw new Error("درخواست پیدا نشد");
+  if(!result.meta.changes)throw new HttpError(404,"درخواست پیدا نشد");
 }
 
 function toSubmission(row:RfqRow):RfqSubmission{return{

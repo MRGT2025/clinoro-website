@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../../lib/json-ld";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Image from "next/image";
@@ -67,7 +68,7 @@ export default async function EnglishCredentials() {
       <main id="main-content" className="global-credentials">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
         />
         <section className="global-inner-hero">
           <div className="site-wrap">

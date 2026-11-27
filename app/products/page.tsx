@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../lib/json-ld";
 import { InnerHero } from "../inner-components";
 import { ProductBrowser } from "./product-browser";
 import { getSiteContent } from "../../lib/site-content";
@@ -32,7 +33,7 @@ export default async function ProductsPage() {
     <InnerHero active="/products" {...page}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemList) }}
       />
       <ProductBrowser
         products={content.products}

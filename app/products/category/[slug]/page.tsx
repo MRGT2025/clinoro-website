@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../../../lib/json-ld";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -93,8 +94,8 @@ export default async function ProductCategoryPage({ params }: Params) {
 
   return (
     <InnerHero active="/products" eyebrow={category.en} title={category.fa} text={category.summary || category.en} image={image} note={category.en}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(itemList) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(crumbs) }} />
       <section className="section products-section">
         <div className="site-wrap">
           <div className="catalog-subnav">

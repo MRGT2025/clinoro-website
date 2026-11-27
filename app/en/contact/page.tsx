@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../../lib/json-ld";
 import type { Metadata } from "next";
 import { getSiteContent } from "../../../lib/site-content";
 import { ContactForm } from "../../contact/contact-form";
@@ -64,7 +65,7 @@ export default async function EnglishContact({
       <main id="main-content" className="global-contact">
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
         />
         <section className="global-inner-hero">
           <div className="site-wrap">

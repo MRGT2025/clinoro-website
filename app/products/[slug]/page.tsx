@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../../../lib/json-ld";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -111,9 +112,9 @@ export default async function ProductDetailPage({ params }: ProductParams) {
   return (
     <PageShell active="/products">
       <main id="main-content" className="product-detail-page">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(pageSchema) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
-        {faqEntries.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(pageSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(crumbs) }} />
+        {faqEntries.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(faq) }} />}
         <section className="product-detail-hero">
           <div className="product-detail-aura" />
           <div className="site-wrap product-detail-hero-grid">

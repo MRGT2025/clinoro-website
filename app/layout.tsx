@@ -1,3 +1,4 @@
+import { serializeJsonLd } from "../lib/json-ld";
 import type { Metadata } from "next";
 import "@fontsource/vazirmatn/300.css";
 import "@fontsource/vazirmatn/400.css";
@@ -191,11 +192,11 @@ export default async function RootLayout({
       <body>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organization) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(organization) }}
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(website) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(website) }}
         />
         <SiteContentProvider content={clientContent}>
           {children}

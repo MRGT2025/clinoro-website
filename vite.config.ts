@@ -9,6 +9,7 @@ const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
 const { d1, r2 } = hostingConfig;
 const isStandaloneCloudflareBuild =
   process.env.CLINORO_TARGET === "cloudflare";
+const isTrustedSitesBuild = process.env.CLINORO_TARGET === "sites";
 const standaloneD1DatabaseId =
   process.env.CLINORO_D1_DATABASE_ID?.trim();
 const standaloneR2BucketName =
@@ -49,6 +50,13 @@ function cloudflareBindingConfig() {
 
   return {
     name: "clinoro-website",
+    workers_dev: false,
+    preview_urls: false,
+    vars: {
+      CLINORO_AUTH_MODE: "cloudflare-access",
+      CLINORO_ACCESS_ISSUER: "https://green-boat-8460.cloudflareaccess.com",
+      CLINORO_ACCESS_AUDIENCE: "f04e17e9671f59a00a82f3f3c004d5f2dfa5a266a352ca1312271041c152ff78",
+    },
     main: "./worker/index.ts",
     compatibility_date: "2026-05-15",
     compatibility_flags: ["nodejs_compat"],
@@ -79,6 +87,9 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    define: {
+      __CLINORO_TRUSTED_SITES_AUTH__: JSON.stringify(isTrustedSitesBuild),
+    },
     server: {
       host: "0.0.0.0",
       allowedHosts: ["terminal.local"],
