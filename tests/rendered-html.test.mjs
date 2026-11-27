@@ -360,7 +360,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 110);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 111);
   assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
@@ -3160,7 +3160,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 110);
+  assert.equal(blogUrls.length, 111);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -4212,4 +4212,33 @@ test("Iran clinical chemistry analyzer guide validates procurement evidence and 
   const post = { slug, title: "خرید اتوآنالایزر بیوشیمی در ایران", excerpt: "Carryover و کنترل کیفیت", category: "ایران؛ آزمایشگاه" };
   assert.equal(filterBlogPosts([post], "اتوآنالایزر")[0]?.slug, slug);
   assert.equal(suggestBlogSearch([post], "کنترل کیفیت")[0]?.id, slug);
+});
+
+test("global immunoassay analyzer guide validates assay evidence and discovery", async () => {
+  const slug = "automated-immunoassay-analyzer-procurement";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  for (const text of ["خرید آنالایزر ایمونواسی", "تداخل بیوتین", "ISO 15189:2022", "EP07", "EP15", "کالیبراتور منقضی", "اتصال LIS", "هزینهٔ هر نتیجهٔ قابل‌گزارش", "2026-11-27T08:00:00+03:30"]) assert.ok(html.includes(text), text);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /آنالایزر ایمونواسی خودکار بدون برند/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
+  assert.match(body, /href="\/procurement"/);
+  assert.match(body, /href="\/contact"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 10);
+  for (const route of ["/", "/blog", "/sitemap.xml"]) {
+    const page = await (await request(route)).text();
+    assert.ok(page.includes(`/blog/${slug}`), route);
+    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
+  }
+  const post = { slug, title: "خرید آنالایزر ایمونواسی", excerpt: "تداخل بیوتین و کنترل کیفیت", category: "جهانی؛ آزمایشگاه" };
+  assert.equal(filterBlogPosts([post], "ایمونواسی")[0]?.slug, slug);
+  assert.equal(suggestBlogSearch([post], "تداخل بیوتین")[0]?.id, slug);
 });
