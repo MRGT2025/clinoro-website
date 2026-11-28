@@ -17,7 +17,6 @@ import {
   BookOpenText,
   Check,
   ChevronDown,
-  ClipboardList,
   Code2,
   Copy,
   Download,

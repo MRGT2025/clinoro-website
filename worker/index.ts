@@ -9,6 +9,7 @@ import { createAccessVerifier, isAdminPath, trustedSitesIdentity, type Authentic
 declare const __CLINORO_TRUSTED_SITES_AUTH__: boolean;
 const trustedSitesBuild = typeof __CLINORO_TRUSTED_SITES_AUTH__ !== "undefined" && __CLINORO_TRUSTED_SITES_AUTH__;
 const requestIdentity = new AsyncLocalStorage<{ user: AuthenticatedUser | null }>();
+// eslint-disable-next-line react/display-name -- request-local identity accessor, not a React component
 globalThis.__CLINORO_AUTHENTICATED_USER = () => requestIdentity.getStore()?.user ?? null;
 let verifier: ReturnType<typeof createAccessVerifier> | null = null;
 let verifierConfiguration = "";

@@ -360,7 +360,7 @@ test("blog posts are present in initial HTML without client-side filtering", asy
   const response = await request("/blog");
   const html = await response.text();
   assert.equal(response.status, 200);
-  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 111);
+  assert.equal((html.match(/<article class="blog-card/g) ?? []).length, 112);
   assert.match(html, /دمای خروجی، دمای بیمار نیست؛ هشت شرط خرید گرم‌کنندهٔ بیمار/);
   assert.match(html, /تعداد کانال، درمان بهتر نیست؛ ۱۲ آزمون خرید دستگاه الکتروتراپی در ایران/);
   assert.match(html, /فشار روی نمایشگر کافی نیست؛ ۱۲ آزمون خرید CPAP و APAP برای درمان آپنه خواب/);
@@ -3160,7 +3160,7 @@ test("discovery files expose public routes and protect admin paths", async () =>
       /<loc>(https:\/\/clinoromedical\.com\/blog\/[^<]+)<\/loc>/g,
     ),
   ].map((match) => match[1]);
-  assert.equal(blogUrls.length, 111);
+  assert.equal(blogUrls.length, 112);
   assert.equal(new Set(blogUrls).size, blogUrls.length);
   assert.match(
     sitemap,
@@ -4178,6 +4178,39 @@ test("global hospital glucose meter guide validates the full POC system and grou
   assert.ok(refs);
   assert.equal((refs.match(/<p>/g) || []).length, 1);
   assert.equal((refs.match(/href="https?:/g) || []).length, 5);
+  for (const route of ["/blog", "/sitemap.xml"]) {
+    const page = await (await request(route)).text();
+    assert.ok(page.includes(`/blog/${slug}`), route);
+    if (route === "/sitemap.xml") assert.equal(page.split(`<loc>https://clinoromedical.com/blog/${slug}</loc>`).length, 2);
+  }
+});
+
+test("Iran hemodialysis machine guide validates fluid balance, alarms and daily discovery", async () => {
+  const slug = "iran-hemodialysis-machine-procurement-acceptance";
+  const response = await request(`/blog/${slug}`);
+  const html = await response.text();
+  assert.equal(response.status, 200);
+  for (const text of [
+    "دستگاه همودیالیز را بدون آزمون تراز مایع نخرید",
+    "IEC 60601-2-16:2025",
+    "ISO 23500-1:2024",
+    "اولترافیلتراسیون",
+    "Blood Leak",
+    "هزینهٔ هر جلسهٔ آمادهٔ درمان",
+    "2026-11-28T08:00:00+03:30",
+  ]) assert.ok(html.includes(text), text);
+  assert.match(html, new RegExp(`rel="canonical" href="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, new RegExp(`<meta property="og:url" content="https://clinoromedical.com/blog/${slug}"`));
+  assert.match(html, /"@type":"Article"/);
+  assert.match(html, /کارشناس مهندسی پزشکی و پرستار دیالیز/);
+  const body = html.match(/<div class="blog-article-body">([\s\S]*?)<\/div>/)?.[1];
+  assert.ok(body);
+  assert.doesNotMatch(body, /href="https?:|\*\*|<p># /);
+  assert.match(body, /href="\/procurement"/);
+  const refs = html.match(/<section class="blog-references"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+  assert.ok(refs);
+  assert.equal((refs.match(/<p>/g) || []).length, 1);
+  assert.equal((refs.match(/href="https?:/g) || []).length, 11);
   for (const route of ["/", "/blog", "/sitemap.xml"]) {
     const page = await (await request(route)).text();
     assert.ok(page.includes(`/blog/${slug}`), route);
